@@ -65,9 +65,9 @@ export class DisplayInterface {
   }
 
   setPixel(x: number, y: number, value: number) {
-    const colision = this.displayBuffer[y][x] & value;
+    const collision = this.displayBuffer[y][x] & value;
     this.displayBuffer[y][x] ^= value;
-    return colision;
+    return collision;
   }
 
   render() {
