@@ -4,27 +4,23 @@ import { DisplayInterface } from '../interfaces/display';
 import { KeyBoardInterface } from '../interfaces/keyboard';
 
 export class CPU {
-  private memory: Uint8Array = new Uint8Array(4096);
+  private memory: Uint8Array = new Uint8Array(4096); // Memory - 4kb (4096 bytes) memory storage (8-bit)
 
-  private registers: Uint8Array = new Uint8Array(16);
+  private registers: Uint8Array = new Uint8Array(16); // Registers - (16 * 8-bit) V0 through VF; VF is a flag
 
-  private stack: Uint8Array = new Uint8Array(16);
+  private stack: Uint8Array = new Uint8Array(16); // Stack - (16 * 16-bit)
 
-  private ST: number = 0; // Sound time register.
+  private ST: number = 0; // ST - Sound Timer (8-bit)
 
-  private DT: number = 0; // Delay timer register.
+  private DT: number = 0; // DT - Delay Timer (8-bit)
 
-  private I: number = 0; // Auxiliary pointer to memory.
+  private I: number = 0; // I - Auxiliary pointer to memory (stores memory address)
 
-  private SP: number = -1; // Stack pointer.
+  private SP: number = -1; // SP - Stack Pointer (8-bit) points at top level of stack
 
-  private PC: number = 0x200; // Program counter.
-
-  private opcode: number | null = null;
+  private PC: number = 0x200; // Program Counter (8-bit) stores currently executing address
 
   private soundEnabled: boolean = true;
-
-  private speed: number = 10;
 
   public halted: boolean = true;
 
@@ -54,11 +50,9 @@ export class CPU {
     this.I = 0;
     this.SP = -1;
     this.PC = 0x200;
-    this.opcode = null;
 
     this.halted = true;
-    this.soundEnabled = true;
-    this.speed = 10;
+    this.soundEnabled = false;
 
     this.displayInstance.clearDisplay();
     this.displayInstance.render();
@@ -79,9 +73,23 @@ export class CPU {
     this.PC = 0x200;
   }
 
-  updateTimers() {
-  }
+  tick() {
+    if (this.DT > 0) {
+      // Decrement the delay timer by one until it reaches zero
+      this.DT -= 1;
+    }
 
+    if (this.ST > 0) {
+      // The sound timer is active whenever the sound timer register (ST) is non-zero.
+      this.ST -= 1;
+    } else {
+      // When ST reaches zero, the sound timer deactivates.
+      if (this.soundEnabled) {
+        this.audioInterface.stop();
+        this.soundEnabled = false;
+      }
+    }
+  }
 
   private halt() {
     this.halted = true;
@@ -495,6 +503,12 @@ export class CPU {
            */
           case 0x18: {
             this.ST = this.registers[x];
+
+            if (this.ST > 0) {
+              this.soundEnabled = true;
+              this.audioInterface.play();
+            }
+
             break;
           }
 

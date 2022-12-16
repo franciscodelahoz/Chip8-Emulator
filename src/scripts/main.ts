@@ -18,7 +18,7 @@ function cycle() {
   timer += 1;
 
   if (timer % 5 === 0) {
-    cpu.updateTimers();
+    cpu.tick();
     timer = 0;
   }
 
@@ -26,7 +26,7 @@ function cycle() {
     cpu.step();
   }
 
-  setTimeout(cycle, 3);
+  window.setTimeout(cycle, 3);
 }
 
 cycle();
