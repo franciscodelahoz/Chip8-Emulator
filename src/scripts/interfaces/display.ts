@@ -5,7 +5,7 @@ export class DisplayInterface {
 
   private readonly columns: number = 64;
 
-  private readonly rows: number = 64;
+  private readonly rows: number = 32;
 
   private readonly displayScale: number = 10;
 

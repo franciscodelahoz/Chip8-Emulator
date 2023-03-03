@@ -1,3 +1,3 @@
-interface GenericEvent<T = EventTarget> extends Event{
+interface GenericEvent<T = EventTarget> extends Event {
   target: T;
 }

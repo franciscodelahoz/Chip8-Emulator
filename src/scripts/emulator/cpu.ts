@@ -20,8 +20,6 @@ export class CPU {
 
   private PC: number = 0x200; // Program Counter (8-bit) stores currently executing address
 
-  private soundEnabled: boolean = true;
-
   public halted: boolean = true;
 
   constructor(
@@ -52,7 +50,6 @@ export class CPU {
     this.PC = 0x200;
 
     this.halted = true;
-    this.soundEnabled = false;
 
     this.displayInstance.clearDisplay();
     this.displayInstance.render();
@@ -63,8 +60,6 @@ export class CPU {
     this.reset();
     this.halted = false;
 
-    console.log(this.memory);
-
     for (let byte = 0; byte < fileContent.length; byte += 1) {
       this.memory[this.PC] = fileContent[byte];
       this.PC += 1;
@@ -73,7 +68,7 @@ export class CPU {
     this.PC = 0x200;
   }
 
-  tick() {
+  private updateTimers() {
     if (this.DT > 0) {
       // Decrement the delay timer by one until it reaches zero
       this.DT -= 1;
@@ -82,12 +77,14 @@ export class CPU {
     if (this.ST > 0) {
       // The sound timer is active whenever the sound timer register (ST) is non-zero.
       this.ST -= 1;
+    }
+  }
+
+  private playSound() {
+    if (this.ST > 0) {
+      this.audioInterface.play(440);
     } else {
-      // When ST reaches zero, the sound timer deactivates.
-      if (this.soundEnabled) {
-        this.audioInterface.stop();
-        this.soundEnabled = false;
-      }
+      this.audioInterface.stop();
     }
   }
 
@@ -105,10 +102,11 @@ export class CPU {
     const x = (opcode & 0x0F00) >> 8;
     const y = (opcode & 0x00F0) >> 4;
 
+    console.log((opcode).toString(16).toUpperCase());
     // Check The first nibble to determinate the opcode
     switch (opcode & 0xF000) {
       case 0x0000: {
-        switch (opcode) {
+        switch (opcode & 0x0FFF) {
           /**
            * 00E0 - CLS
            * Clear the display.
@@ -125,8 +123,8 @@ export class CPU {
            *  top of the stack, then subtracts 1 from the stack pointer.
            */
           case 0x00EE: {
-            this.PC = this.stack[this.SP];
             this.SP -= 1;
+            this.PC = this.stack[this.SP];
             break;
           }
 
@@ -155,8 +153,8 @@ export class CPU {
        */
       case 0x2000: {
         const nnn = opcode & 0x0FFF;
-        this.SP += 1;
         this.stack[this.SP] = this.PC;
+        this.SP += 1;
         this.PC = nnn;
         break;
       }
@@ -231,7 +229,8 @@ export class CPU {
       }
 
       case 0x8000: {
-        switch (opcode & 0xF) {
+        console.log('0x80000');
+        switch (opcode & 0x000F) {
           /**
            * 8xy0 - LD Vx, Vy
            * Set Vx = Vy.
@@ -246,7 +245,7 @@ export class CPU {
            * 8xy1 - OR Vx, Vy
            * Set Vx = Vx OR Vy.
            * Performs a bitwise OR on the values of Vx and Vy, then stores the
-           *  result in Vx. A bitwise OR compares the corrseponding
+           *  result in Vx. A bitwise OR compares the corresponding
            *  bits from two values, and if either bit is 1, then the same bit
            *  in the result is also 1. Otherwise, it is 0.
            */
@@ -259,7 +258,7 @@ export class CPU {
            * 8xy2 - AND Vx, Vy
            * Set Vx = Vx AND Vy.
            * Performs a bitwise AND on the values of Vx and Vy, then stores
-           *  the result in Vx. A bitwise AND compares the corrseponding
+           *  the result in Vx. A bitwise AND compares the corresponding
            *  bits from two values, and if both bits are 1, then the same
            *  bit in the result is also 1. Otherwise, it is 0.
            */
@@ -304,8 +303,9 @@ export class CPU {
            *  subtracted from Vx, and the results stored in Vx.
            */
           case 0x5: {
-            this.registers[0xF] = (this.registers[x] > this.registers[y]) ? 1 : 0;
-            this.registers[x] -= this.registers[y];
+            this.registers[0xF] = this.registers[x] > this.registers[y] ? 1 : 0;
+            let sub = this.registers[x] - this.registers[y];
+            this.registers[x] = sub;
             break;
           }
 
@@ -316,7 +316,7 @@ export class CPU {
            *  otherwise 0. Then Vx is divided by 2.
            */
           case 0x6: {
-            this.registers[0xF] = this.registers[x] & 0x01;
+            this.registers[0xF] = this.registers[x] & 0x01 ? 1 : 0;
             this.registers[x] >>= 1;
             break;
           }
@@ -329,7 +329,9 @@ export class CPU {
            */
           case 0x7: {
             this.registers[0xF] = (this.registers[y] > this.registers[x]) ? 1 : 0;
-            this.registers[x] = this.registers[y] - this.registers[x];
+
+            let sub = this.registers[y] - this.registers[x];
+            this.registers[x] = sub;
             break;
           }
 
@@ -340,8 +342,9 @@ export class CPU {
            *  otherwise to 0. Then Vx is multiplied by 2.
            */
           case 0xE: {
-            this.registers[0xF] = this.registers[x] & 0x80;
-            this.registers[x] <<= 1;
+            this.registers[0xF] = this.registers[x] >> 7;
+            let shiftLeft = this.registers[x] << 1;
+            this.registers[x] = shiftLeft;
             break;
           }
 
@@ -395,8 +398,8 @@ export class CPU {
        *  instruction 8xy2 for more information on AND.
        */
       case 0xC000: {
-        const rnd = Math.floor(Math.random() * 0xFF);
         const kk = opcode & 0X00FF;
+        const rnd = Math.floor(Math.random() * 0xFF);
         this.registers[x] = rnd & kk;
         break;
       }
@@ -428,7 +431,7 @@ export class CPU {
           }
         }
 
-        this.displayInstance.render();
+        // this.displayInstance.render();
         break;
       }
 
@@ -503,12 +506,6 @@ export class CPU {
            */
           case 0x18: {
             this.ST = this.registers[x];
-
-            if (this.ST > 0) {
-              this.soundEnabled = true;
-              this.audioInterface.play();
-            }
-
             break;
           }
 
@@ -533,9 +530,15 @@ export class CPU {
           case 0x33: {
             const Vx = this.registers[x];
 
+            // Get the hundreds digit and place it in I.
             this.memory[this.I] = Math.floor(Vx / 100);
+
+            // Get tens digit and place it in I+1. Gets a value between 0 and 99, then divides by 10 to give us a value
+            // between 0 and 9.
             this.memory[this.I + 1] = Math.floor((Vx % 100) / 10);
-            this.memory[this.I + 2] = Math.floor(Vx & 10);
+
+            // Get the value of the ones (last) digit and place it in I+2. 0 through 9.
+            this.memory[this.I + 2] = Math.floor(Vx % 10);
 
             break;
           }
@@ -567,7 +570,10 @@ export class CPU {
            * The values of I and Vx are added, and the results are stored in I.
            */
           case 0x1E: {
-            this.I += this.registers[x];
+            const sum = this.I + this.registers[x];
+            this.registers[0xF] = sum > 0xFF ? 1 : 0;
+
+            this.I = sum;
             break;
           }
 
@@ -582,8 +588,15 @@ export class CPU {
     }
   }
 
-  step() {
+  public step() {
     const opcode = this.fetchOpcode();
     this.executeOpcode(opcode);
+
+    // if (!this.halted) {
+      this.updateTimers();
+    // }
+
+    this.playSound();
+    this.displayInstance.render();
   }
 }

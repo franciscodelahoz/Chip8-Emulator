@@ -18,7 +18,7 @@ function cycle() {
   timer += 1;
 
   if (timer % 5 === 0) {
-    cpu.tick();
+    cpu.step();
     timer = 0;
   }
 
@@ -43,7 +43,7 @@ function readAsArrayBuffer(fileInput: HTMLInputElement): Promise<ArrayBuffer> {
 
     fileReader.readAsArrayBuffer(input as File);
 
-    fileReader.addEventListener('load', () => resolve(fileReader.result as ArrayBuffer));
+    fileReader.addEventListener('load', (e) => resolve(e.target?.result as ArrayBuffer));
     fileReader.addEventListener('error', (error) => reject(error));
   });
 }

@@ -1,5 +1,5 @@
 export class AudioInterface {
-  private audioContext: AudioContext = new AudioContext();
+  private audioContext: AudioContext;
 
   private gain: GainNode;
 
@@ -8,7 +8,9 @@ export class AudioInterface {
   private oscillator: OscillatorNode | null = null;
 
   constructor() {
-    this.gain = this.gain = new GainNode(this.audioContext, {
+    this.audioContext = new AudioContext();
+
+    this.gain = new GainNode(this.audioContext, {
       gain: 0.3,
     });
 
