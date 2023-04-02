@@ -19,9 +19,6 @@
     "url": "https://github.com/franciscodelahoz/Chip8-Emulator/issues"
   },
   "homepage": "https://github.com/franciscodelahoz/Chip8-Emulator#readme",
-  "dependencies": {
-    "nodemon": "^2.0.20"
-  },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.0",
