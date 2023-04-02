@@ -12,24 +12,20 @@ const keyboardInstance = new AudioInterface();
 
 const cpu = new CPU(displayInstance, keyboardInstance, audioInstance);
 
-let timer = 0;
+let loop = 0;
 
-function cycle() {
-  timer += 1;
-
-  if (timer % 5 === 0) {
-    cpu.step();
-    timer = 0;
-  }
-
-  if (!cpu.halted) {
-    cpu.step();
-  }
-
-  window.setTimeout(cycle, 3);
+function step() {
+  cpu.cycle();
+  loop = window.requestAnimationFrame(step);
 }
 
-cycle();
+function start() {
+  loop = window.requestAnimationFrame(step);
+}
+
+function stop() {
+  window.cancelAnimationFrame(loop);
+}
 
 function readAsArrayBuffer(fileInput: HTMLInputElement): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
@@ -58,7 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (input) {
     input.addEventListener('change', async (event) => {
       const romData = await readFile(event as GenericEvent<HTMLInputElement>);
+      stop();
       cpu.loadRom(romData);
+      start();
     });
   }
 });

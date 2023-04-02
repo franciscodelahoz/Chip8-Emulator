@@ -8,7 +8,7 @@ export class CPU {
 
   private registers: Uint8Array = new Uint8Array(16); // Registers - (16 * 8-bit) V0 through VF; VF is a flag
 
-  private stack: Uint8Array = new Uint8Array(16); // Stack - (16 * 16-bit)
+  private stack: Array<number> = new Array(16); // Stack - (16 * 16-bit)
 
   private ST: number = 0; // ST - Sound Timer (8-bit)
 
@@ -22,27 +22,26 @@ export class CPU {
 
   public halted: boolean = true;
 
+  private speed: number = 3;
+
   constructor(
     private readonly displayInstance: DisplayInterface,
     private readonly audioInterface: AudioInterface,
     private readonly keyboardInterface: KeyBoardInterface,
-  ) {}
+  ) {
+    this.displayInstance.clearDisplay();
+  }
 
   private loadFont() {
-    this.PC = 0x000;
-
     for (let byte = 0; byte < fonts.length; byte += 1) {
-      this.memory[this.PC] = fonts[byte];
-      this.PC += 0x001;
+      this.memory[byte] = fonts[byte];
     }
-
-    this.PC = 0x200;
   }
 
   private reset() {
-    this.memory = new Uint8Array(4096);
-    this.registers = new Uint8Array(16);
-    this.stack = new Uint8Array(16);
+    this.memory.fill(0);
+    this.registers.fill(0);
+    this.stack.fill(0);
     this.ST = 0;
     this.DT = 0;
     this.I = 0;
@@ -53,6 +52,8 @@ export class CPU {
 
     this.displayInstance.clearDisplay();
     this.displayInstance.render();
+    this.keyboardInterface.reset();
+    this.audioInterface.stop();
     this.loadFont();
   }
 
@@ -61,11 +62,8 @@ export class CPU {
     this.halted = false;
 
     for (let byte = 0; byte < fileContent.length; byte += 1) {
-      this.memory[this.PC] = fileContent[byte];
-      this.PC += 1;
+      this.memory[0x200 + byte] = fileContent[byte];
     }
-
-    this.PC = 0x200;
   }
 
   private updateTimers() {
@@ -102,7 +100,6 @@ export class CPU {
     const x = (opcode & 0x0F00) >> 8;
     const y = (opcode & 0x00F0) >> 4;
 
-    console.log((opcode).toString(16).toUpperCase());
     // Check The first nibble to determinate the opcode
     switch (opcode & 0xF000) {
       case 0x0000: {
@@ -120,15 +117,23 @@ export class CPU {
            * 00EE - RET
            * Return from a subroutine.
            * The interpreter sets the program counter to the address at the
-           *  top of the stack, then subtracts 1 from the stack pointer.
+           * top of the stack, then subtracts 1 from the stack pointer.
            */
           case 0x00EE: {
-            this.SP -= 1;
+            if (this.SP === -1) {
+              this.halted = true;
+              throw new Error('Stack underflow.');
+            }
+
             this.PC = this.stack[this.SP];
+            this.SP -= 1;
             break;
           }
 
-          default: break;
+          default: {
+            this.halted = true;
+            throw new Error('Illegal instruction.');
+          }
         }
 
         break;
@@ -152,9 +157,14 @@ export class CPU {
        *  PC on the top of the stack. The PC is then set to nnn.
        */
       case 0x2000: {
+        if (this.SP === 15) {
+          this.halted = true;
+          throw new Error('Stack overflow.');
+        }
+
         const nnn = opcode & 0x0FFF;
-        this.stack[this.SP] = this.PC;
         this.SP += 1;
+        this.stack[this.SP] = this.PC;
         this.PC = nnn;
         break;
       }
@@ -229,7 +239,6 @@ export class CPU {
       }
 
       case 0x8000: {
-        console.log('0x80000');
         switch (opcode & 0x000F) {
           /**
            * 8xy0 - LD Vx, Vy
@@ -348,7 +357,10 @@ export class CPU {
             break;
           }
 
-          default: break;
+          default: {
+            this.halted = true;
+            throw new Error('Illegal instruction.');
+          }
         }
 
         break;
@@ -431,7 +443,6 @@ export class CPU {
           }
         }
 
-        // this.displayInstance.render();
         break;
       }
 
@@ -459,7 +470,10 @@ export class CPU {
             break;
           }
 
-          default: break;
+          default: {
+            this.halted = true;
+            throw new Error('Illegal instruction.');
+          }
         }
 
         break;
@@ -548,9 +562,15 @@ export class CPU {
            * Store registers V0 through Vx in memory starting at location I.
            */
           case 0x55: {
+            if (this.I > 4095 - x) {
+              this.halted = true;
+              throw new Error('Memory out of bounds.');
+            }
+
             for (let registerIndex = 0; registerIndex <= x; registerIndex += 1) {
               this.memory[this.I + registerIndex] = this.registers[registerIndex];
             }
+
             break;
           }
 
@@ -559,9 +579,15 @@ export class CPU {
            * Read registers V0 through Vx from memory starting at location I.
            */
           case 0x65: {
+            if (this.I > 4095 - x) {
+              this.halted = true;
+              throw new Error('Memory out of bounds.');
+            }
+
             for (let registerIndex = 0; registerIndex <= x; registerIndex += 1) {
               this.registers[registerIndex] = this.memory[this.I + registerIndex];
             }
+
             break;
           }
 
@@ -571,30 +597,41 @@ export class CPU {
            */
           case 0x1E: {
             const sum = this.I + this.registers[x];
-            this.registers[0xF] = sum > 0xFF ? 1 : 0;
-
             this.I = sum;
             break;
           }
 
-          default: break;
+          default: {
+            this.halted = true;
+            throw new Error('Illegal instruction.');
+          }
         }
 
         break;
       }
 
-      default:
-        break;
+      default: {
+        this.halted = true;
+        throw new Error('Illegal instruction.');
+      }
     }
   }
 
   public step() {
     const opcode = this.fetchOpcode();
     this.executeOpcode(opcode);
+  }
 
-    // if (!this.halted) {
+  public cycle() {
+    for (let i = 0; i < this.speed; i += 1) {
+      if (!this.halted) {
+        this.step();
+      }
+    }
+
+    if (!this.halted) {
       this.updateTimers();
-    // }
+    }
 
     this.playSound();
     this.displayInstance.render();
