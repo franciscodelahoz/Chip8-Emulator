@@ -18,12 +18,12 @@ export class KeyBoardInterface {
     86: 0xF  // V - F
   };
 
-  private pressedKeys: boolean[];
+  private pressedKeys: Record<number, boolean> = {};
 
   public onNextKeyPressed: ((key: number) => void) | null = null;
 
   constructor() {
-    this.pressedKeys = [];
+    this.pressedKeys = {};
     this.onNextKeyPressed = null;
 
     window.addEventListener('keydown', this.onKeyDown.bind(this), false);
@@ -31,7 +31,7 @@ export class KeyBoardInterface {
   }
 
   reset() {
-    this.pressedKeys = [];
+    this.pressedKeys = {};
     this.onNextKeyPressed = null;
   }
 
@@ -43,7 +43,7 @@ export class KeyBoardInterface {
     const pressedKey = this.keyMap[event.keyCode];
     this.pressedKeys[pressedKey] = true;
 
-    if (this.onNextKeyPressed !== null && pressedKey) {
+    if (this.onNextKeyPressed !== null && pressedKey !== undefined) {
       this.onNextKeyPressed(pressedKey);
       this.onNextKeyPressed = null;
     }
