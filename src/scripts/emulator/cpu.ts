@@ -22,7 +22,7 @@ export class CPU {
 
   public halted: boolean = true;
 
-  private speed: number = 3;
+  private cyclesPerFrame: number = 15;
 
   constructor(
     private readonly displayInstance: DisplayInterface,
@@ -623,14 +623,14 @@ export class CPU {
   }
 
   public cycle() {
-    for (let i = 0; i < this.speed; i += 1) {
-      if (!this.halted) {
+    if (!this.halted) {
+      for (let i = 0; i < this.cyclesPerFrame; i += 1) {
         this.step();
       }
-    }
 
-    if (!this.halted) {
-      this.updateTimers();
+      if (!this.halted) {
+        this.updateTimers();
+      }
     }
 
     this.playSound();

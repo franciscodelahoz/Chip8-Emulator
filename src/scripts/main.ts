@@ -12,9 +12,19 @@ const keyboardInstance = new AudioInterface();
 
 const cpu = new CPU(displayInstance, keyboardInstance, audioInstance);
 
-let loop = 0;
+const fps = 60;
 
-function step() {
+let loop = 0;
+let lastTime = 0;
+let fpsInterval = 1000 / fps;
+
+function step(currentTime: number) {
+  if (currentTime - lastTime < fpsInterval) {
+    loop = window.requestAnimationFrame(step);
+    return;
+  }
+
+  lastTime = currentTime;
   cpu.cycle();
   loop = window.requestAnimationFrame(step);
 }
