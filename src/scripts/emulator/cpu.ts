@@ -22,7 +22,7 @@ export class CPU {
 
   public halted: boolean = true;
 
-  private cyclesPerFrame: number = 15;
+  private cpuFrequency: number = 600;
 
   constructor(
     private readonly displayInstance: DisplayInterface,
@@ -30,6 +30,8 @@ export class CPU {
     private readonly keyboardInterface: KeyBoardInterface,
   ) {
     this.displayInstance.clearDisplay();
+    this.startDelayTimer();
+    this.startSoundTimer();
   }
 
   private loadFont() {
@@ -66,16 +68,22 @@ export class CPU {
     }
   }
 
-  private updateTimers() {
-    if (this.DT > 0) {
+  private startDelayTimer() {
+    setInterval(() => {
+      if (this.DT > 0) {
       // Decrement the delay timer by one until it reaches zero
       this.DT -= 1;
     }
+    }, 1000 * (1 / 60));
+  }
 
-    if (this.ST > 0) {
-      // The sound timer is active whenever the sound timer register (ST) is non-zero.
-      this.ST -= 1;
-    }
+  private startSoundTimer() {
+    setInterval(() => {
+      if (this.ST > 0) {
+        // The sound timer is active whenever the sound timer register (ST) is non-zero.
+        this.ST -= 1;
+      }
+    }, 1000 * (1 / 60));
   }
 
   private playSound() {
@@ -623,15 +631,11 @@ export class CPU {
   }
 
   public cycle() {
-    if (!this.halted) {
-      for (let i = 0; i < this.cyclesPerFrame; i += 1) {
-        this.step();
+      for (let i = this.cpuFrequency / 60; i > 0 ; i -= 1) {
+        if (!this.halted) {
+          this.step();
+        }
       }
-
-      if (!this.halted) {
-        this.updateTimers();
-      }
-    }
 
     this.playSound();
     this.displayInstance.render();

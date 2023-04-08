@@ -11,7 +11,7 @@ export class AudioInterface {
     this.audioContext = new AudioContext();
 
     this.gain = new GainNode(this.audioContext, {
-      gain: 0.3,
+      gain: 0.15,
     });
 
     this.finish = this.audioContext.destination;

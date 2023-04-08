@@ -39,18 +39,26 @@ export class KeyBoardInterface {
     return this.pressedKeys[keyCode];
   }
 
-  onKeyDown(event: KeyboardEvent) {
-    const pressedKey = this.keyMap[event.keyCode];
-    this.pressedKeys[pressedKey] = true;
+  pressedKey(keyValue: number) {
+    this.pressedKeys[keyValue] = true;
 
-    if (this.onNextKeyPressed !== null && pressedKey !== undefined) {
-      this.onNextKeyPressed(pressedKey);
+    if (this.onNextKeyPressed !== null && keyValue !== undefined) {
+      this.onNextKeyPressed(keyValue);
       this.onNextKeyPressed = null;
     }
   }
 
+  releasedKey(keyValue: number) {
+    this.pressedKeys[keyValue] = false;
+  }
+
+  onKeyDown(event: KeyboardEvent) {
+    const pressedKey = this.keyMap[event.keyCode];
+    this.pressedKey(pressedKey)
+  }
+
   onKeyUp(event: KeyboardEvent) {
     const pressedKey = this.keyMap[event.keyCode];
-    this.pressedKeys[pressedKey] = false;
+    this.releasedKey(pressedKey);
   }
 }

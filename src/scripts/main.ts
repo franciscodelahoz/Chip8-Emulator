@@ -1,3 +1,5 @@
+import '../styles/style.css';
+
 import { CPU } from './emulator/cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
@@ -6,11 +8,13 @@ import { KeyBoardInterface } from './interfaces/keyboard';
 const canvas: HTMLCanvasElement | null = document.getElementById('canvas') as HTMLCanvasElement | null;
 const input: HTMLInputElement | null = document.getElementById('file') as HTMLInputElement | null;
 
-const displayInstance = new DisplayInterface(canvas);
-const audioInstance = new KeyBoardInterface();
-const keyboardInstance = new AudioInterface();
+const keys = document.querySelectorAll('.key');
 
-const cpu = new CPU(displayInstance, keyboardInstance, audioInstance);
+const displayInstance = new DisplayInterface(canvas);
+const keyboardInstance = new KeyBoardInterface();
+const audioInstance = new AudioInterface();
+
+const cpu = new CPU(displayInstance, audioInstance, keyboardInstance);
 
 const fps = 60;
 
@@ -69,4 +73,16 @@ document.addEventListener('DOMContentLoaded', () => {
       start();
     });
   }
+
+  keys.forEach((key) => {
+    key.addEventListener('mousedown', (e) => {
+      const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
+      keyboardInstance.pressedKey(keyValue);
+    });
+
+    key.addEventListener('mouseup', (e) => {
+      const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
+      keyboardInstance.releasedKey(keyValue);
+    });
+  });
 });
