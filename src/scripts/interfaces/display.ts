@@ -96,4 +96,12 @@ export class DisplayInterface {
   getDisplayRows(): number {
     return this.rows;
   }
+
+  setText(text: string, style: string, x: number, y: number) {
+    this.context.fillStyle = this.foregroundColor;
+    this.context.fillRect(0, 0, this.displayWidth, this.displayHeight);
+    this.context.fillStyle = this.pixelColor;
+    this.context.font = style;
+    this.context.fillText(text, x, y);
+  }
 }

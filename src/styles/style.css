@@ -1,106 +1,92 @@
+body {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  width: 100%;
+}
+
 * {
   color: #34ff66;
   background-color: #222222;
+  user-select: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 100vh;
 }
 
 .logo {
   font-family: "Courier New", monospace;
-  white-space: pre;
-  font-size: 10px;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.view-container {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  user-select: none;
-  margin-top: 30px;
 }
 
-.container {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  gap: 35px;
+.emulator-view {
+  position: relative;
+  width: 40rem;
+  height: 20rem;
+  background-color: #000;
 }
 
-.view {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-#canvas {
+.emulator-view canvas {
   width: 100%;
   height: 100%;
-  background-color: #fff;
   border: 1.5px solid #838383;
+}
+
+.emulator-view input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .keyboard {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  grid-gap: 10px;
+  grid-gap: 0.7rem;
 }
 
 .key {
   display: flex;
-  justify-content: center;
   align-items: center;
-  width: 50px;
-  height: 50px;
+  justify-content: center;
+  width: 1.7em;
+  height: 1.7em;
+  padding: 0.1rem;
   border-radius: 10%;
+  font-size: 1.5rem;
   background-color: #333333;
-  font-size: 20px;
-  user-select: none;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+  cursor: pointer;
 }
 
 .key:hover {
   background-color: #34ff66;
-  cursor: pointer;
   color: #222222;
 }
 
 .key:active {
   background-color: #198033;
   color: #e3e3e3;
-  border-color: #408050;
 }
 
-input[type="file"] {
-  content: 'Upload rom file';
-  border: 2px groove #34ff66;
-  padding: 5px;
-  border-radius: 5px;
-  user-select: none;
-}
-
-input[type="file"]:hover {
-  cursor: pointer;
-}
-
-input[type="file"]::-webkit-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::-moz-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::-ms-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::-o-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::file-upload-button {
-  display: none;
-}
-
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 890px) {
   .logo {
     display: none;
   }

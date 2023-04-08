@@ -6,39 +6,35 @@
     <title>Chip8 Emulator</title>
   </head>
   <body>
-    <header>
+    <div class="container">
       <pre class="logo">
  ██████╗██╗  ██╗██╗██████╗        █████╗     ███████╗███╗   ███╗██╗   ██╗██╗      █████╗ ████████╗ ██████╗ ██████╗
 ██╔════╝██║  ██║██║██╔══██╗      ██╔══██╗    ██╔════╝████╗ ████║██║   ██║██║     ██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗
 ██║     ███████║██║██████╔╝█████╗╚█████╔╝    █████╗  ██╔████╔██║██║   ██║██║     ███████║   ██║   ██║   ██║██████╔╝
 ██║     ██╔══██║██║██╔═══╝ ╚════╝██╔══██╗    ██╔══╝  ██║╚██╔╝██║██║   ██║██║     ██╔══██║   ██║   ██║   ██║██╔══██╗
 ╚██████╗██║  ██║██║██║           ╚█████╔╝    ███████╗██║ ╚═╝ ██║╚██████╔╝███████╗██║  ██║   ██║   ╚██████╔╝██║  ██║
- ╚═════╝╚═╝  ╚═╝╚═╝╚═╝            ╚════╝     ╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
-      </pre>
-    </header>
-    <section class="container">
-      <div class="view">
-        <canvas id="canvas"></canvas>
-        <input type="file" name="file" id="file">
-      </div>
-      <div class="keyboard">
-        <div class="key" aria-value="0x1">1</div>
-        <div class="key" aria-value="0x2">2</div>
-        <div class="key" aria-value="0x3">3</div>
-        <div class="key" aria-value="0xC">C</div>
-        <div class="key" aria-value="0x4">4</div>
-        <div class="key" aria-value="0x5">5</div>
-        <div class="key" aria-value="0x6">6</div>
-        <div class="key" aria-value="0xD">D</div>
-        <div class="key" aria-value="0x7">7</div>
-        <div class="key" aria-value="0x8">8</div>
-        <div class="key" aria-value="0x9">9</div>
-        <div class="key" aria-value="0xE">E</div>
-        <div class="key" aria-value="0xA">A</div>
-        <div class="key" aria-value="0x0">0</div>
-        <div class="key" aria-value="0xB">B</div>
-        <div class="key" aria-value="0xF">F</div>
-      </div>
-    </section>
+ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝            ╚════╝     ╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝</pre>
+    <div class="emulator-view">
+      <input type="file" name="file" id="file">
+      <canvas id="canvas"></canvas>
+    </div>
+    <div class="keyboard">
+      <div class="key" aria-value="0x1">1</div>
+      <div class="key" aria-value="0x2">2</div>
+      <div class="key" aria-value="0x3">3</div>
+      <div class="key" aria-value="0xC">C</div>
+      <div class="key" aria-value="0x4">4</div>
+      <div class="key" aria-value="0x5">5</div>
+      <div class="key" aria-value="0x6">6</div>
+      <div class="key" aria-value="0xD">D</div>
+      <div class="key" aria-value="0x7">7</div>
+      <div class="key" aria-value="0x8">8</div>
+      <div class="key" aria-value="0x9">9</div>
+      <div class="key" aria-value="0xE">E</div>
+      <div class="key" aria-value="0xA">A</div>
+      <div class="key" aria-value="0x0">0</div>
+      <div class="key" aria-value="0xB">B</div>
+      <div class="key" aria-value="0xF">F</div>
+    </div>
   </body>
 </html>
