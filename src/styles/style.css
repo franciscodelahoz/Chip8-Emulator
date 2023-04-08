@@ -33,26 +33,43 @@ body {
 }
 
 .emulator-view {
-  position: relative;
-  width: 40rem;
-  height: 20rem;
-  background-color: #000;
+  display: flex;
+  flex-direction: column;
 }
 
 .emulator-view canvas {
   width: 100%;
-  height: 100%;
   border: 1.5px solid #838383;
+  margin-bottom: 1rem;
 }
 
 .emulator-view input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
+  content: 'Upload rom file';
+  border: 2px groove #34ff66;
+  padding: 5px;
+  border-radius: 5px;
+  user-select: none;
   cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  display: none;
+}
+
+input[type="file"]::-moz-file-upload-button {
+  display: none;
+}
+
+input[type="file"]::-ms-file-upload-button {
+  display: none;
+}
+
+input[type="file"]::-o-file-upload-button {
+  display: none;
+}
+
+input[type="file"]::file-upload-button {
+  display: none;
 }
 
 .keyboard {

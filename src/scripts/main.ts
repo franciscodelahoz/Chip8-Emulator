@@ -65,8 +65,6 @@ async function readFile(fileInput: GenericEvent<HTMLInputElement>) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  displayInstance.setText('Click here to load a ROM...', '30px monospace', 10, 40);
-
   if (input) {
     input.addEventListener('change', async (event) => {
       const romData = await readFile(event as GenericEvent<HTMLInputElement>);
