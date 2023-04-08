@@ -631,11 +631,11 @@ export class CPU {
   }
 
   public cycle() {
-      for (let i = this.cpuFrequency / 60; i > 0 ; i -= 1) {
-        if (!this.halted) {
-          this.step();
-        }
+    for (let i = this.cpuFrequency / 60; i > 0 ; i -= 1) {
+      if (!this.halted) {
+        this.step();
       }
+    }
 
     this.playSound();
     this.displayInstance.render();
