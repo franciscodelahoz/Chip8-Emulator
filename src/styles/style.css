@@ -21,7 +21,7 @@ body {
 
 .logo {
   font-family: "Courier New", monospace;
-  font-size: 0.8rem;
+  font-size: clamp(0.30rem, 1.1vw, 1.39vh);
   margin: 0;
 }
 
@@ -87,7 +87,7 @@ input[type="file"]::file-upload-button {
   height: 1.7em;
   padding: 0.1rem;
   border-radius: 10%;
-  font-size: 1.5rem;
+  font-size: clamp(1.5rem, 1.5vw, 2.9vh);
   background-color: #333333;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   cursor: pointer;
@@ -101,10 +101,4 @@ input[type="file"]::file-upload-button {
 .key:active {
   background-color: #198033;
   color: #e3e3e3;
-}
-
-@media screen and (max-width: 890px) {
-  .logo {
-    display: none;
-  }
 }
