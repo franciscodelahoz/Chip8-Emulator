@@ -71,9 +71,9 @@ export class CPU {
   private startDelayTimer() {
     setInterval(() => {
       if (this.DT > 0) {
-      // Decrement the delay timer by one until it reaches zero
-      this.DT -= 1;
-    }
+        // Decrement the delay timer by one until it reaches zero
+        this.DT -= 1;
+      }
     }, 1000 * (1 / 60));
   }
 
@@ -308,8 +308,8 @@ export class CPU {
            */
           case 0x4: {
             const sum = this.registers[x] + this.registers[y];
+            this.registers[x] = sum & 0xFF;
             this.registers[0xF] = sum > 0XFF ? 1 : 0;
-            this.registers[x] = sum;
             break;
           }
 
@@ -320,9 +320,11 @@ export class CPU {
            *  subtracted from Vx, and the results stored in Vx.
            */
           case 0x5: {
-            this.registers[0xF] = this.registers[x] > this.registers[y] ? 1 : 0;
-            let sub = this.registers[x] - this.registers[y];
-            this.registers[x] = sub;
+            const sub = this.registers[x] - this.registers[y];
+            const carryFlag = this.registers[x] >= this.registers[y] ? 1 : 0;
+
+            this.registers[x] = sub & 0xFF;
+            this.registers[0xF] = carryFlag;
             break;
           }
 
@@ -333,8 +335,11 @@ export class CPU {
            *  otherwise 0. Then Vx is divided by 2.
            */
           case 0x6: {
-            this.registers[0xF] = this.registers[x] & 0x01 ? 1 : 0;
-            this.registers[x] >>= 1;
+            const shiftRight = this.registers[x] >> 1;
+            const leastSignificantBit = this.registers[x] & 0x01 ? 1 : 0;
+
+            this.registers[x] = shiftRight & 0xFF;
+            this.registers[0xF] = leastSignificantBit;
             break;
           }
 
@@ -345,10 +350,11 @@ export class CPU {
            *  subtracted from Vy, and the results stored in Vx.
            */
           case 0x7: {
-            this.registers[0xF] = (this.registers[y] > this.registers[x]) ? 1 : 0;
+            const sub = this.registers[y] - this.registers[x];
+            const carryFlag = this.registers[y] >= this.registers[x] ? 1 : 0;
 
-            let sub = this.registers[y] - this.registers[x];
-            this.registers[x] = sub;
+            this.registers[x] = sub & 0xFF;
+            this.registers[0xF] = carryFlag;
             break;
           }
 
@@ -359,9 +365,11 @@ export class CPU {
            *  otherwise to 0. Then Vx is multiplied by 2.
            */
           case 0xE: {
-            this.registers[0xF] = this.registers[x] >> 7;
-            let shiftLeft = this.registers[x] << 1;
-            this.registers[x] = shiftLeft;
+            const shiftLeft = this.registers[x] << 1;
+            const mostSignificantBit = (this.registers[x] >> 7) & 0x01 ? 1 : 0;
+
+            this.registers[x] = shiftLeft & 0xFF;
+            this.registers[0xF] = mostSignificantBit;
             break;
           }
 
