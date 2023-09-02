@@ -44,12 +44,12 @@ export class KeyBoardInterface {
   setKeypadKeysEvents() {
     this.keypadKeys.forEach((key) => {
       key.addEventListener('mousedown', (e) => {
-        const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
+        const keyValue = Number.parseInt(key.getAttribute('data-key-value') as string, 16);
         this.pressedKey(keyValue);
       });
 
       key.addEventListener('mouseup', (e) => {
-        const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
+        const keyValue = Number.parseInt(key.getAttribute('data-key-value') as string, 16);
         this.releasedKey(keyValue);
       });
     });
@@ -61,7 +61,7 @@ export class KeyBoardInterface {
 
   setKeypadKeyStatus(keyCode: number, pressed: boolean) {
     const keypadKey = [ ...this.keypadKeys ].find((key) => (
-      Number.parseInt(key.getAttribute('aria-value') as string, 16) === keyCode
+      Number.parseInt(key.getAttribute('data-key-value') as string, 16) === keyCode
     ))
 
     if (pressed) {
