@@ -1,5 +1,8 @@
 import path from 'node:path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
+import MiniCSSExtractPlugin from 'mini-css-extract-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 
 export default {
   entry: {
@@ -21,13 +24,38 @@ export default {
   module: {
     rules: [
       { test: /\.tsx?$/, loader: 'ts-loader' },
-      { test: /\.css$/, use: [ 'style-loader', 'css-loader' ] },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: MiniCSSExtractPlugin.loader,
+          },
+          {
+            loader: 'css-loader',
+          }
+        ],
+      },
     ]
   },
+  optimization: {
+    minimizer: [
+      new CssMinimizerPlugin(),
+    ],
+  },
   plugins: [
+    new MiniCSSExtractPlugin({
+      filename: '[name]-bundle.css',
+    }),
     new HtmlWebpackPlugin({
       title: 'Chip8 Emulator',
       template: path.join(path.resolve(), './src/html/index.html'),
+    }),
+    new FaviconsWebpackPlugin({
+      logo: path.join(path.resolve(), './src/static/favicon.png'),
+      favicons: {
+        appName: 'Chip8 Emulator',
+        appDescription: 'A Chip-8 emulator written in Typescript.',
+      },
     }),
   ],
   devServer: {

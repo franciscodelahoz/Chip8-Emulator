@@ -20,9 +20,33 @@ export class CPU {
 
   private PC: number = 0x200; // Program Counter (8-bit) stores currently executing address
 
+  private playing: boolean = false;
+
+  private waiting: boolean = false;
+
   public halted: boolean = true;
 
-  private cpuFrequency: number = 600;
+  private cyclesPerFrame: number = 20;
+
+  public isDrawing: boolean = false;
+
+  /* The AND, OR and XOR opcodes (8xy1, 8xy2 and 8xy3) reset the flags register to zero. */
+  private vfQuirk: boolean = true;
+
+  /* The save and load opcodes (Fx55 and Fx65) increment the index register. */
+  private memoryQuirk: boolean = true;
+
+  /* Drawing sprites to the display waits for the vertical blank interrupt, limiting their speed to max 60 sprites per second. */
+  private displayWaitQuirk: boolean = true;
+
+  /* Sprites drawn at the bottom edge of the screen get clipped instead of wrapping around to the top of the screen. */
+  private clipQuirks: boolean = true;
+
+  /* The shift opcodes (8xy6 and 8xyE) only operate on vX instead of storing the shifted version of vY in vX. */
+  private shiftQuirk: boolean = false;
+
+  /* The "jump to some address plus v0" instruction (Bnnn) doesn't use v0, but vX instead where X is the highest nibble of nnn */
+  private jumpQuirks: boolean = false;
 
   constructor(
     private readonly displayInstance: DisplayInterface,
@@ -30,8 +54,6 @@ export class CPU {
     private readonly keyboardInterface: KeyBoardInterface,
   ) {
     this.displayInstance.clearDisplay();
-    this.startDelayTimer();
-    this.startSoundTimer();
   }
 
   private loadFont() {
@@ -40,7 +62,7 @@ export class CPU {
     }
   }
 
-  private reset() {
+  private resetCpu() {
     this.memory.fill(0);
     this.registers.fill(0);
     this.stack.fill(0);
@@ -51,6 +73,9 @@ export class CPU {
     this.PC = 0x200;
 
     this.halted = true;
+    this.waiting = false;
+    this.playing = false;
+    this.isDrawing = false;
 
     this.displayInstance.clearDisplay();
     this.displayInstance.render();
@@ -60,7 +85,7 @@ export class CPU {
   }
 
   loadRom(fileContent: Uint8Array) {
-    this.reset();
+    this.resetCpu();
     this.halted = false;
 
     for (let byte = 0; byte < fileContent.length; byte += 1) {
@@ -68,34 +93,22 @@ export class CPU {
     }
   }
 
-  private startDelayTimer() {
-    setInterval(() => {
-      if (this.DT > 0) {
-        // Decrement the delay timer by one until it reaches zero
-        this.DT -= 1;
-      }
-    }, 1000 * (1 / 60));
-  }
+  resetRom() {
+    this.ST = 0;
+    this.DT = 0;
+    this.I = 0;
+    this.SP = -1;
+    this.PC = 0x200;
 
-  private startSoundTimer() {
-    setInterval(() => {
-      if (this.ST > 0) {
-        // The sound timer is active whenever the sound timer register (ST) is non-zero.
-        this.ST -= 1;
-      }
-    }, 1000 * (1 / 60));
-  }
+    this.waiting = false;
+    this.halted = false;
+    this.playing = false;
+    this.isDrawing = false;
 
-  private playSound() {
-    if (this.ST > 0) {
-      this.audioInterface.play(440);
-    } else {
-      this.audioInterface.stop();
-    }
-  }
-
-  private halt() {
-    this.halted = true;
+    this.displayInstance.clearDisplay();
+    this.displayInstance.render();
+    this.keyboardInterface.reset();
+    this.audioInterface.stop();
   }
 
   private fetchOpcode(): number {
@@ -105,8 +118,8 @@ export class CPU {
   executeOpcode(opcode: number) {
     this.PC += 2;
 
-    const x = (opcode & 0x0F00) >> 8;
-    const y = (opcode & 0x00F0) >> 4;
+    let x = (opcode & 0x0F00) >> 8;
+    let y = (opcode & 0x00F0) >> 4;
 
     // Check The first nibble to determinate the opcode
     switch (opcode & 0xF000) {
@@ -268,6 +281,11 @@ export class CPU {
            */
           case 0x1: {
             this.registers[x] |= this.registers[y];
+
+            if (this.vfQuirk) {
+              this.registers[0xF] = 0;
+            }
+
             break;
           }
 
@@ -281,6 +299,11 @@ export class CPU {
            */
           case 0x2: {
             this.registers[x] &= this.registers[y];
+
+            if (this.vfQuirk) {
+              this.registers[0xF] = 0;
+            }
+
             break;
           }
 
@@ -295,6 +318,11 @@ export class CPU {
            */
           case 0x3: {
             this.registers[x] ^= this.registers[y];
+
+            if (this.vfQuirk) {
+              this.registers[0xF] = 0;
+            }
+
             break;
           }
 
@@ -310,6 +338,7 @@ export class CPU {
             const sum = this.registers[x] + this.registers[y];
             this.registers[x] = sum & 0xFF;
             this.registers[0xF] = sum > 0XFF ? 1 : 0;
+
             break;
           }
 
@@ -325,6 +354,7 @@ export class CPU {
 
             this.registers[x] = sub & 0xFF;
             this.registers[0xF] = carryFlag;
+
             break;
           }
 
@@ -335,11 +365,16 @@ export class CPU {
            *  otherwise 0. Then Vx is divided by 2.
            */
           case 0x6: {
-            const shiftRight = this.registers[x] >> 1;
-            const leastSignificantBit = this.registers[x] & 0x01 ? 1 : 0;
+            if (this.shiftQuirk) {
+              y = x;
+            }
+
+            const shiftRight = this.registers[y] >> 1;
+            const leastSignificantBit = this.registers[y] & 0x01 ? 1 : 0;
 
             this.registers[x] = shiftRight & 0xFF;
             this.registers[0xF] = leastSignificantBit;
+
             break;
           }
 
@@ -355,6 +390,7 @@ export class CPU {
 
             this.registers[x] = sub & 0xFF;
             this.registers[0xF] = carryFlag;
+
             break;
           }
 
@@ -365,11 +401,16 @@ export class CPU {
            *  otherwise to 0. Then Vx is multiplied by 2.
            */
           case 0xE: {
-            const shiftLeft = this.registers[x] << 1;
-            const mostSignificantBit = (this.registers[x] >> 7) & 0x01 ? 1 : 0;
+            if (this.shiftQuirk) {
+              y = x;
+            }
+
+            const shiftLeft = this.registers[y] << 1;
+            const mostSignificantBit = (this.registers[y] >> 7) & 0x01 ? 1 : 0;
 
             this.registers[x] = shiftLeft & 0xFF;
             this.registers[0xF] = mostSignificantBit;
+
             break;
           }
 
@@ -414,7 +455,13 @@ export class CPU {
        */
       case 0xB000: {
         const nnn = opcode & 0x0FFF;
-        this.PC = nnn + this.registers[0];
+
+        if (this.jumpQuirks) {
+          this.PC = nnn + this.registers[(nnn >> 8) & 0xF];
+        } else {
+          this.PC = nnn + this.registers[0];
+        }
+
         break;
       }
 
@@ -447,11 +494,20 @@ export class CPU {
           const pixel = this.memory[this.I + rows];
 
           for (let columns = 0; columns < spriteWidth; columns += 1) {
-            const value = pixel & (1 << (7 - columns)) ? 1 : 0;
-            const xPos = (this.registers[x] + columns) % this.displayInstance.getDisplayColumns();
-            const yPos = (this.registers[y] + rows) % this.displayInstance.getDisplayRows();
+            const value = (pixel >> (7 - columns)) & 1;;
 
-            const setPixel = this.displayInstance.setPixel(xPos, yPos, value);
+            if (this.clipQuirks) {
+              if ((this.registers[x] % this.displayInstance.getDisplayColumns()) + columns>= this.displayInstance.getDisplayColumns()
+                || (this.registers[y] % this.displayInstance.getDisplayRows()) + rows >= this.displayInstance.getDisplayRows()
+              ) {
+                continue;
+              }
+            }
+
+            const xPixelPos = (this.registers[x] + columns) % this.displayInstance.getDisplayColumns();
+            const yPixelPos = (this.registers[y] + rows) % this.displayInstance.getDisplayRows();
+
+            const setPixel = this.displayInstance.setPixel(xPixelPos, yPixelPos, value);
 
             if (setPixel) {
               this.registers[0xF] = 1;
@@ -472,6 +528,7 @@ export class CPU {
             if (this.keyboardInterface.isKeyPressed(this.registers[x])) {
               this.PC += 2;
             }
+
             break;
           }
 
@@ -483,6 +540,7 @@ export class CPU {
             if (!this.keyboardInterface.isKeyPressed(this.registers[x])) {
               this.PC += 2;
             }
+
             break;
           }
 
@@ -511,11 +569,14 @@ export class CPU {
            * Wait for a key press, store the value of the key in Vx.
            */
           case 0x0A: {
-            this.halted = true;
+            this.waiting = true;
 
             this.keyboardInterface.onNextKeyPressed = (key) => {
               this.registers[x] = key;
-              this.halted = false;
+            };
+
+            this.keyboardInterface.onNextKeyReleased = () => {
+              this.waiting = false;
             };
 
             break;
@@ -587,6 +648,10 @@ export class CPU {
               this.memory[this.I + registerIndex] = this.registers[registerIndex];
             }
 
+            if (this.memoryQuirk) {
+              this.I += x + 1;
+            }
+
             break;
           }
 
@@ -602,6 +667,10 @@ export class CPU {
 
             for (let registerIndex = 0; registerIndex <= x; registerIndex += 1) {
               this.registers[registerIndex] = this.memory[this.I + registerIndex];
+            }
+
+            if (this.memoryQuirk) {
+              this.I += x + 1;
             }
 
             break;
@@ -639,13 +708,36 @@ export class CPU {
   }
 
   public cycle() {
-    for (let i = this.cpuFrequency / 60; i > 0 ; i -= 1) {
-      if (!this.halted) {
-        this.step();
+    if (this.halted) {
+      return;
+    }
+
+    if (this.DT > 0 ){
+      this.DT -= 1;
+    }
+
+    if (this.ST > 0) {
+      if (!this.playing) {
+        this.playing = true;
+        this.audioInterface.play(440);
+      }
+
+      this.ST -= 1;
+    } else {
+      if (this.playing) {
+        this.playing = false;
+        this.audioInterface.stop();
       }
     }
 
-    this.playSound();
+    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waiting); i += 1) {
+      if (this.displayWaitQuirk && this.memory[this.PC] === 0xD0) {
+        i = this.cyclesPerFrame;
+      }
+
+      this.step();
+    }
+
     this.displayInstance.render();
   }
 }

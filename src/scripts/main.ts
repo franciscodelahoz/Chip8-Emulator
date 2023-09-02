@@ -7,8 +7,7 @@ import { KeyBoardInterface } from './interfaces/keyboard';
 
 const canvas: HTMLCanvasElement | null = document.getElementById('canvas') as HTMLCanvasElement | null;
 const input: HTMLInputElement | null = document.getElementById('file') as HTMLInputElement | null;
-
-const keys = document.querySelectorAll('.key');
+const resetRomBtn: HTMLElement | null = document.getElementById('reset-rom-btn') as HTMLElement | null;
 
 const displayInstance = new DisplayInterface(canvas);
 const keyboardInstance = new KeyBoardInterface();
@@ -16,24 +15,28 @@ const audioInstance = new AudioInterface();
 
 const cpu = new CPU(displayInstance, audioInstance, keyboardInstance);
 
-const fps = 60;
-
 let loop = 0;
 let lastTime = 0;
+
+const fps = 60;
 let fpsInterval = 1000 / fps;
 
 function step(currentTime: number) {
-  if (currentTime - lastTime < fpsInterval) {
+  const elapsed = currentTime - lastTime;
+
+  if (elapsed < fpsInterval) {
     loop = window.requestAnimationFrame(step);
     return;
   }
 
   lastTime = currentTime;
+
   cpu.cycle();
   loop = window.requestAnimationFrame(step);
 }
 
 function start() {
+  lastTime = performance.now();
   loop = window.requestAnimationFrame(step);
 }
 
@@ -67,22 +70,26 @@ async function readFile(fileInput: GenericEvent<HTMLInputElement>) {
 document.addEventListener('DOMContentLoaded', () => {
   if (input) {
     input.addEventListener('change', async (event) => {
-      const romData = await readFile(event as GenericEvent<HTMLInputElement>);
-      stop();
-      cpu.loadRom(romData);
-      start();
+      try {
+        const romData = await readFile(event as GenericEvent<HTMLInputElement>);
+        stop();
+        cpu.loadRom(romData);
+        start();
+      } catch(error) {
+        console.error(error);
+      }
     });
   }
 
-  keys.forEach((key) => {
-    key.addEventListener('mousedown', (e) => {
-      const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
-      keyboardInstance.pressedKey(keyValue);
+  if (resetRomBtn) {
+    resetRomBtn.addEventListener('click', () => {
+      try {
+        stop();
+        cpu.resetRom();
+        start();
+      } catch(error) {
+        console.error(error);
+      }
     });
-
-    key.addEventListener('mouseup', (e) => {
-      const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
-      keyboardInstance.releasedKey(keyValue);
-    });
-  });
+  }
 });

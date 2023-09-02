@@ -20,7 +20,7 @@ body {
 }
 
 .logo {
-  font-family: "Courier New", monospace;
+  font-family: "Courier New", Courier, monospace;
   font-size: clamp(0.30rem, 1.1vw, 1.39vh);
   margin: 0;
 }
@@ -43,13 +43,43 @@ body {
   margin-bottom: 1rem;
 }
 
-.emulator-view input {
+.rom-controller {
+  display: flex;
+  flex-direction: row;
+  gap: 0.8125em;
+}
+
+.rom-controller input {
   content: 'Upload rom file';
-  border: 2px groove #34ff66;
+  border: 2px solid #34ff66;
   padding: 5px;
   border-radius: 5px;
   user-select: none;
   cursor: pointer;
+  flex-grow: 10;
+}
+
+#reset-rom-btn {
+  flex-grow: 1;
+  border: 2px solid #34ff66;
+  padding: 2px;
+  border-radius: 5px;
+  user-select: none;
+  text-align: center;
+  cursor: pointer;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#reset-rom-btn:hover {
+  background-color: #34ff66;
+  color: #222222;
+  border: 2px solid #34ff66;
+}
+
+#reset-rom-btn:active {
+  background-color: #198033;
+  color: #e3e3e3;
+  border: 2px solid #198033;
 }
 
 input[type="file"]::-webkit-file-upload-button {
@@ -91,14 +121,26 @@ input[type="file"]::file-upload-button {
   background-color: #333333;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   cursor: pointer;
+  position: relative;
 }
 
-.key:hover {
+.keyboard-indicator {
+  position: absolute;
+  bottom: 0.0625em;
+  right: 0.125em;
+  font-size: 0.8rem;
+  background-color: #333333;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  border-radius: 30%;
+  pointer-events: none;
+}
+
+.key:hover, .key:hover .keyboard-indicator {
   background-color: #34ff66;
   color: #222222;
 }
 
-.key:active {
+.key.active, .key.active .keyboard-indicator {
   background-color: #198033;
   color: #e3e3e3;
 }

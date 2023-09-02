@@ -7,7 +7,7 @@ export class DisplayInterface {
 
   private readonly rows: number = 32;
 
-  private readonly displayScale: number = 10;
+  private readonly displayScale: number = 12;
 
   private displayBuffer: Array<Array<number>> = [];
 

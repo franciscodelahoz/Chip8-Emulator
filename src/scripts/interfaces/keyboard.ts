@@ -22,12 +22,18 @@ export class KeyBoardInterface {
 
   public onNextKeyPressed: ((key: number) => void) | null = null;
 
+  public onNextKeyReleased: ((key: number) => void) | null = null;
+
+  private keypadKeys: NodeListOf<HTMLElement> = document.querySelectorAll('.key');
+
   constructor() {
     this.pressedKeys = {};
     this.onNextKeyPressed = null;
 
     window.addEventListener('keydown', this.onKeyDown.bind(this), false);
     window.addEventListener('keyup', this.onKeyUp.bind(this), false);
+
+    this.setKeypadKeysEvents();
   }
 
   reset() {
@@ -35,12 +41,39 @@ export class KeyBoardInterface {
     this.onNextKeyPressed = null;
   }
 
+  setKeypadKeysEvents() {
+    this.keypadKeys.forEach((key) => {
+      key.addEventListener('mousedown', (e) => {
+        const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
+        this.pressedKey(keyValue);
+      });
+
+      key.addEventListener('mouseup', (e) => {
+        const keyValue = Number.parseInt(key.getAttribute('aria-value') as string, 16);
+        this.releasedKey(keyValue);
+      });
+    });
+  }
+
   isKeyPressed(keyCode: number) {
     return this.pressedKeys[keyCode];
   }
 
+  setKeypadKeyStatus(keyCode: number, pressed: boolean) {
+    const keypadKey = [ ...this.keypadKeys ].find((key) => (
+      Number.parseInt(key.getAttribute('aria-value') as string, 16) === keyCode
+    ))
+
+    if (pressed) {
+      keypadKey?.classList.add('active');
+    } else {
+      keypadKey?.classList.remove('active');
+    }
+  }
+
   pressedKey(keyValue: number) {
     this.pressedKeys[keyValue] = true;
+    this.setKeypadKeyStatus(keyValue, true)
 
     if (this.onNextKeyPressed !== null && keyValue !== undefined) {
       this.onNextKeyPressed(keyValue);
@@ -49,7 +82,13 @@ export class KeyBoardInterface {
   }
 
   releasedKey(keyValue: number) {
-    this.pressedKeys[keyValue] = false;
+    delete this.pressedKeys[keyValue];
+    this.setKeypadKeyStatus(keyValue, false)
+
+    if (this.onNextKeyReleased !== null && keyValue !== undefined) {
+      this.onNextKeyReleased(keyValue);
+      this.onNextKeyReleased = null;
+    }
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -59,6 +98,6 @@ export class KeyBoardInterface {
 
   onKeyUp(event: KeyboardEvent) {
     const pressedKey = this.keyMap[event.keyCode];
-    this.releasedKey(pressedKey);
+    this.releasedKey(pressedKey)
   }
 }
