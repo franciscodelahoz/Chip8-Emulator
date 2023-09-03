@@ -4,6 +4,8 @@ import { KeyBoardInterface } from '../interfaces/keyboard';
 import { Chip8Quirks, chip8Fonts, defaultQuirkConfigurations } from '../constants/chip8.constants';
 
 export class CPU {
+  private romFileContent: Uint8Array | null = null;
+
   private memory: Uint8Array = new Uint8Array(4096); // Memory - 4kb (4096 bytes) memory storage (8-bit)
 
   private registers: Uint8Array = new Uint8Array(16); // Registers - (16 * 8-bit) V0 through VF; VF is a flag
@@ -46,7 +48,7 @@ export class CPU {
     }
   }
 
-  private resetCpu() {
+  private setCPUInitialState() {
     this.memory.fill(0);
     this.registers.fill(0);
     this.stack.fill(0);
@@ -56,7 +58,6 @@ export class CPU {
     this.SP = -1;
     this.PC = 0x200;
 
-    this.halted = true;
     this.waiting = false;
     this.playing = false;
     this.isDrawing = false;
@@ -68,38 +69,38 @@ export class CPU {
     this.loadFont();
   }
 
-  loadRom(fileContent: Uint8Array) {
-    this.resetCpu();
-    this.halted = false;
-
-    for (let byte = 0; byte < fileContent.length; byte += 1) {
-      this.memory[0x200 + byte] = fileContent[byte];
+  private loadRomInMemory() {
+    if (this.romFileContent !== null) {
+      for (let byte = 0; byte < this.romFileContent.length; byte += 1) {
+        this.memory[0x200 + byte] = this.romFileContent[byte];
+      }
     }
   }
 
-  resetRom() {
-    this.ST = 0;
-    this.DT = 0;
-    this.I = 0;
-    this.SP = -1;
-    this.PC = 0x200;
+  loadRom(fileContent: Uint8Array) {
+    this.halted = true;
+    this.romFileContent = fileContent;
 
-    this.waiting = false;
+    this.setCPUInitialState();
+    this.loadRomInMemory();
+
     this.halted = false;
-    this.playing = false;
-    this.isDrawing = false;
+  }
 
-    this.displayInstance.clearDisplay();
-    this.displayInstance.render();
-    this.keyboardInterface.reset();
-    this.audioInterface.stop();
+  resetRom() {
+    this.halted = true;
+
+    this.setCPUInitialState();
+    this.loadRomInMemory();
+
+    this.halted = false;
   }
 
   private fetchOpcode(): number {
     return (this.memory[this.PC] << 8) | this.memory[this.PC + 1];
   }
 
-  executeOpcode(opcode: number) {
+  private executeOpcode(opcode: number) {
     this.PC += 2;
 
     let x = (opcode & 0x0F00) >> 8;
@@ -686,7 +687,7 @@ export class CPU {
     }
   }
 
-  public step() {
+  private step() {
     const opcode = this.fetchOpcode();
     this.executeOpcode(opcode);
   }
