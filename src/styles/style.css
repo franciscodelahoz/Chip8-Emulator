@@ -3,9 +3,6 @@ body {
   margin: 0;
   height: 100vh;
   width: 100%;
-}
-
-* {
   color: #34ff66;
   background-color: #222222;
   user-select: none;
@@ -59,7 +56,7 @@ body {
   flex-grow: 10;
 }
 
-#reset-rom-btn {
+.default-button {
   flex-grow: 1;
   border: 2px solid #34ff66;
   padding: 2px;
@@ -70,13 +67,13 @@ body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-#reset-rom-btn:hover {
+.default-button:hover {
   background-color: #34ff66;
   color: #222222;
   border: 2px solid #34ff66;
 }
 
-#reset-rom-btn:active {
+.default-button:active {
   background-color: #198033;
   color: #e3e3e3;
   border: 2px solid #198033;
@@ -143,4 +140,86 @@ input[type="file"]::file-upload-button {
 .key.active, .key.active .keyboard-indicator {
   background-color: #198033;
   color: #e3e3e3;
+}
+
+#open-configurations-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 2.9rem;
+}
+
+#open-configurations-button:hover {
+  cursor: pointer;
+}
+
+#configuration-sidebar > #close-configurations-button {
+  font-size: 1.5rem;
+  color: #34ff66;
+  cursor: pointer;
+  font-size: 2.4rem;
+  text-align: center;
+  overflow-x: hidden;
+  transition: 0.5s;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#configuration-sidebar {
+  width: 40dvh;
+  height: 100%;
+  background-color: #333;
+  position: fixed;
+  top: 0;
+  right: 0;
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding: 0;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  transform: translateX(100%);
+  padding: 0.5rem;
+}
+
+#configuration-sidebar.active {
+  transform: translateX(0%);
+}
+
+.configuration-content {
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s;
+}
+
+.configuration-title {
+  display: flex;
+  justify-content: flex-start;
+  color: #34ff66;
+  background-color: #333;
+  font-size: 1rem;
+  text-align: center;
+  overflow-x: hidden;
+  transition: 0.5s;
+  font-weight: bold;
+  padding: 5px;
+  background-color: #272727;
+}
+
+.configuration-content > label {
+  font-size: 0.8rem;
+  margin-bottom: 15px;
+}
+
+.profiles-list {
+  display: flex;
+  flex-direction: row;
+  gap: 3%;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: row;
+}
+
+input[type='checkbox'] {
+  margin-right: 0.5em;
 }

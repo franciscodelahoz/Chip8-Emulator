@@ -1,7 +1,7 @@
-import fonts from '../utils/fonts';
 import { AudioInterface } from '../interfaces/audio';
 import { DisplayInterface } from '../interfaces/display';
 import { KeyBoardInterface } from '../interfaces/keyboard';
+import { Chip8Quirks, chip8Fonts, defaultQuirkConfigurations } from '../constants/chip8.constants';
 
 export class CPU {
   private memory: Uint8Array = new Uint8Array(4096); // Memory - 4kb (4096 bytes) memory storage (8-bit)
@@ -30,23 +30,7 @@ export class CPU {
 
   public isDrawing: boolean = false;
 
-  /* The AND, OR and XOR opcodes (8xy1, 8xy2 and 8xy3) reset the flags register to zero. */
-  private vfQuirk: boolean = true;
-
-  /* The save and load opcodes (Fx55 and Fx65) increment the index register. */
-  private memoryQuirk: boolean = true;
-
-  /* Drawing sprites to the display waits for the vertical blank interrupt, limiting their speed to max 60 sprites per second. */
-  private displayWaitQuirk: boolean = true;
-
-  /* Sprites drawn at the bottom edge of the screen get clipped instead of wrapping around to the top of the screen. */
-  private clipQuirks: boolean = true;
-
-  /* The shift opcodes (8xy6 and 8xyE) only operate on vX instead of storing the shifted version of vY in vX. */
-  private shiftQuirk: boolean = false;
-
-  /* The "jump to some address plus v0" instruction (Bnnn) doesn't use v0, but vX instead where X is the highest nibble of nnn */
-  private jumpQuirks: boolean = false;
+  private quirksConfigurations = { ...defaultQuirkConfigurations };
 
   constructor(
     private readonly displayInstance: DisplayInterface,
@@ -57,8 +41,8 @@ export class CPU {
   }
 
   private loadFont() {
-    for (let byte = 0; byte < fonts.length; byte += 1) {
-      this.memory[byte] = fonts[byte];
+    for (let byte = 0; byte < chip8Fonts.length; byte += 1) {
+      this.memory[byte] = chip8Fonts[byte];
     }
   }
 
@@ -282,7 +266,7 @@ export class CPU {
           case 0x1: {
             this.registers[x] |= this.registers[y];
 
-            if (this.vfQuirk) {
+            if (this.quirksConfigurations[Chip8Quirks.VF_QUIRK]) {
               this.registers[0xF] = 0;
             }
 
@@ -300,7 +284,7 @@ export class CPU {
           case 0x2: {
             this.registers[x] &= this.registers[y];
 
-            if (this.vfQuirk) {
+            if (this.quirksConfigurations[Chip8Quirks.VF_QUIRK]) {
               this.registers[0xF] = 0;
             }
 
@@ -319,7 +303,7 @@ export class CPU {
           case 0x3: {
             this.registers[x] ^= this.registers[y];
 
-            if (this.vfQuirk) {
+            if (this.quirksConfigurations[Chip8Quirks.VF_QUIRK]) {
               this.registers[0xF] = 0;
             }
 
@@ -365,7 +349,7 @@ export class CPU {
            *  otherwise 0. Then Vx is divided by 2.
            */
           case 0x6: {
-            if (this.shiftQuirk) {
+            if (this.quirksConfigurations[Chip8Quirks.SHIFT_QUIRK]) {
               y = x;
             }
 
@@ -401,7 +385,7 @@ export class CPU {
            *  otherwise to 0. Then Vx is multiplied by 2.
            */
           case 0xE: {
-            if (this.shiftQuirk) {
+            if (this.quirksConfigurations[Chip8Quirks.SHIFT_QUIRK]) {
               y = x;
             }
 
@@ -456,7 +440,7 @@ export class CPU {
       case 0xB000: {
         const nnn = opcode & 0x0FFF;
 
-        if (this.jumpQuirks) {
+        if (this.quirksConfigurations[Chip8Quirks.JUMP_QUIRK]) {
           this.PC = nnn + this.registers[(nnn >> 8) & 0xF];
         } else {
           this.PC = nnn + this.registers[0];
@@ -496,7 +480,7 @@ export class CPU {
           for (let columns = 0; columns < spriteWidth; columns += 1) {
             const value = (pixel >> (7 - columns)) & 1;;
 
-            if (this.clipQuirks) {
+            if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
               if ((this.registers[x] % this.displayInstance.getDisplayColumns()) + columns>= this.displayInstance.getDisplayColumns()
                 || (this.registers[y] % this.displayInstance.getDisplayRows()) + rows >= this.displayInstance.getDisplayRows()
               ) {
@@ -648,7 +632,7 @@ export class CPU {
               this.memory[this.I + registerIndex] = this.registers[registerIndex];
             }
 
-            if (this.memoryQuirk) {
+            if (this.quirksConfigurations[Chip8Quirks.MEMORY_QUIRK]) {
               this.I += x + 1;
             }
 
@@ -669,7 +653,7 @@ export class CPU {
               this.registers[registerIndex] = this.memory[this.I + registerIndex];
             }
 
-            if (this.memoryQuirk) {
+            if (this.quirksConfigurations[Chip8Quirks.MEMORY_QUIRK]) {
               this.I += x + 1;
             }
 
@@ -731,7 +715,7 @@ export class CPU {
     }
 
     for (let i = 0; (i < this.cyclesPerFrame) && (!this.waiting); i += 1) {
-      if (this.displayWaitQuirk && this.memory[this.PC] === 0xD0) {
+      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.memory[this.PC] === 0xD0) {
         i = this.cyclesPerFrame;
       }
 
@@ -739,5 +723,13 @@ export class CPU {
     }
 
     this.displayInstance.render();
+  }
+
+  public getQuirkValue(quirkName: Chip8Quirks) {
+    return this.quirksConfigurations[quirkName];
+  }
+
+  public setQuirkValue(quirkName: Chip8Quirks, value: boolean) {
+    this.quirksConfigurations[quirkName] = value;
   }
 }
