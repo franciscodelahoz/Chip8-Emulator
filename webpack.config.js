@@ -61,10 +61,13 @@ export default {
       template: path.join(path.resolve(), './src/html/index.html'),
     }),
     new FaviconsWebpackPlugin({
-      logo: path.join(path.resolve(), './src/static/favicon.png'),
+      logo: path.join(path.resolve(), './src/static/favicon.svg'),
       favicons: {
         appName: 'Chip8 Emulator',
         appDescription: 'A Chip-8 emulator written in Typescript.',
+        background: '#222222',
+        theme_color: '#222222',
+        mode: 'webapp',
       },
     }),
   ],
