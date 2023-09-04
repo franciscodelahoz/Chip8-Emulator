@@ -1,6 +1,11 @@
 import '../styles/style.css';
-import { Chip8Quirks, defaultQuirkConfigurations, schipQuirkConfigurations, xoChipQuirkConfigurations } from './constants/chip8.constants';
 
+import {
+  Chip8Quirks,
+  defaultQuirkConfigurations,
+  schipQuirkConfigurations,
+  xoChipQuirkConfigurations
+} from './constants/chip8.constants';
 import { CPU } from './emulator/cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
@@ -27,27 +32,24 @@ const audioInstance = new AudioInterface();
 const cpu = new CPU(displayInstance, audioInstance, keyboardInstance);
 
 let loop = 0;
-let lastTime = 0;
+let lastFrameTime = 0;
 
-const fps = 60;
-let fpsInterval = 1000 / fps;
+const targetFPS = 60;
+let frameInterval = 1000 / targetFPS;
 
 function step(currentTime: number) {
-  const elapsed = currentTime - lastTime;
+  const deltaTime = currentTime - lastFrameTime;
 
-  if (elapsed < fpsInterval) {
-    loop = window.requestAnimationFrame(step);
-    return;
+  if (deltaTime >= frameInterval) {
+    cpu.cycle();
+
+    lastFrameTime = currentTime;
   }
 
-  lastTime = currentTime;
-
-  cpu.cycle();
   loop = window.requestAnimationFrame(step);
 }
 
 function start() {
-  lastTime = performance.now();
   loop = window.requestAnimationFrame(step);
 }
 
@@ -99,7 +101,7 @@ function getQuirkValue(quirkName: Chip8Quirks) {
 
   const parsedStoredValue = storedQuirkValue === 'true' ? true : false;
 
-  cpu.setQuirkValue(quirkName, parsedStoredValue)
+  cpu.setQuirkValue(quirkName, parsedStoredValue);
   return parsedStoredValue;
 }
 
@@ -120,7 +122,7 @@ function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>) {
 
     if (quirk) {
       quirk.checked = quirkValues[quirkName];
-      setQuirkValue(quirkName, quirkValues[quirkName])
+      setQuirkValue(quirkName, quirkValues[quirkName]);
     }
   });
 }

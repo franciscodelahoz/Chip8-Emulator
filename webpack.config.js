@@ -3,6 +3,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
 import MiniCSSExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
 
 export default {
   entry: {
@@ -23,7 +24,10 @@ export default {
   },
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: 'ts-loader' },
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader'
+      },
       {
         test: /\.css$/,
         use: [
@@ -45,11 +49,16 @@ export default {
           },
         ],
       },
-    ]
+      {
+        test: /\.svg$/,
+        type: 'asset/source',
+      },
+    ],
   },
   optimization: {
     minimizer: [
       new CssMinimizerPlugin(),
+      new TerserPlugin(),
     ],
   },
   plugins: [
@@ -61,7 +70,7 @@ export default {
       template: path.join(path.resolve(), './src/html/index.html'),
     }),
     new FaviconsWebpackPlugin({
-      logo: path.join(path.resolve(), './src/static/favicon.svg'),
+      logo: path.join(path.resolve(), './src/resources/favicon.svg'),
       favicons: {
         appName: 'Chip8 Emulator',
         appDescription: 'A Chip-8 emulator written in Typescript.',

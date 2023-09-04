@@ -6,6 +6,40 @@ body {
   color: #34ff66;
   background-color: #222222;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-container {
+  display: flex;
+  flex-direction: row;
+  padding: 0.8rem;
+  align-items: center;
+}
+
+.header-container .header-element-left, .header-container .header-element-right {
+  flex: 1;
+}
+
+.header-container .header-element-right {
+  text-align: end;
+}
+
+.header-element-logo {
+  margin: 0;
+  width: 95%;
+  max-width: 50rem;
+  height: auto;
+  flex-grow: 1;
+}
+
+#open-configurations-button {
+  font-size: 2.9rem;
+  text-align: end;
+}
+
+#open-configurations-button:hover {
+  cursor: pointer;
 }
 
 .container {
@@ -13,13 +47,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
-  height: 100vh;
-}
-
-.logo {
-  font-family: "Courier New", Courier, monospace;
-  font-size: clamp(0.30rem, 1.1vw, 1.39vh);
-  margin: 0;
+  height: 100%;
 }
 
 .view-container {
@@ -64,6 +92,8 @@ body {
   user-select: none;
   text-align: center;
   cursor: pointer;
+  background-color: #222222;
+  color: #34ff66;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
@@ -77,6 +107,17 @@ body {
   background-color: #198033;
   color: #e3e3e3;
   border: 2px solid #198033;
+}
+
+.icon-button {
+  border: none;
+  background-color: rgba(0, 0, 0, 0);
+  padding: 2px;
+  border-radius: 5px;
+  user-select: none;
+  text-align: center;
+  cursor: pointer;
+  color: #34ff66;
 }
 
 input[type="file"]::-webkit-file-upload-button {
@@ -104,6 +145,7 @@ input[type="file"]::file-upload-button {
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
   grid-gap: 0.7rem;
+  touch-action: none;
 }
 
 .key {
@@ -119,13 +161,15 @@ input[type="file"]::file-upload-button {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   cursor: pointer;
   position: relative;
+  border: none;
+  color: #34ff66;
 }
 
 .keyboard-indicator {
   position: absolute;
   bottom: 0.0625em;
   right: 0.125em;
-  font-size: 0.8rem;
+  font-size: 0.67rem;
   background-color: #333333;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   border-radius: 30%;
@@ -142,24 +186,8 @@ input[type="file"]::file-upload-button {
   color: #e3e3e3;
 }
 
-#open-configurations-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  font-size: 2.9rem;
-}
-
-#open-configurations-button:hover {
-  cursor: pointer;
-}
-
-#configuration-sidebar > #close-configurations-button {
-  font-size: 1.5rem;
-  color: #34ff66;
-  cursor: pointer;
+#close-configurations-button {
   font-size: 2.4rem;
-  text-align: center;
-  overflow-x: hidden;
   transition: 0.5s;
   display: flex;
   justify-content: flex-start;
@@ -191,35 +219,56 @@ input[type="file"]::file-upload-button {
 }
 
 .configuration-title {
-  display: flex;
-  justify-content: flex-start;
   color: #34ff66;
-  background-color: #333;
   font-size: 1rem;
   text-align: center;
-  overflow-x: hidden;
-  transition: 0.5s;
-  font-weight: bold;
   padding: 5px;
-  background-color: #272727;
+  background-color: #222;
 }
 
-.configuration-content > label {
-  font-size: 0.8rem;
-  margin-bottom: 15px;
+.configuration-content > section > ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
 
-.profiles-list {
-  display: flex;
-  flex-direction: row;
-  gap: 3%;
+.configuration-content > section > ul > li {
+  font-size: .78em;
+  padding-bottom: 0.8em;
 }
 
-.checkbox-container {
-  display: flex;
-  flex-direction: row;
+.button-grid-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-gap: 0.7rem;
 }
 
-input[type='checkbox'] {
-  margin-right: 0.5em;
+@media (max-width: 400px), screen and (orientation: portrait) {
+  .header-container {
+    flex-direction: column-reverse;
+    padding: 0;
+    gap: 0.5rem;
+  }
+
+  .header-container * {
+    flex: 1;
+  }
+
+  .header-element-right {
+    margin-left: auto;
+  }
+}
+
+@media only screen and (max-height: 600px) and (orientation: landscape) {
+  .header-container {
+   display: none;
+  }
+
+  .container {
+    flex-direction: row;
+    height: 100dvh;
+    width: 100dvw;
+    gap: 1.5rem;
+  }
 }
