@@ -10,6 +10,7 @@ import { CPU } from './emulator/cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
+import { registerServiceWorker } from './utils/service-worker-registration';
 
 const canvas: HTMLCanvasElement | null = document.getElementById('canvas') as HTMLCanvasElement | null;
 const input: HTMLInputElement | null = document.getElementById('file') as HTMLInputElement | null;
@@ -180,4 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
   openConfigurationSideBarBtn?.addEventListener('click', openSideMenu);
 
   setInitialConfigurationsStates();
+});
+
+window.addEventListener('load', () => {
+  registerServiceWorker();
 });

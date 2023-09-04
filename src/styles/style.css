@@ -60,18 +60,21 @@ body {
 .emulator-view {
   display: flex;
   flex-direction: column;
+  padding: 0.6rem;
+  align-items: center;
+  gap: 1rem;
 }
 
 .emulator-view canvas {
   width: 100%;
   border: 1.5px solid #838383;
-  margin-bottom: 1rem;
 }
 
 .rom-controller {
   display: flex;
   flex-direction: row;
   gap: 0.8125em;
+  width: 100%;
 }
 
 .rom-controller input {

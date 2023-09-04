@@ -4,64 +4,12 @@ import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
 import MiniCSSExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
+import { GenerateSW } from 'workbox-webpack-plugin';
 
-export default {
-  entry: {
-    main: path.join(path.resolve(), './src/scripts/main.ts'),
-  },
-  output: {
-    path: path.join(path.resolve(), 'dist'),
-    filename: '[name]-bundle.js'
-  },
-  watchOptions: {
-    ignored: '**/node_modules',
-  },
-  resolve: {
-    extensions: [ '.ts', '.js' ],
-  },
-  resolveLoader: {
-    modules: ['node_modules']
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        loader: 'ts-loader'
-      },
-      {
-        test: /\.css$/,
-        use: [
-          {
-            loader: MiniCSSExtractPlugin.loader,
-          },
-          {
-            loader: 'css-loader',
-          },
-          {
-            loader: "postcss-loader",
-            options: {
-              postcssOptions: {
-                plugins: [
-                  'autoprefixer'
-                ]
-              }
-            }
-          },
-        ],
-      },
-      {
-        test: /\.svg$/,
-        type: 'asset/source',
-      },
-    ],
-  },
-  optimization: {
-    minimizer: [
-      new CssMinimizerPlugin(),
-      new TerserPlugin(),
-    ],
-  },
-  plugins: [
+export default (env, argv) => {
+  const isProduction = argv.mode === 'production';
+
+  const plugins = [
     new MiniCSSExtractPlugin({
       filename: '[name]-bundle.css',
     }),
@@ -71,6 +19,7 @@ export default {
     }),
     new FaviconsWebpackPlugin({
       logo: path.join(path.resolve(), './src/resources/favicon.svg'),
+      logoMaskable: path.join(path.resolve(), './src/resources/maskable.svg'),
       favicons: {
         appName: 'Chip8 Emulator',
         appDescription: 'A Chip-8 emulator written in Typescript.',
@@ -90,11 +39,82 @@ export default {
         },
       },
     }),
-  ],
-  devServer: {
-    static: path.join(path.resolve(), 'dist'),
-    compress: true,
-    port: 4000,
-    open: true,
-  },
+  ];
+
+  if (isProduction) {
+    plugins.push(
+      new GenerateSW({
+        clientsClaim: true,
+        skipWaiting: true,
+        navigateFallback: 'index.html',
+        cleanupOutdatedCaches: true,
+      }),
+    );
+  }
+
+  return {
+    entry: {
+      main: path.join(path.resolve(), './src/scripts/main.ts'),
+    },
+    output: {
+      path: path.join(path.resolve(), 'dist'),
+      filename: '[name]-bundle.js',
+      clean: true,
+    },
+    watchOptions: {
+      ignored: '**/node_modules',
+    },
+    resolve: {
+      extensions: [ '.ts', '.js' ],
+    },
+    resolveLoader: {
+      modules: ['node_modules']
+    },
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader'
+        },
+        {
+          test: /\.css$/,
+          use: [
+            {
+              loader: MiniCSSExtractPlugin.loader,
+            },
+            {
+              loader: 'css-loader',
+            },
+            {
+              loader: "postcss-loader",
+              options: {
+                postcssOptions: {
+                  plugins: [
+                    'autoprefixer'
+                  ]
+                }
+              }
+            },
+          ],
+        },
+        {
+          test: /\.svg$/,
+          type: 'asset/source',
+        },
+      ],
+    },
+    optimization: {
+      minimizer: [
+        new CssMinimizerPlugin(),
+        new TerserPlugin(),
+      ],
+    },
+    plugins: [ ...plugins ],
+    devServer: {
+      static: path.join(path.resolve(), 'dist'),
+      compress: true,
+      port: 4000,
+      open: true,
+    },
+  }
 }
