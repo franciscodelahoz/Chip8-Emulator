@@ -48,10 +48,20 @@ export class KeyBoardInterface {
         this.pressedKey(keyValue);
       });
 
+      key.addEventListener('touchstart', (e) => {
+        const keyValue = Number.parseInt(key.getAttribute('data-key-value') as string, 16);
+        this.pressedKey(keyValue);
+      }, { passive: true });
+
       key.addEventListener('mouseup', (e) => {
         const keyValue = Number.parseInt(key.getAttribute('data-key-value') as string, 16);
         this.releasedKey(keyValue);
       });
+
+      key.addEventListener('touchend', (e) => {
+        const keyValue = Number.parseInt(key.getAttribute('data-key-value') as string, 16);
+        this.releasedKey(keyValue);
+      }, { passive: true });
     });
   }
 
