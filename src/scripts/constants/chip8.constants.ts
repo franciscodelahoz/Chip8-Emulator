@@ -58,3 +58,5 @@ export const xoChipQuirkConfigurations: Record<Chip8Quirks, boolean> = {
   [Chip8Quirks.SHIFT_QUIRK]: false,
   [Chip8Quirks.JUMP_QUIRK]: false,
 }
+
+export const defaultCyclesPerFrame = 30;

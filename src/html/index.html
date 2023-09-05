@@ -49,6 +49,37 @@
       <button id="close-configurations-button" class="icon-button" aria-label="Close configurations">&#x2715;</button>
       <div class="configuration-content">
         <section class="configuration-group">
+          <h2 class="configuration-title">General configurations</h2>
+          <ul class="quirks-list">
+            <li>
+              <label>
+                Cycles per frame
+                <select name="cycles-per-frame-select" id="cycles-per-frame-select">
+                  <option value="7">7 Cycles per frame</option>
+                  <option value="15">15 Cycles per frame</option>
+                  <option value="20">20 Cycles per frame</option>
+                  <option value="30">30 Cycles per frame</option>
+                  <option value="100">100 Cycles per frame</option>
+                  <option value="200">200 Cycles per frame</option>
+                  <option value="500">500 Cycles per frame</option>
+                  <option value="1000">1000 Cycles per frame</option>
+                </select>
+              </label>
+            </li>
+          </ul>
+        </section>
+        <section class="configuration-group">
+          <h2 class="configuration-title">Sound settings</h2>
+          <ul class="quirks-list">
+            <li>
+              <label>
+                <input type="checkbox" name="sound-state-checkbox" id="sound-state-checkbox">
+                Enable/Disable sound
+              </label>
+            </li>
+          </ul>
+        </section>
+        <section class="configuration-group">
           <h2 class="configuration-title">Rom Compatibility</h2>
           <ul class="quirks-list">
             <li>

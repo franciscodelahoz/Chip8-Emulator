@@ -1,7 +1,7 @@
 import { AudioInterface } from '../interfaces/audio';
 import { DisplayInterface } from '../interfaces/display';
 import { KeyBoardInterface } from '../interfaces/keyboard';
-import { Chip8Quirks, chip8Fonts, defaultQuirkConfigurations } from '../constants/chip8.constants';
+import { Chip8Quirks, chip8Fonts, defaultCyclesPerFrame, defaultQuirkConfigurations } from '../constants/chip8.constants';
 
 export class CPU {
   private romFileContent: Uint8Array | null = null;
@@ -28,9 +28,11 @@ export class CPU {
 
   public halted: boolean = true;
 
-  private cyclesPerFrame: number = 20;
+  private cyclesPerFrame: number = defaultCyclesPerFrame;
 
   public isDrawing: boolean = false;
+
+  private soundEnabled = true;
 
   private quirksConfigurations = { ...defaultQuirkConfigurations };
 
@@ -702,14 +704,14 @@ export class CPU {
     }
 
     if (this.ST > 0) {
-      if (!this.playing) {
+      if (!this.playing && this.soundEnabled) {
         this.playing = true;
         this.audioInterface.play(440);
       }
 
       this.ST -= 1;
     } else {
-      if (this.playing) {
+      if (this.playing && this.soundEnabled) {
         this.playing = false;
         this.audioInterface.stop();
       }
@@ -732,5 +734,26 @@ export class CPU {
 
   public setQuirkValue(quirkName: Chip8Quirks, value: boolean) {
     this.quirksConfigurations[quirkName] = value;
+  }
+
+  public getCyclesPerFrame() {
+    return this.cyclesPerFrame;
+  }
+
+  public setCyclesPerFrame(cyclesPerFrame: number) {
+    this.cyclesPerFrame = cyclesPerFrame;
+  }
+
+  public getSoundState() {
+    return this.soundEnabled;
+  }
+
+  public setSoundState(soundEnabled: boolean) {
+    if (!soundEnabled && this.playing) {
+      this.playing = false;
+      this.audioInterface.stop();
+    }
+
+    this.soundEnabled = soundEnabled;
   }
 }

@@ -9,6 +9,10 @@ import { GenerateSW } from 'workbox-webpack-plugin';
 export default (env, argv) => {
   const isProduction = argv.mode === 'production';
 
+  const entryFiles = {
+    main: path.join(path.resolve(), './src/scripts/main.ts'),
+  };
+
   const plugins = [
     new MiniCSSExtractPlugin({
       filename: '[name]-bundle.css',
@@ -50,12 +54,14 @@ export default (env, argv) => {
         cleanupOutdatedCaches: true,
       }),
     );
+
+    Object.assign(entryFiles, {
+      register_service: path.join(path.resolve(), './src/scripts/utils/service-worker-registration.ts'),
+    });
   }
 
   return {
-    entry: {
-      main: path.join(path.resolve(), './src/scripts/main.ts'),
-    },
+    entry: { ...entryFiles },
     output: {
       path: path.join(path.resolve(), 'dist'),
       filename: '[name]-bundle.js',

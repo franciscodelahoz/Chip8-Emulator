@@ -10,7 +10,6 @@ import { CPU } from './emulator/cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
-import { registerServiceWorker } from './utils/service-worker-registration';
 
 const canvas: HTMLCanvasElement | null = document.getElementById('canvas') as HTMLCanvasElement | null;
 const input: HTMLInputElement | null = document.getElementById('file') as HTMLInputElement | null;
@@ -19,6 +18,9 @@ const resetRomBtn: HTMLElement | null = document.getElementById('reset-rom-btn')
 const configurationSideBar: HTMLElement | null = document.getElementById('configuration-sidebar');
 const closeConfigurationSideBarBtn: HTMLElement | null = document.getElementById('close-configurations-button');
 const openConfigurationSideBarBtn: HTMLElement | null = document.getElementById('open-configurations-button');
+
+const cyclesPerFrameSelect: HTMLSelectElement | null = document.getElementById('cycles-per-frame-select') as HTMLSelectElement | null;
+const soundStateCheckbox: HTMLInputElement | null = document.getElementById('sound-state-checkbox') as HTMLInputElement | null;
 
 const quirkConfigCheckboxes = document.getElementsByClassName('quirk-checkbox') as HTMLCollectionOf<HTMLInputElement>;
 
@@ -151,6 +153,56 @@ function setInitialConfigurationsStates() {
   });
 }
 
+function getCyclesPerFrame() {
+  const storedCyclesPerFrameValue = window.localStorage.getItem('cyclesPerFrame');
+
+  if (!storedCyclesPerFrameValue) {
+    return cpu.getCyclesPerFrame();
+  }
+
+  const parsedStoredValue = Number.parseInt(storedCyclesPerFrameValue, 10);
+  cpu.setCyclesPerFrame(parsedStoredValue);
+  return parsedStoredValue;
+}
+
+function setInitialCyclesPerFrameSelectState() {
+  if (cyclesPerFrameSelect) {
+    cyclesPerFrameSelect.value = getCyclesPerFrame().toString();
+
+    cyclesPerFrameSelect.addEventListener('change', () => {
+      const cyclesPerFrame = Number.parseInt(cyclesPerFrameSelect.value, 10);
+      cpu.setCyclesPerFrame(cyclesPerFrame);
+      window.localStorage.setItem('cyclesPerFrame', cyclesPerFrame.toString());
+    });
+  }
+}
+
+function getSoundState() {
+  const storedSoundState = window.localStorage.getItem('soundState');
+
+  if (!storedSoundState) {
+    return cpu.getSoundState();
+  }
+
+  const parsedStoredValue = storedSoundState === 'true' ? true : false;
+
+  cpu.setSoundState(parsedStoredValue);
+  return parsedStoredValue;
+}
+
+function setInitialSoundState() {
+  if (soundStateCheckbox) {
+    soundStateCheckbox.checked = getSoundState();
+
+    soundStateCheckbox.addEventListener('change', () => {
+      const soundState = soundStateCheckbox.checked;
+      cpu.setSoundState(soundState);
+      window.localStorage.setItem('soundState', soundState.toString());
+    });
+  }
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   if (input) {
     input.addEventListener('change', async (event) => {
@@ -181,8 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
   openConfigurationSideBarBtn?.addEventListener('click', openSideMenu);
 
   setInitialConfigurationsStates();
-});
-
-window.addEventListener('load', () => {
-  registerServiceWorker();
+  setInitialCyclesPerFrameSelectState();
+  setInitialSoundState();
 });
