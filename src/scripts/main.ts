@@ -11,22 +11,25 @@ import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
 
-const canvas: HTMLCanvasElement | null = document.getElementById('canvas') as HTMLCanvasElement | null;
-const input: HTMLInputElement | null = document.getElementById('file') as HTMLInputElement | null;
-const resetRomBtn: HTMLElement | null = document.getElementById('reset-rom-btn') as HTMLElement | null;
+const canvas = document.getElementById('canvas') as HTMLCanvasElement | null;
+const input = document.getElementById('file') as HTMLInputElement | null;
+const resetRomBtn = document.getElementById('reset-rom-btn') as HTMLElement | null;
 
-const configurationSideBar: HTMLElement | null = document.getElementById('configuration-sidebar');
-const closeConfigurationSideBarBtn: HTMLElement | null = document.getElementById('close-configurations-button');
-const openConfigurationSideBarBtn: HTMLElement | null = document.getElementById('open-configurations-button');
+const configurationSideBar = document.getElementById('configuration-sidebar') as HTMLElement | null;
+const closeConfigurationSideBarBtn = document.getElementById('close-configurations-button') as HTMLElement | null;
+const openConfigurationSideBarBtn = document.getElementById('open-configurations-button') as HTMLElement | null;
 
-const cyclesPerFrameSelect: HTMLSelectElement | null = document.getElementById('cycles-per-frame-select') as HTMLSelectElement | null;
-const soundStateCheckbox: HTMLInputElement | null = document.getElementById('sound-state-checkbox') as HTMLInputElement | null;
+const cyclesPerFrameSelect = document.getElementById('cycles-per-frame-select') as HTMLSelectElement | null;
+const soundStateCheckbox = document.getElementById('sound-state-checkbox') as HTMLInputElement | null;
+
+const soundLevelRange = document.getElementById('sound-level-range') as HTMLInputElement | null;
+const soundLevelValue = document.getElementById('sound-level-value') as HTMLElement | null;
 
 const quirkConfigCheckboxes = document.getElementsByClassName('quirk-checkbox') as HTMLCollectionOf<HTMLInputElement>;
 
-const chip8ProfileBtn: HTMLElement | null = document.getElementById('chip8-profile');
-const schipProfileBtn: HTMLElement | null = document.getElementById('schip-profile');
-const xoChipProfileBtn: HTMLElement | null = document.getElementById('xo-chip-profile');
+const chip8ProfileBtn = document.getElementById('chip8-profile') as HTMLElement | null;
+const schipProfileBtn = document.getElementById('schip-profile') as HTMLElement | null;
+const xoChipProfileBtn = document.getElementById('xo-chip-profile') as HTMLElement | null;
 
 const displayInstance = new DisplayInterface(canvas);
 const keyboardInstance = new KeyBoardInterface();
@@ -44,7 +47,12 @@ function step(currentTime: number) {
   const deltaTime = currentTime - lastFrameTime;
 
   if (deltaTime >= frameInterval) {
-    cpu.cycle();
+    try {
+      cpu.cycle();
+    } catch(error) {
+      console.error(error);
+      stop();
+    }
 
     lastFrameTime = currentTime;
   }
@@ -202,6 +210,48 @@ function setInitialSoundState() {
   }
 }
 
+function convertAudioGainToSoundLevel(gain: number) {
+  return Math.round(gain * 100);
+}
+
+function convertSoundLevelToGain(soundLevel: number) {
+  return soundLevel / 100;
+}
+
+function getSoundLevel() {
+  const storedGainValue = window.localStorage.getItem('gainLevel');
+
+  if (!storedGainValue) {
+    return audioInstance.getAudioGain();
+  }
+
+  const parsedGainValue = Number.parseFloat(storedGainValue);
+  audioInstance.setAudioGain(parsedGainValue);
+  return parsedGainValue;
+}
+
+function setInitialSoundLevelState() {
+  if (soundLevelRange) {
+    const soundLevel = convertAudioGainToSoundLevel(getSoundLevel()).toString();
+    soundLevelRange.value = soundLevel;
+
+    if (soundLevelValue) {
+      soundLevelValue.innerText = soundLevel;
+    }
+
+    soundLevelRange.addEventListener('change', () => {
+      const soundLevel = Number.parseInt(soundLevelRange.value, 10);
+
+      if (soundLevelValue) {
+        soundLevelValue.innerText = soundLevelRange.value;
+      }
+
+      const gain = convertSoundLevelToGain(soundLevel);
+      audioInstance.setAudioGain(gain);
+      window.localStorage.setItem('gainLevel', gain.toString());
+    });
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   if (input) {
@@ -235,4 +285,5 @@ document.addEventListener('DOMContentLoaded', () => {
   setInitialConfigurationsStates();
   setInitialCyclesPerFrameSelectState();
   setInitialSoundState();
+  setInitialSoundLevelState();
 });

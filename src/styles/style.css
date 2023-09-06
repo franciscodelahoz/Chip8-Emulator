@@ -17,7 +17,8 @@ body {
   align-items: center;
 }
 
-.header-container .header-element-left, .header-container .header-element-right {
+.header-container .header-element-left,
+.header-container .header-element-right {
   flex: 1;
 }
 
@@ -237,7 +238,7 @@ input[type="file"]::file-upload-button {
 
 .configuration-content > section > ul > li {
   font-size: .78em;
-  padding-bottom: 0.8em;
+  margin: 0.8rem auto;
 }
 
 .button-grid-list {
@@ -245,6 +246,27 @@ input[type="file"]::file-upload-button {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   grid-gap: 0.7rem;
+}
+
+.block-item {
+  display: flex;
+  gap: 0.4em;
+  flex-direction: column;
+}
+
+.range-input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4em;
+}
+
+#sound-level-value {
+  flex-grow: 0;
+}
+
+#sound-level-range {
+  flex-grow: 1;
 }
 
 @media (max-width: 400px), screen and (orientation: portrait) {
@@ -260,6 +282,11 @@ input[type="file"]::file-upload-button {
 
   .header-element-right {
     margin-left: auto;
+  }
+
+  .key {
+    width: 3rem;
+    height: 3rem;
   }
 }
 

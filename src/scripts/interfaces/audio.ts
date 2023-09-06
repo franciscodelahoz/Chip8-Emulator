@@ -1,3 +1,5 @@
+import { defaultAudioFrequency, defaultAudioGain } from '../constants/audio.constants';
+
 export class AudioInterface {
   private audioContext: AudioContext;
 
@@ -11,14 +13,14 @@ export class AudioInterface {
     this.audioContext = new AudioContext();
 
     this.gain = new GainNode(this.audioContext, {
-      gain: 0.15,
+      gain: defaultAudioGain,
     });
 
     this.finish = this.audioContext.destination;
     this.gain.connect(this.finish);
   }
 
-  play(frequency: number = 440) {
+  play(frequency: number = defaultAudioFrequency) {
     if (this.audioContext && !this.oscillator) {
       this.oscillator = new OscillatorNode(this.audioContext, {
         type: 'square',
@@ -37,5 +39,13 @@ export class AudioInterface {
 
       this.oscillator = null;
     }
+  }
+
+  getAudioGain() {
+    return this.gain.gain.value;
+  }
+
+  setAudioGain(gain: number) {
+    this.gain.gain.value = gain;
   }
 }

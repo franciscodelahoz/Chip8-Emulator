@@ -60,3 +60,9 @@ export const xoChipQuirkConfigurations: Record<Chip8Quirks, boolean> = {
 }
 
 export const defaultCyclesPerFrame = 30;
+
+export const memorySize = 4096;
+
+export const registersSize = 16;
+
+export const stackSize = 16;

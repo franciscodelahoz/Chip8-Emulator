@@ -1,16 +1,25 @@
 import { AudioInterface } from '../interfaces/audio';
 import { DisplayInterface } from '../interfaces/display';
 import { KeyBoardInterface } from '../interfaces/keyboard';
-import { Chip8Quirks, chip8Fonts, defaultCyclesPerFrame, defaultQuirkConfigurations } from '../constants/chip8.constants';
+import {
+  Chip8Quirks,
+  chip8Fonts,
+  defaultCyclesPerFrame,
+  defaultQuirkConfigurations,
+  memorySize,
+  registersSize,
+  stackSize
+} from '../constants/chip8.constants';
+import { defaultAudioFrequency } from '../constants/audio.constants';
 
 export class CPU {
   private romFileContent: Uint8Array | null = null;
 
-  private memory: Uint8Array = new Uint8Array(4096); // Memory - 4kb (4096 bytes) memory storage (8-bit)
+  private memory: Uint8Array = new Uint8Array(memorySize); // Memory - 4kb (4096 bytes) memory storage (8-bit)
 
-  private registers: Uint8Array = new Uint8Array(16); // Registers - (16 * 8-bit) V0 through VF; VF is a flag
+  private registers: Uint8Array = new Uint8Array(registersSize); // Registers - (16 * 8-bit) V0 through VF; VF is a flag
 
-  private stack: Array<number> = new Array(16); // Stack - (16 * 16-bit)
+  private stack: Array<number> = new Array(stackSize); // Stack - (16 * 16-bit)
 
   private ST: number = 0; // ST - Sound Timer (8-bit)
 
@@ -626,7 +635,7 @@ export class CPU {
            * Store registers V0 through Vx in memory starting at location I.
            */
           case 0x55: {
-            if (this.I > 4095 - x) {
+            if (this.I > memorySize - x) {
               this.halted = true;
               throw new Error('Memory out of bounds.');
             }
@@ -647,7 +656,7 @@ export class CPU {
            * Read registers V0 through Vx from memory starting at location I.
            */
           case 0x65: {
-            if (this.I > 4095 - x) {
+            if (this.I > memorySize - x) {
               this.halted = true;
               throw new Error('Memory out of bounds.');
             }
@@ -706,7 +715,7 @@ export class CPU {
     if (this.ST > 0) {
       if (!this.playing && this.soundEnabled) {
         this.playing = true;
-        this.audioInterface.play(440);
+        this.audioInterface.play(defaultAudioFrequency);
       }
 
       this.ST -= 1;

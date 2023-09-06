@@ -13,7 +13,7 @@
         <%= require('../resources/logo.svg') %>
       </div>
       <div class="header-element-right">
-        <button id="open-configurations-button" class="icon-button">&#9776;</bu>
+        <button id="open-configurations-button" class="icon-button">&#9881;</bu>
       </div>
     </header>
     <main class="container">
@@ -75,6 +75,15 @@
               <label>
                 <input type="checkbox" name="sound-state-checkbox" id="sound-state-checkbox">
                 Enable/Disable sound
+              </label>
+            </li>
+            <li>
+              <label class="block-item">
+                Sound level
+                <div class="range-input-container">
+                  <input type="range" name="sound-level-range" id="sound-level-range" min="0" max="100">
+                  <span id="sound-level-value"></span>
+                </div>
               </label>
             </li>
           </ul>
