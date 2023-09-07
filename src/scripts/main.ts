@@ -54,17 +54,19 @@ function step(currentTime: number) {
       stop();
     }
 
-    lastFrameTime = currentTime;
+    lastFrameTime = currentTime - (deltaTime % frameInterval);
   }
 
   loop = window.requestAnimationFrame(step);
 }
 
 function start() {
+  lastFrameTime = window.performance.now();
   loop = window.requestAnimationFrame(step);
 }
 
 function stop() {
+  lastFrameTime = 0;
   window.cancelAnimationFrame(loop);
 }
 
