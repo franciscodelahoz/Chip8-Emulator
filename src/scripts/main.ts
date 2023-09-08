@@ -41,7 +41,7 @@ let loop = 0;
 let lastFrameTime = 0;
 
 const targetFPS = 60;
-let frameInterval = 1000 / targetFPS;
+const frameInterval = 1000 / targetFPS;
 
 function step(currentTime: number) {
   const deltaTime = currentTime - lastFrameTime;
@@ -51,7 +51,7 @@ function step(currentTime: number) {
       cpu.cycle();
     } catch(error) {
       console.error(error);
-      stop();
+      stopEmulatorLoop();
     }
 
     lastFrameTime = currentTime - (deltaTime % frameInterval);
@@ -60,12 +60,12 @@ function step(currentTime: number) {
   loop = window.requestAnimationFrame(step);
 }
 
-function start() {
+function startEmulatorLoop() {
   lastFrameTime = window.performance.now();
   loop = window.requestAnimationFrame(step);
 }
 
-function stop() {
+function stopEmulatorLoop() {
   lastFrameTime = 0;
   window.cancelAnimationFrame(loop);
 }
@@ -255,31 +255,38 @@ function setInitialSoundLevelState() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initializeRomFileInputEventHandlers() {
   if (input) {
     input.addEventListener('change', async (event) => {
       try {
         const romData = await readFile(event as GenericEvent<HTMLInputElement>);
-        stop();
+        stopEmulatorLoop();
         cpu.loadRom(romData);
-        start();
+        startEmulatorLoop();
       } catch(error) {
         console.error(error);
       }
     });
   }
+}
 
+function initializeResetRomButtonEventHandlers() {
   if (resetRomBtn) {
     resetRomBtn.addEventListener('click', () => {
       try {
-        stop();
+        stopEmulatorLoop();
         cpu.resetRom();
-        start();
+        startEmulatorLoop();
       } catch(error) {
         console.error(error);
       }
     });
   }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializeRomFileInputEventHandlers();
+  initializeResetRomButtonEventHandlers();
 
   closeConfigurationSideBarBtn?.addEventListener('click', closeSideMenu);
   openConfigurationSideBarBtn?.addEventListener('click', openSideMenu);
