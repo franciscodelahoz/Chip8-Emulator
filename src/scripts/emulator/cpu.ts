@@ -45,6 +45,10 @@ export class CPU {
 
   private quirksConfigurations = { ...defaultQuirkConfigurations };
 
+  private flags: Array<number> = new Array(8); // Chip8 Flags (from V0 to V7) (HP48-specific)
+
+  private hiresMode: boolean = false;
+
   constructor(
     private readonly displayInstance: DisplayInterface,
     private readonly audioInterface: AudioInterface,
@@ -69,14 +73,20 @@ export class CPU {
     this.SP = -1;
     this.PC = 0x200;
 
+    this.flags.fill(0);
+
     this.waiting = false;
     this.playing = false;
     this.isDrawing = false;
+    this.hiresMode = false;
 
+    this.displayInstance.setResolutionMode(this.hiresMode);
     this.displayInstance.clearDisplay();
+
     this.displayInstance.render();
     this.keyboardInterface.reset();
     this.audioInterface.stop();
+
     this.loadFont();
   }
 
@@ -117,9 +127,33 @@ export class CPU {
     let x = (opcode & 0x0F00) >> 8;
     let y = (opcode & 0x00F0) >> 4;
 
+    console.log((opcode).toString(16));
+
     // Check The first nibble to determinate the opcode
     switch (opcode & 0xF000) {
       case 0x0000: {
+        switch (opcode & 0x00F0) {
+          /**
+           * Super Chip-8 instruction
+           * Scroll the display 4 pixels to down (00C0)
+           */
+          case 0x00C0: {
+            const n = (opcode & 0xF);
+            this.displayInstance.scrollDown(n);
+            return;
+          }
+
+          /**
+           * Super Chip-8 instruction
+           * Scroll the display 4 pixels to up (00C1)
+           */
+          case 0x00D0: {
+            const n = (opcode & 0xF);
+            this.displayInstance.scrollUp(n);
+            return;
+          }
+        }
+
         switch (opcode & 0x0FFF) {
           /**
            * 00E0 - CLS
@@ -144,6 +178,52 @@ export class CPU {
 
             this.PC = this.stack[this.SP];
             this.SP -= 1;
+            break;
+          }
+
+          /**
+           * Super Chip-8 instruction
+           */
+          case 0x00FD: {
+            this.halted = true;
+            break;
+          }
+
+          /**
+           * Super Chip-8 instruction
+           * Scroll the display 4 pixels to the left (00FC)
+           */
+           case 0x00FC: {
+            this.displayInstance.scrollLeft(4);
+            break;
+          }
+
+          /**
+           * Super Chip-8 instruction
+           * Scroll the display 4 pixels to the right (00FB)
+           */
+          case 0x00FB: {
+            this.displayInstance.scrollRight(4);
+            break;
+          }
+
+          /**
+           * Super Chip-8 instruction
+           * Set the extended screen mode (00FF)
+           */
+          case 0x00FF: {
+            this.hiresMode = true;
+            this.displayInstance.setResolutionMode(true);
+            break;
+          }
+
+          /**
+           * Super Chip-8 instruction
+           * Disable the extended screen mode (00FE)
+           */
+          case 0x00FE: {
+            this.hiresMode = false;
+            this.displayInstance.setResolutionMode(false);
             break;
           }
 
@@ -667,6 +747,40 @@ export class CPU {
 
             if (this.quirksConfigurations[Chip8Quirks.MEMORY_QUIRK]) {
               this.I += x + 1;
+            }
+
+            break;
+          }
+
+          /**
+           * Super Chip-8 instruction (0x0075) (HP48-specific instruction)
+           * Store V0 to Vx in RPL user flags (V0 if x is 0, V0 through V1 if x is 1, etc.).
+           */
+          case 0x75: {
+            if (x > 7) {
+              this.halted = true;
+              throw new Error('Flag out of bounds.');
+            }
+
+            for (let i = 0; i <= x; i++) {
+              this.flags[i] = this.registers[i];
+            }
+
+            break;
+          }
+
+          /**
+           * Super Chip-8 instruction (0x0085) (HP48-specific instruction)
+           * Read V0 to Vx from RPL user flags (V0 if x is 0, V0 through V1 if x is 1, etc.).
+           */
+          case 0x85: {
+            if (x > 7) {
+              this.halted = true;
+              throw new Error('Flag out of bounds.');
+            }
+
+            for (let i = 0; i <= x; i++) {
+              this.registers[i] = this.flags[i];
             }
 
             break;

@@ -1,13 +1,15 @@
+import { screenDimensions } from '../constants/chip8.constants';
+
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;
 
   private context: CanvasRenderingContext2D;
 
-  private readonly columns: number = 64;
+  private columns: number = screenDimensions.chip8.columns;
 
-  private readonly rows: number = 32;
+  private rows: number = screenDimensions.chip8.rows;
 
-  private readonly displayScale: number = 12;
+  private displayScale: number = 12;
 
   private displayBuffer: Array<Array<number>> = [];
 
@@ -58,6 +60,23 @@ export class DisplayInterface {
     return displayBuffer;
   }
 
+  setResolutionMode(hiresMode: boolean) {
+    if (hiresMode) {
+      this.columns = screenDimensions.schip.columns;
+      this.rows = screenDimensions.schip.rows;
+    } else {
+      this.columns = screenDimensions.chip8.columns;
+      this.rows = screenDimensions.chip8.rows;
+    }
+
+    const scaleX = this.canvas.width / this.columns;
+    const scaleY = this.canvas.height / this.rows;
+    this.displayScale = Math.min(scaleX, scaleY);
+
+    this.displayBuffer = this.createDisplayBuffer();
+    this.clearDisplay();
+  }
+
   clearDisplay() {
     this.displayBuffer = this.createDisplayBuffer();
     this.context.fillStyle = this.foregroundColor;
@@ -85,6 +104,58 @@ export class DisplayInterface {
             this.displayScale,
           );
         }
+      }
+    }
+  }
+
+  scrollUp(n: number = 4) {
+    if (n <= 0) return;
+
+    for (let y = 0; y < this.rows - n; y++) {
+      this.displayBuffer[y] = this.displayBuffer[y + n];
+    }
+
+    for (let y = this.rows - n; y < this.rows; y++) {
+      this.displayBuffer[y] = new Array(this.columns).fill(0);
+    }
+  }
+
+  scrollDown(n: number = 4) {
+    if (n <= 0) return;
+
+    for (let y = this.rows - 1; y >= n; y--) {
+      this.displayBuffer[y] = this.displayBuffer[y - n];
+    }
+
+    for (let y = 0; y < n; y++) {
+      this.displayBuffer[y] = new Array(this.columns).fill(0);
+    }
+  }
+
+  scrollLeft(n: number = 4) {
+    if (n <= 0) return;
+
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.columns - n; x++) {
+        this.displayBuffer[y][x] = this.displayBuffer[y][x + n];
+      }
+
+      for (let x = this.columns - n; x < this.columns; x++) {
+        this.displayBuffer[y][x] = 0;
+      }
+    }
+  }
+
+  scrollRight(n: number = 4) {
+    if (n <= 0) return;
+
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = this.columns - 1; x >= n; x--) {
+        this.displayBuffer[y][x] = this.displayBuffer[y][x - n];
+      }
+
+      for (let x = 0; x < n; x++) {
+        this.displayBuffer[y][x] = 0;
       }
     }
   }
