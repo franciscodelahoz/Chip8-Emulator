@@ -127,8 +127,6 @@ export class CPU {
     let x = (opcode & 0x0F00) >> 8;
     let y = (opcode & 0x00F0) >> 4;
 
-    console.log((opcode).toString(16));
-
     // Check The first nibble to determinate the opcode
     switch (opcode & 0xF000) {
       case 0x0000: {
@@ -561,27 +559,31 @@ export class CPU {
        *  set VF = collision.
        */
       case 0xD000: {
-        const spriteWidth = 8;
+        const spriteWidth = this.hiresMode ? 16 : 8;
         const n = (opcode & 0xF);
 
         this.registers[0xF] = 0;
+
+        const displayRows = this.displayInstance.getDisplayRows();
+        const displayColumns = this.displayInstance.getDisplayColumns();
 
         for (let rows = 0; rows < n; rows += 1) {
           const pixel = this.memory[this.I + rows];
 
           for (let columns = 0; columns < spriteWidth; columns += 1) {
-            const value = (pixel >> (7 - columns)) & 1;;
+            const value = (pixel >> (7 - columns)) & 1;
 
             if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
-              if ((this.registers[x] % this.displayInstance.getDisplayColumns()) + columns>= this.displayInstance.getDisplayColumns()
-                || (this.registers[y] % this.displayInstance.getDisplayRows()) + rows >= this.displayInstance.getDisplayRows()
-              ) {
+              const xPixelPos =(this.registers[x] % displayColumns) + columns;
+              const yPixelPos = (this.registers[y] %displayRows) + rows;
+
+              if (xPixelPos >= displayColumns || yPixelPos >=displayRows) {
                 continue;
               }
             }
 
-            const xPixelPos = (this.registers[x] + columns) % this.displayInstance.getDisplayColumns();
-            const yPixelPos = (this.registers[y] + rows) % this.displayInstance.getDisplayRows();
+            const xPixelPos = (this.registers[x] + columns) % displayColumns;
+            const yPixelPos = (this.registers[y] + rows) % displayRows;
 
             const setPixel = this.displayInstance.setPixel(xPixelPos, yPixelPos, value);
 
@@ -771,7 +773,7 @@ export class CPU {
               throw new Error('Flag out of bounds.');
             }
 
-            for (let i = 0; i <= x; i++) {
+            for (let i = 0; i <= x; i += 1) {
               this.flags[i] = this.registers[i];
             }
 
@@ -788,7 +790,7 @@ export class CPU {
               throw new Error('Flag out of bounds.');
             }
 
-            for (let i = 0; i <= x; i++) {
+            for (let i = 0; i <= x; i += 1) {
               this.registers[i] = this.flags[i];
             }
 
