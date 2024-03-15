@@ -559,23 +559,34 @@ export class CPU {
        *  set VF = collision.
        */
       case 0xD000: {
-        const spriteWidth = this.hiresMode ? 16 : 8;
         const n = (opcode & 0xF);
 
         this.registers[0xF] = 0;
 
+        let spriteHeight = (this.hiresMode && n === 0) ? 16 : n;
+        let spriteWidth = (this.hiresMode && n === 0) ? 16 : 8;
+
         const displayRows = this.displayInstance.getDisplayRows();
         const displayColumns = this.displayInstance.getDisplayColumns();
 
-        for (let rows = 0; rows < n; rows += 1) {
-          const pixel = this.memory[this.I + rows];
-
+        for (let rows = 0; rows < spriteHeight; rows += 1) {
           for (let columns = 0; columns < spriteWidth; columns += 1) {
-            const value = (pixel >> (7 - columns)) & 1;
+            /**
+             * Determine the number of bytes per row.
+             * In high-resolution mode, when n === 0, each row spans 16 pixels, requiring 2 bytes per row.
+             */
+            const bytesPerRow = this.hiresMode && n === 0 ? 2 : 1;
+
+            const byteIndex = this.I + (rows * bytesPerRow) + Math.floor(columns / 8);
+            const pixelByte = this.memory[byteIndex];
+
+            // Calculate the position of the bit within the byte.
+            const bitPosition = 7 - (columns % 8);
+            const value = (pixelByte >> bitPosition) & 1;
 
             if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
-              const xPixelPos =(this.registers[x] % displayColumns) + columns;
-              const yPixelPos = (this.registers[y] %displayRows) + rows;
+              const xPixelPos = (this.registers[x] % displayColumns) + columns;
+              const yPixelPos = (this.registers[y] % displayRows) + rows;
 
               if (xPixelPos >= displayColumns || yPixelPos >=displayRows) {
                 continue;
