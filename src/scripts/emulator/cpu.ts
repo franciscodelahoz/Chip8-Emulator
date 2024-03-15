@@ -686,6 +686,15 @@ export class CPU {
           }
 
           /**
+           * Fx30 - LD HF, Vx
+           * Set I = location of 10-byte font for digit Vx (Super Chip-8).
+           */
+          case 0x30: {
+            this.I = this.registers[x] * 10 + 80;
+            break;
+          }
+
+          /**
            * Fx33 - LD B, Vx
            * Store BCD representation of Vx in memory locations I, I+1, and I+2.
            * BCD means binary-coded decimal
