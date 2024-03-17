@@ -169,9 +169,9 @@ export class CPU {
            * top of the stack, then subtracts 1 from the stack pointer.
            */
           case 0x00EE: {
-            if (this.SP === -1) {
+            if (this.SP < 0) {
               this.halted = true;
-              throw new Error('Stack underflow.');
+              throw new Error('Call stack underflow');
             }
 
             this.PC = this.stack[this.SP];
@@ -181,6 +181,8 @@ export class CPU {
 
           /**
            * Super Chip-8 instruction
+           * 00FD - EXIT
+           * The interpreter exits the execution of the current program.
            */
           case 0x00FD: {
             this.halted = true;
@@ -227,7 +229,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error('Illegal instruction.');
+            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
           }
         }
 
@@ -252,13 +254,14 @@ export class CPU {
        *  PC on the top of the stack. The PC is then set to nnn.
        */
       case 0x2000: {
-        if (this.SP === 15) {
+        if (this.SP > (this.stack.length - 1)) {
           this.halted = true;
-          throw new Error('Stack overflow.');
+          throw new Error('Call stack overflow');
         }
 
         const nnn = opcode & 0x0FFF;
         this.SP += 1;
+
         this.stack[this.SP] = this.PC;
         this.PC = nnn;
         break;
@@ -490,7 +493,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error('Illegal instruction.');
+            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
           }
         }
 
@@ -636,7 +639,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error('Illegal instruction.');
+            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
           }
         }
 
@@ -821,7 +824,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error('Illegal instruction.');
+            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
           }
         }
 
@@ -830,7 +833,7 @@ export class CPU {
 
       default: {
         this.halted = true;
-        throw new Error('Illegal instruction.');
+        throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
       }
     }
   }
@@ -863,7 +866,7 @@ export class CPU {
       }
     }
 
-    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed); i += 1) {
+    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed) && (!this.halted); i += 1) {
       if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.isDrawing) {
         continue;
       }

@@ -40,13 +40,12 @@ const cpu = new CPU(displayInstance, audioInstance, keyboardInstance);
 let emulationLoop: number;
 
 function startEmulatorLoop() {
-
   emulationLoop = window.setInterval(() => {
     try {
       cpu.cycle();
     } catch(error) {
       stopEmulatorLoop();
-      return window.alert((error as Error).message);
+      console.error((error as Error).message);
     }
   }, 1000 / 60);
 }
