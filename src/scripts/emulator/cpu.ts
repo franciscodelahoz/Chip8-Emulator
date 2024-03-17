@@ -33,7 +33,7 @@ export class CPU {
 
   private playing: boolean = false;
 
-  private waiting: boolean = false;
+  private waitingForKeyPressed: boolean = false;
 
   public halted: boolean = true;
 
@@ -75,7 +75,7 @@ export class CPU {
 
     this.flags.fill(0);
 
-    this.waiting = false;
+    this.waitingForKeyPressed = false;
     this.playing = false;
     this.isDrawing = false;
     this.hiresMode = false;
@@ -604,6 +604,7 @@ export class CPU {
           }
         }
 
+        this.isDrawing = true;
         break;
       }
 
@@ -658,14 +659,14 @@ export class CPU {
            * Wait for a key press, store the value of the key in Vx.
            */
           case 0x0A: {
-            this.waiting = true;
+            this.waitingForKeyPressed = true;
 
             this.keyboardInterface.onNextKeyPressed = (key) => {
               this.registers[x] = key;
             };
 
             this.keyboardInterface.onNextKeyReleased = () => {
-              this.waiting = false;
+              this.waitingForKeyPressed = false;
             };
 
             break;
@@ -862,15 +863,18 @@ export class CPU {
       }
     }
 
-    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waiting); i += 1) {
-      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.memory[this.PC] === 0xD0) {
-        i = this.cyclesPerFrame;
+    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed); i += 1) {
+      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.isDrawing) {
+        continue;
       }
 
       this.step();
     }
 
-    this.displayInstance.render();
+    if (this.isDrawing) {
+      this.displayInstance.render();
+      this.isDrawing = false
+    }
   }
 
   public getQuirkValue(quirkName: Chip8Quirks) {

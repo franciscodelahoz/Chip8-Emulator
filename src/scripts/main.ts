@@ -37,37 +37,22 @@ const audioInstance = new AudioInterface();
 
 const cpu = new CPU(displayInstance, audioInstance, keyboardInstance);
 
-let loop = 0;
-let lastFrameTime = 0;
+let emulationLoop: number;
 
-const targetFPS = 60;
-const frameInterval = 1000 / targetFPS;
+function startEmulatorLoop() {
 
-function step(currentTime: number) {
-  const deltaTime = currentTime - lastFrameTime;
-
-  if (deltaTime >= frameInterval) {
+  emulationLoop = window.setInterval(() => {
     try {
       cpu.cycle();
     } catch(error) {
-      console.error(error);
       stopEmulatorLoop();
+      return window.alert((error as Error).message);
     }
-
-    lastFrameTime = currentTime - (deltaTime % frameInterval);
-  }
-
-  loop = window.requestAnimationFrame(step);
-}
-
-function startEmulatorLoop() {
-  lastFrameTime = window.performance.now();
-  loop = window.requestAnimationFrame(step);
+  }, 1000 / 60);
 }
 
 function stopEmulatorLoop() {
-  lastFrameTime = 0;
-  window.cancelAnimationFrame(loop);
+  window.clearInterval(emulationLoop);
 }
 
 function readAsArrayBuffer(fileInput: HTMLInputElement): Promise<ArrayBuffer> {
