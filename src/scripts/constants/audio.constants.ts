@@ -1,3 +1,5 @@
-export const defaultAudioGain = 0.15;
+export const defaultAudioGain = 0.01;
 
-export const defaultAudioFrequency = 440;
+export const maximumAudioGain = 0.1;
+
+export const defaultAudioFrequency = 600;
