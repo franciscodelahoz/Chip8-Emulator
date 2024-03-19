@@ -2,7 +2,7 @@ import {
   defaultAudioFrequency,
   defaultAudioGain,
   maximumAudioGain
-} from '../constants/audio.constants';
+} from '../../constants/audio.constants';
 
 export class AudioInterface {
   private audioContext: AudioContext;

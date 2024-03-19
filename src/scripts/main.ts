@@ -6,12 +6,9 @@ import {
   schipQuirkConfigurations,
   xoChipQuirkConfigurations
 } from './constants/chip8.constants';
-import { CPU } from './emulator/cpu';
-import { AudioInterface } from './interfaces/audio';
-import { DisplayInterface } from './interfaces/display';
-import { KeyBoardInterface } from './interfaces/keyboard';
+import { Chip8Emulator } from './emulator/emulator';
 
-const canvas = document.getElementById('canvas') as HTMLCanvasElement | null;
+const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const input = document.getElementById('file') as HTMLInputElement | null;
 const resetRomBtn = document.getElementById('reset-rom-btn') as HTMLElement | null;
 
@@ -31,51 +28,7 @@ const chip8ProfileBtn = document.getElementById('chip8-profile') as HTMLElement 
 const schipProfileBtn = document.getElementById('schip-profile') as HTMLElement | null;
 const xoChipProfileBtn = document.getElementById('xo-chip-profile') as HTMLElement | null;
 
-const displayInstance = new DisplayInterface(canvas);
-const keyboardInstance = new KeyBoardInterface();
-const audioInstance = new AudioInterface();
-
-const cpu = new CPU(displayInstance, audioInstance, keyboardInstance);
-
-let emulationLoop: number;
-
-function startEmulatorLoop() {
-  emulationLoop = window.setInterval(() => {
-    try {
-      cpu.cycle();
-    } catch(error) {
-      stopEmulatorLoop();
-      console.error((error as Error).message);
-    }
-  }, 1000 / 60);
-}
-
-function stopEmulatorLoop() {
-  window.clearInterval(emulationLoop);
-}
-
-function readAsArrayBuffer(fileInput: HTMLInputElement): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    const input: File | undefined = fileInput?.files?.[0];
-
-    if (!input) {
-      reject('no file input found');
-    }
-
-    const fileReader = new FileReader();
-
-    fileReader.readAsArrayBuffer(input as File);
-
-    fileReader.addEventListener('load', (e) => resolve(e.target?.result as ArrayBuffer));
-    fileReader.addEventListener('error', (error) => reject(error));
-  });
-}
-
-async function readFile(fileInput: GenericEvent<HTMLInputElement>) {
-  const arrayBuffer = await readAsArrayBuffer(fileInput.target);
-  const romData = new Uint8Array(arrayBuffer);
-  return romData;
-}
+const emulatorInstance = new Chip8Emulator({ canvas });
 
 function closeSideMenu() {
   if (configurationSideBar) {
@@ -93,12 +46,12 @@ function getQuirkValue(quirkName: Chip8Quirks) {
   const storedQuirkValue = window.localStorage.getItem(quirkName);
 
   if (!storedQuirkValue) {
-    return cpu.getQuirkValue(quirkName);
+    return emulatorInstance.getCpuQuirkValue(quirkName);
   }
 
   const parsedStoredValue = storedQuirkValue === 'true' ? true : false;
 
-  cpu.setQuirkValue(quirkName, parsedStoredValue);
+  emulatorInstance.setCpuQuirkValue(quirkName, parsedStoredValue);
   return parsedStoredValue;
 }
 
@@ -106,7 +59,7 @@ function setQuirkValue(quirkName: Chip8Quirks, value: boolean) {
   const parsedValueToStore = value ? 'true' : 'false';
 
   window.localStorage.setItem(quirkName, parsedValueToStore);
-  cpu.setQuirkValue(quirkName, value);
+  emulatorInstance.setCpuQuirkValue(quirkName, value);
 }
 
 function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>) {
@@ -151,11 +104,11 @@ function getCyclesPerFrame() {
   const storedCyclesPerFrameValue = window.localStorage.getItem('cyclesPerFrame');
 
   if (!storedCyclesPerFrameValue) {
-    return cpu.getCyclesPerFrame();
+    return emulatorInstance.getCpuCyclesPerFrame();
   }
 
   const parsedStoredValue = Number.parseInt(storedCyclesPerFrameValue, 10);
-  cpu.setCyclesPerFrame(parsedStoredValue);
+  emulatorInstance.setCpuCyclesPerFrame(parsedStoredValue);
   return parsedStoredValue;
 }
 
@@ -165,7 +118,7 @@ function setInitialCyclesPerFrameSelectState() {
 
     cyclesPerFrameSelect.addEventListener('change', () => {
       const cyclesPerFrame = Number.parseInt(cyclesPerFrameSelect.value, 10);
-      cpu.setCyclesPerFrame(cyclesPerFrame);
+      emulatorInstance.setCpuCyclesPerFrame(cyclesPerFrame);
       window.localStorage.setItem('cyclesPerFrame', cyclesPerFrame.toString());
     });
   }
@@ -175,12 +128,12 @@ function getSoundState() {
   const storedSoundState = window.localStorage.getItem('soundState');
 
   if (!storedSoundState) {
-    return cpu.getSoundState();
+    return emulatorInstance.getSoundState();
   }
 
   const parsedStoredValue = storedSoundState === 'true' ? true : false;
 
-  cpu.setSoundState(parsedStoredValue);
+  emulatorInstance.setSoundState(parsedStoredValue);
   return parsedStoredValue;
 }
 
@@ -190,7 +143,7 @@ function setInitialSoundState() {
 
     soundStateCheckbox.addEventListener('change', () => {
       const soundState = soundStateCheckbox.checked;
-      cpu.setSoundState(soundState);
+      emulatorInstance.setSoundState(soundState);
       window.localStorage.setItem('soundState', soundState.toString());
     });
   }
@@ -208,11 +161,11 @@ function getSoundLevel() {
   const storedGainValue = window.localStorage.getItem('gainLevel');
 
   if (!storedGainValue) {
-    return audioInstance.getAudioGain();
+    return emulatorInstance.getAudioGain();
   }
 
   const parsedGainValue = Number.parseFloat(storedGainValue);
-  audioInstance.setAudioGain(parsedGainValue);
+  emulatorInstance.setAudioGain(parsedGainValue);
   return parsedGainValue;
 }
 
@@ -233,7 +186,7 @@ function setInitialSoundLevelState() {
       }
 
       const gain = convertSoundLevelToGain(soundLevel);
-      audioInstance.setAudioGain(gain);
+      emulatorInstance.setAudioGain(gain);
       window.localStorage.setItem('gainLevel', gain.toString());
     });
   }
@@ -243,10 +196,7 @@ function initializeRomFileInputEventHandlers() {
   if (input) {
     input.addEventListener('change', async (event) => {
       try {
-        const romData = await readFile(event as GenericEvent<HTMLInputElement>);
-        stopEmulatorLoop();
-        cpu.loadRom(romData);
-        startEmulatorLoop();
+        await emulatorInstance.startEmulation(event as GenericEvent<HTMLInputElement>);
       } catch(error) {
         console.error(error);
       }
@@ -258,9 +208,7 @@ function initializeResetRomButtonEventHandlers() {
   if (resetRomBtn) {
     resetRomBtn.addEventListener('click', () => {
       try {
-        stopEmulatorLoop();
-        cpu.resetRom();
-        startEmulatorLoop();
+        emulatorInstance.resetEmulation();
       } catch(error) {
         console.error(error);
       }

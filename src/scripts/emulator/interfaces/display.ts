@@ -1,4 +1,4 @@
-import { screenDimensions } from '../constants/chip8.constants';
+import { screenDimensions } from '../../constants/chip8.constants';
 
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;
@@ -23,14 +23,14 @@ export class DisplayInterface {
 
   constructor(htmlCanvas: HTMLCanvasElement | null) {
     if (!htmlCanvas) {
-      throw 'Unable to reach the canvas element';
+      throw new Error('Unable to reach the canvas element');
     }
 
     this.canvas = htmlCanvas;
     const canvasContext = this.canvas.getContext('2d');
 
     if (!canvasContext) {
-      throw 'Unable to reach the rendering context';
+      throw new Error('Unable to reach the rendering context');
     }
 
     this.context = canvasContext;

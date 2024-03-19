@@ -1,6 +1,6 @@
-import { AudioInterface } from '../interfaces/audio';
-import { DisplayInterface } from '../interfaces/display';
-import { KeyBoardInterface } from '../interfaces/keyboard';
+import { AudioInterface } from './interfaces/audio';
+import { DisplayInterface } from './interfaces/display';
+import { KeyBoardInterface } from './interfaces/keyboard';
 import {
   Chip8Quirks,
   chip8Fonts,
