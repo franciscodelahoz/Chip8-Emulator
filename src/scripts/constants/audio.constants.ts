@@ -1,4 +1,4 @@
-export const defaultAudioGain = 0.01;
+export const defaultAudioGain = 0.06;
 
 export const maximumAudioGain = 0.1;
 
