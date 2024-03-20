@@ -100,6 +100,16 @@ export class Chip8Emulator {
     return this.cpuInstance.getQuirkValue(quirk);
   }
 
+  public setMemorySize(size: number) {
+    this.cpuInstance.haltCPU();
+    this.cpuInstance.setMemorySize(size);
+    this.cpuInstance.resetRom();
+  }
+
+  public getMemorySize() {
+    return this.cpuInstance.getMemorySize();
+  }
+
   public async startEmulation(event: GenericEvent<HTMLInputElement>) {
     const romData = await this.readFile(event as GenericEvent<HTMLInputElement>);
     this.stopEmulatorLoop();

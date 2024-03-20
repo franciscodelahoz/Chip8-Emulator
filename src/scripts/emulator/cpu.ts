@@ -5,17 +5,19 @@ import {
   Chip8Quirks,
   chip8Fonts,
   defaultCyclesPerFrame,
+  defaultMemorySize,
   defaultQuirkConfigurations,
-  memorySize,
   registersSize,
   stackSize
 } from '../constants/chip8.constants';
 import { defaultAudioFrequency } from '../constants/audio.constants';
 
 export class CPU {
+  private memorySize: number = defaultMemorySize;
+
   private romFileContent: Uint8Array | null = null;
 
-  private memory: Uint8Array = new Uint8Array(memorySize); // Memory - 4kb (4096 bytes) memory storage (8-bit)
+  private memory: Uint8Array = new Uint8Array(defaultMemorySize); // Memory - Chip-8/S-Chip: 4kb (4096 bytes) - XO-CHIP: 64kb (65536 bytes)
 
   private registers: Uint8Array = new Uint8Array(registersSize); // Registers - (16 * 8-bit) V0 through VF; VF is a flag
 
@@ -741,7 +743,7 @@ export class CPU {
            * Store registers V0 through Vx in memory starting at location I.
            */
           case 0x55: {
-            if (this.I > memorySize - x) {
+            if (this.I > this.memorySize - x) {
               this.halted = true;
               throw new Error('Memory out of bounds.');
             }
@@ -762,7 +764,7 @@ export class CPU {
            * Read registers V0 through Vx from memory starting at location I.
            */
           case 0x65: {
-            if (this.I > memorySize - x) {
+            if (this.I > this.memorySize - x) {
               this.halted = true;
               throw new Error('Memory out of bounds.');
             }
@@ -894,6 +896,19 @@ export class CPU {
 
   public setCyclesPerFrame(cyclesPerFrame: number) {
     this.cyclesPerFrame = cyclesPerFrame;
+  }
+
+  public getMemorySize() {
+    return this.memorySize;
+  }
+
+  public setMemorySize(size: number) {
+    this.memorySize = size;
+    this.memory = new Uint8Array(size);
+  }
+
+  public haltCPU() {
+    this.halted = true;
   }
 
   public getSoundState() {

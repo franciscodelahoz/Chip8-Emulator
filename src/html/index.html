@@ -130,9 +130,23 @@
           </ul>
         </section>
         <section class="configuration-group">
+          <h2 class="configuration-title">Memory Settings</h2>
+          <ul class="quirks-list">
+            <li>
+              <label>
+                Memory size
+                <select name="memory-size-select" id="memory-size-select">
+                  <option value="4096">4096 bytes (CHIP-8/S-CHIP)</option>
+                  <option value="65536">65536 bytes (X0-CHIP)</option>
+                </select>
+              </label>
+            </li>
+          </ul>
+        </section>
+        <section class="configuration-group">
           <h2 class="configuration-title">Compatibility Presets</h2>
           <div class="button-grid-list">
-            <button class="default-button" id="chip8-profile">CHIP8</button>
+            <button class="default-button" id="chip8-profile">CHIP-8</button>
             <button class="default-button" id="schip-profile">SCHIP</button>
             <button class="default-button" id="xo-chip-profile">XO-CHIP</button>
           </div>

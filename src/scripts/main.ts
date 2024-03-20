@@ -2,8 +2,10 @@ import '../styles/style.css';
 
 import {
   Chip8Quirks,
+  defaultMemorySize,
   defaultQuirkConfigurations,
   schipQuirkConfigurations,
+  xoChipMemorySize,
   xoChipQuirkConfigurations
 } from './constants/chip8.constants';
 import { Chip8Emulator } from './emulator/emulator';
@@ -23,6 +25,8 @@ const soundLevelRange = document.getElementById('sound-level-range') as HTMLInpu
 const soundLevelValue = document.getElementById('sound-level-value') as HTMLElement | null;
 
 const quirkConfigCheckboxes = document.getElementsByClassName('quirk-checkbox') as HTMLCollectionOf<HTMLInputElement>;
+
+const memorySizeSelect = document.getElementById('memory-size-select') as HTMLSelectElement | null;
 
 const chip8ProfileBtn = document.getElementById('chip8-profile') as HTMLElement | null;
 const schipProfileBtn = document.getElementById('schip-profile') as HTMLElement | null;
@@ -77,6 +81,38 @@ function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>) {
   });
 }
 
+function getMemorySize() {
+  const storedMemorySize = window.localStorage.getItem('memorySize');
+
+  if (!storedMemorySize) {
+    return emulatorInstance.getMemorySize();
+  }
+
+  const parsedStoredValue = Number.parseInt(storedMemorySize, 10);
+  emulatorInstance.setMemorySize(parsedStoredValue);
+  return parsedStoredValue;
+}
+
+function setInitialMemorySizeSelectState() {
+  if (memorySizeSelect) {
+    memorySizeSelect.value = getMemorySize().toString();
+
+    memorySizeSelect.addEventListener('change', () => {
+      const memorySize = Number.parseInt(memorySizeSelect.value, 10);
+      emulatorInstance.setMemorySize(memorySize);
+      window.localStorage.setItem('memorySize', memorySize.toString());
+    });
+  }
+}
+
+function setMemorySizeFromProfile(memorySize: number) {
+  if (memorySizeSelect) {
+    memorySizeSelect.value = memorySize.toString();
+    emulatorInstance.setMemorySize(memorySize);
+    window.localStorage.setItem('memorySize', memorySize.toString());
+  }
+}
+
 function setInitialConfigurationsStates() {
   [ ...quirkConfigCheckboxes ].forEach((element) => {
     const quirkName = element.getAttribute('data-quirk-property-name') as Chip8Quirks;
@@ -89,14 +125,17 @@ function setInitialConfigurationsStates() {
 
   chip8ProfileBtn?.addEventListener('click', () => {
     setQuirkValuesFromProfiles(defaultQuirkConfigurations);
+    setMemorySizeFromProfile(defaultMemorySize);
   });
 
   schipProfileBtn?.addEventListener('click', () => {
     setQuirkValuesFromProfiles(schipQuirkConfigurations);
+    setMemorySizeFromProfile(defaultMemorySize);
   });
 
   xoChipProfileBtn?.addEventListener('click', () => {
     setQuirkValuesFromProfiles(xoChipQuirkConfigurations);
+    setMemorySizeFromProfile(xoChipMemorySize);
   });
 }
 
@@ -227,4 +266,5 @@ document.addEventListener('DOMContentLoaded', () => {
   setInitialCyclesPerFrameSelectState();
   setInitialSoundState();
   setInitialSoundLevelState();
+  setInitialMemorySizeSelectState();
 });

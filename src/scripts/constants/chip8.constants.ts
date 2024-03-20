@@ -71,9 +71,11 @@ export const xoChipQuirkConfigurations: Record<Chip8Quirks, boolean> = {
   [Chip8Quirks.JUMP_QUIRK]: false,
 }
 
-export const defaultCyclesPerFrame = 30;
+export const defaultMemorySize = 4096;
 
-export const memorySize = 4096;
+export const xoChipMemorySize = 65536;
+
+export const defaultCyclesPerFrame = 30;
 
 export const registersSize = 16;
 
