@@ -1,5 +1,5 @@
 import { Chip8Quirks } from '../constants/chip8.constants';
-import { Chip8EmulatorProps } from '../types/emulator';
+import { Chip8EmulatorProps, EmulatorColorPalette } from '../types/emulator';
 import { CPU } from './cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
@@ -110,6 +110,11 @@ export class Chip8Emulator {
 
   public getMemorySize() {
     return this.cpuInstance.getMemorySize();
+  }
+
+  public setColorPalette(palette: EmulatorColorPalette) {
+    this.displayInstance.setColorPalette(palette);
+    this.cpuInstance.resetRom();
   }
 
   public async startEmulation(event: GenericEvent<HTMLInputElement>) {

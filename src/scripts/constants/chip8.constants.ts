@@ -102,10 +102,10 @@ export const paletteColors = {
     '#FFCC33',
   ],
   black_and_white: [
-    '#AAAAAA',
     '#000000',
-    '#FFFFFF',
-    '#666666',
+    '#E5E5E1',
+    '#A0998C',
+    '#605C54',
   ],
   cyberpunk: [
     '#100019',

@@ -9,6 +9,7 @@ import {
   xoChipQuirkConfigurations
 } from './constants/chip8.constants';
 import { Chip8Emulator } from './emulator/emulator';
+import { EmulatorColorPalette } from './types/emulator';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const input = document.getElementById('file') as HTMLInputElement | null;
@@ -31,6 +32,8 @@ const memorySizeSelect = document.getElementById('memory-size-select') as HTMLSe
 const chip8ProfileBtn = document.getElementById('chip8-profile') as HTMLElement | null;
 const schipProfileBtn = document.getElementById('schip-profile') as HTMLElement | null;
 const xoChipProfileBtn = document.getElementById('xo-chip-profile') as HTMLElement | null;
+
+const colorPaletteSelect = document.getElementById('color-palette-select') as HTMLSelectElement | null;
 
 const emulatorInstance = new Chip8Emulator({ canvas });
 
@@ -110,6 +113,22 @@ function setMemorySizeFromProfile(memorySize: number) {
     memorySizeSelect.value = memorySize.toString();
     emulatorInstance.setMemorySize(memorySize);
     window.localStorage.setItem('memorySize', memorySize.toString());
+  }
+}
+
+function setInitialColorPaletteSelectState() {
+  const storedColorPalette = window.localStorage.getItem('colorPalette') as EmulatorColorPalette | null;
+
+  if (colorPaletteSelect) {
+    colorPaletteSelect.value = storedColorPalette || 'default';
+
+    colorPaletteSelect.addEventListener('change', () => {
+      const colorPalette = colorPaletteSelect.value;
+      emulatorInstance.setColorPalette((colorPalette as EmulatorColorPalette));
+      window.localStorage.setItem('colorPalette', colorPalette);
+    });
+
+    emulatorInstance.setColorPalette(storedColorPalette || 'default');
   }
 }
 
@@ -258,6 +277,7 @@ function initializeResetRomButtonEventHandlers() {
 document.addEventListener('DOMContentLoaded', () => {
   initializeRomFileInputEventHandlers();
   initializeResetRomButtonEventHandlers();
+  setInitialColorPaletteSelectState();
 
   closeConfigurationSideBarBtn?.addEventListener('click', closeSideMenu);
   openConfigurationSideBarBtn?.addEventListener('click', openSideMenu);

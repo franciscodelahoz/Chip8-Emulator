@@ -1,4 +1,5 @@
 import { loresDisplayScale, paletteColors, screenDimensions } from '../../constants/chip8.constants';
+import { EmulatorColorPalette } from '../../types/emulator';
 
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;
@@ -84,6 +85,15 @@ export class DisplayInterface {
     ];
 
     this.clearDisplay();
+  }
+
+  public setColorPalette(palette: EmulatorColorPalette) {
+    if (!paletteColors[palette]) {
+      throw new Error('Invalid color palette name.');
+    }
+
+    this.foregroundColor = paletteColors[palette][0];
+    this.planeColors = paletteColors[palette];
   }
 
   clearDisplay() {
