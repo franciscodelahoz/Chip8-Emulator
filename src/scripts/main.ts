@@ -1,4 +1,5 @@
 import '../styles/style.css';
+import { maximumAudioGain } from './constants/audio.constants';
 
 import {
   Chip8Quirks,
@@ -227,23 +228,27 @@ function getSoundLevel() {
   return parsedGainValue;
 }
 
+function setSoundGainPercentageValue(value: number, element: HTMLElement | null) {
+  if (element) {
+    const percentage = Math.ceil((value / maximumAudioGain) * 100);
+    element.innerText = `${percentage}%`;
+  }
+}
+
 function setInitialSoundLevelState() {
   if (soundLevelRange) {
-    const soundLevel = convertAudioGainToSoundLevel(getSoundLevel()).toString();
-    soundLevelRange.value = soundLevel;
+    const storedSoundLevel = getSoundLevel();
+    const soundLevel = convertAudioGainToSoundLevel(storedSoundLevel).toString();
 
-    if (soundLevelValue) {
-      soundLevelValue.innerText = soundLevel;
-    }
+    soundLevelRange.value = soundLevel;
+    setSoundGainPercentageValue(storedSoundLevel, soundLevelValue);
 
     soundLevelRange.addEventListener('change', () => {
       const soundLevel = Number.parseInt(soundLevelRange.value, 10);
 
-      if (soundLevelValue) {
-        soundLevelValue.innerText = soundLevelRange.value;
-      }
-
       const gain = convertSoundLevelToGain(soundLevel);
+      setSoundGainPercentageValue(gain, soundLevelValue);
+
       emulatorInstance.setAudioGain(gain);
       window.localStorage.setItem('gainLevel', gain.toString());
     });

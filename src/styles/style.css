@@ -259,11 +259,12 @@ input[type="file"]::file-upload-button {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.4em;
+  gap: 0.5em;
 }
 
 #sound-level-value {
-  flex-grow: 0;
+  width: 35px;
+  text-align: right;
 }
 
 #sound-level-range {
