@@ -91,3 +91,32 @@ export const screenDimensions = {
     rows: 64,
   },
 }
+
+export const loresDisplayScale = 12;
+
+export const paletteColors = {
+  default: [
+    '#222222',
+    '#33FF66',
+    '#3366FF',
+    '#FFCC33',
+  ],
+  black_and_white: [
+    '#AAAAAA',
+    '#000000',
+    '#FFFFFF',
+    '#666666',
+  ],
+  cyberpunk: [
+    '#100019',
+    '#FFE1FF',
+    '#E700EA',
+    '#8B008B'
+  ],
+  neon_night: [
+    '#222222',
+    '#FFFF33',
+    '#33FFFF',
+    '#FF33FF',
+  ]
+}

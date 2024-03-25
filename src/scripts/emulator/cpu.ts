@@ -51,6 +51,14 @@ export class CPU {
 
   private hiresMode: boolean = false;
 
+  private bitPlane: number = 1; // XO-CHIP: Current bit plane selection (0 to 3) for graphics operations
+
+  private audioPatternBuffer: Uint8Array = new Uint8Array(16); // XO-CHIP: Audio pattern buffer (16 * 8-bit)
+
+  private playingPattern: boolean = false;
+
+  private audioPitch: number = 0; // XO-CHIP: Audio pitch (8-bit)
+
   constructor(
     private readonly displayInstance: DisplayInterface,
     private readonly audioInterface: AudioInterface,
@@ -81,6 +89,13 @@ export class CPU {
     this.playing = false;
     this.isDrawing = false;
     this.hiresMode = false;
+
+    this.bitPlane = 1;
+    this.displayInstance.setActivePlane(1);
+
+    this.audioPatternBuffer.fill(0);
+    this.playingPattern = false;
+    this.audioPitch = 0;
 
     this.displayInstance.setResolutionMode(this.hiresMode);
     this.displayInstance.clearDisplay();
@@ -123,6 +138,21 @@ export class CPU {
     return (this.memory[this.PC] << 8) | this.memory[this.PC + 1];
   }
 
+  private skipNextInstruction() {
+    const nextInstruction = (this.memory[this.PC] << 8) | this.memory[this.PC + 1];
+
+    /**
+     * In XO-CHIP, instructions can be 4 bytes long, like "LD I, nnnn".
+     * If an instruction starts with 0xF000, the program counter jumps 4 bytes; otherwise,
+     * it moves 2 bytes, supporting both CHIP-8 and XO-CHIP formats.
+     */
+    if (nextInstruction === 0xF000) {
+      this.PC += 4;
+    } else {
+      this.PC += 2;
+    }
+  }
+
   private executeOpcode(opcode: number) {
     this.PC += 2;
 
@@ -139,7 +169,10 @@ export class CPU {
            */
           case 0x00C0: {
             const n = (opcode & 0xF);
+
             this.displayInstance.scrollDown(n);
+            this.isDrawing = true;
+
             return;
           }
 
@@ -149,7 +182,10 @@ export class CPU {
            */
           case 0x00D0: {
             const n = (opcode & 0xF);
+
             this.displayInstance.scrollUp(n);
+            this.isDrawing = true;
+
             return;
           }
         }
@@ -197,6 +233,7 @@ export class CPU {
            */
            case 0x00FC: {
             this.displayInstance.scrollLeft(4);
+            this.isDrawing = true;
             break;
           }
 
@@ -206,6 +243,7 @@ export class CPU {
            */
           case 0x00FB: {
             this.displayInstance.scrollRight(4);
+            this.isDrawing = true;
             break;
           }
 
@@ -279,7 +317,7 @@ export class CPU {
         const kk = opcode & 0x00FF;
 
         if (this.registers[x] === kk) {
-          this.PC += 2;
+          this.skipNextInstruction();
         }
 
         break;
@@ -295,21 +333,68 @@ export class CPU {
         const kk = opcode & 0x00FF;
 
         if (this.registers[x] !== kk) {
-          this.PC += 2;
+          this.skipNextInstruction();
         }
 
         break;
       }
 
       /**
-       * 5xy0 - SE Vx, Vy
-       * Skip next instruction if Vx = Vy.
-       * The interpreter compares register Vx to register Vy, and if they are
-       *  equal, increments the program counter by 2.
+       * Instruction modified by X0-CHIP implementation
+       * the original was (5xy0 - SE Vx, Vy) from CHIP-8
        */
       case 0x5000: {
-        if (this.registers[x] === this.registers[y]) {
-          this.PC += 2;
+        const n = opcode & 0x000F;
+
+        switch (n) {
+          /**
+           * 5xy0 - SE Vx, Vy
+           * Skip next instruction if Vx = Vy.
+           * The interpreter compares register Vx to register Vy, and if they are
+           *  equal, increments the program counter by 2 to skip the next instruction.
+           */
+          case 0x0: {
+            if (this.registers[x] === this.registers[y]) {
+              this.skipNextInstruction();
+            }
+
+            break;
+          }
+
+          /**
+           * XO-Chip instruction
+           * 5xy2 - LD [I], Vx - Vy
+           * Store registers Vx through Vy in memory starting at location I.
+           * The interpreter copies the values of registers from Vx to Vy into consecutive
+           * memory locations, starting at the address in I.
+           */
+          case 0x2: {
+            for (let registerIndex = x; registerIndex <= y; registerIndex += 1) {
+              this.memory[this.I + (registerIndex - x)] = this.registers[registerIndex];
+            }
+
+            break;
+          }
+
+          case 0x3: {
+            /**
+             * XO-Chip instruction
+             * 5xy3 - LD Vx - Vy, [I]
+             * Read registers Vx through Vy from memory starting at location I.
+             * The interpreter reads values from consecutive memory locations, starting at address I,
+             * into registers Vx through Vy.
+             */
+              for (let registerIndex = x; registerIndex <= y; registerIndex += 1) {
+                this.registers[registerIndex] = this.memory[this.I + (registerIndex - x)];
+              }
+
+            break;
+          }
+
+          default: {
+            this.halted = true;
+            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
+          }
         }
 
         break;
@@ -510,7 +595,7 @@ export class CPU {
        */
       case 0x9000: {
         if (this.registers[x] !== this.registers[y]) {
-          this.PC += 2;
+          this.skipNextInstruction();
         }
 
         break;
@@ -568,45 +653,43 @@ export class CPU {
 
         this.registers[0xF] = 0;
 
-        let spriteHeight = (this.hiresMode && n === 0) ? 16 : n;
-        let spriteWidth = (this.hiresMode && n === 0) ? 16 : 8;
+        let spriteHeight = (n === 0) ? 16 : n;
+        let spriteWidth = (n === 0) ? 16 : 8;
+
+        let i = this.I;
 
         const displayRows = this.displayInstance.getDisplayRows();
         const displayColumns = this.displayInstance.getDisplayColumns();
 
-        for (let rows = 0; rows < spriteHeight; rows += 1) {
-          for (let columns = 0; columns < spriteWidth; columns += 1) {
-            /**
-             * Determine the number of bytes per row.
-             * In high-resolution mode, when n === 0, each row spans 16 pixels, requiring 2 bytes per row.
-             */
-            const bytesPerRow = this.hiresMode && n === 0 ? 2 : 1;
+        for (let plane = 0; plane < 2; plane += 1) {
+          if (!(this.bitPlane & (plane + 1))) continue;
 
-            const byteIndex = this.I + (rows * bytesPerRow) + Math.floor(columns / 8);
-            const pixelByte = this.memory[byteIndex];
+          for (let rows = 0; rows < spriteHeight; rows += 1) {
+            for (let columns = 0; columns < spriteWidth; columns += 1) {
 
-            // Calculate the position of the bit within the byte.
-            const bitPosition = 7 - (columns % 8);
-            const value = (pixelByte >> bitPosition) & 1;
+              let pixelValue = (n === 0) ? (this.memory[i + (rows * 2) + (columns > 7 ? 1 : 0)] >> (7 - (columns % 8))) & 1
+                : (this.memory[i + rows] >> (7 - columns)) & 1;
 
-            if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
-              const xPixelPos = (this.registers[x] % displayColumns) + columns;
-              const yPixelPos = (this.registers[y] % displayRows) + rows;
+              if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
+                if ((this.registers[x] % displayColumns) + columns >= displayColumns
+                  || (this.registers[y] % displayRows) + rows >=displayRows
+                ) {
+                  continue;
+                }
+              }
 
-              if (xPixelPos >= displayColumns || yPixelPos >=displayRows) {
-                continue;
+              const xPixelPos = (this.registers[x] + columns) % displayColumns;
+              const yPixelPos = (this.registers[y] + rows) % displayRows;
+
+              const setPixel = this.displayInstance.setPixel(plane, xPixelPos, yPixelPos, pixelValue);
+
+              if (setPixel) {
+                this.registers[0xF] = 1;
               }
             }
-
-            const xPixelPos = (this.registers[x] + columns) % displayColumns;
-            const yPixelPos = (this.registers[y] + rows) % displayRows;
-
-            const setPixel = this.displayInstance.setPixel(xPixelPos, yPixelPos, value);
-
-            if (setPixel) {
-              this.registers[0xF] = 1;
-            }
           }
+
+          i += (n === 0) ? 32 : n;
         }
 
         this.isDrawing = true;
@@ -621,7 +704,7 @@ export class CPU {
            */
           case 0x9E: {
             if (this.keyboardInterface.isKeyPressed(this.registers[x])) {
-              this.PC += 2;
+              this.skipNextInstruction();
             }
 
             break;
@@ -633,7 +716,7 @@ export class CPU {
            */
           case 0xA1: {
             if (!this.keyboardInterface.isKeyPressed(this.registers[x])) {
-              this.PC += 2;
+              this.skipNextInstruction();
             }
 
             break;
@@ -650,6 +733,43 @@ export class CPU {
 
       case 0xF000: {
         switch (opcode & 0x00FF) {
+          /**
+           * XO-CHIP instruction
+           * LD I, nnnn (Long I)
+           * Set I = 16-bit address (stored in next two bytes).
+           */
+          case 0x00: {
+            this.I = (this.memory[this.PC] << 8) | this.memory[this.PC + 1];
+            this.PC += 2; // Move past the two bytes that form the 16-bit address
+
+            break;
+          }
+
+          /**
+           * XO-CHIP instruction
+           * PLANE n
+           * Set the bit plane where 0 <= n <= 3.
+           */
+          case 0x01: {
+            this.bitPlane = x & 0x03;
+            this.displayInstance.setActivePlane(this.bitPlane);
+            break;
+          }
+
+          /**
+           * XO-CHIP instruction
+           * AUDIO
+           * Store bytes starting at I in the audio pattern buffer.
+           */
+          case 0x02: {
+            for (let i = 0; i < 16; i += 1) {
+              this.audioPatternBuffer[i] = this.memory[this.I + i];
+            }
+
+            this.playingPattern = true;
+            break;
+          }
+
           /**
            * Fx07 - LD Vx, DT
            * Set Vx = delay timer value.
@@ -728,13 +848,22 @@ export class CPU {
             // Get the hundreds digit and place it in I.
             this.memory[this.I] = Math.floor(Vx / 100);
 
-            // Get tens digit and place it in I+1. Gets a value between 0 and 99, then divides by 10 to give us a value
-            // between 0 and 9.
+            // Get tens digit and place it in I+1. Gets a value between 0 and 99, then divides by 10 to give us a value between 0 and 9.
             this.memory[this.I + 1] = Math.floor((Vx % 100) / 10);
 
             // Get the value of the ones (last) digit and place it in I+2. 0 through 9.
             this.memory[this.I + 2] = Math.floor(Vx % 10);
 
+            break;
+          }
+
+          /**
+           * XO-CHIP instruction
+           * PITCH Vx
+           * Set audio pitch to Vx.
+            */
+          case 0x3A: {
+            this.audioPitch = this.registers[x];
             break;
           }
 

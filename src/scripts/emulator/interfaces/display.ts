@@ -1,4 +1,4 @@
-import { screenDimensions } from '../../constants/chip8.constants';
+import { loresDisplayScale, paletteColors, screenDimensions } from '../../constants/chip8.constants';
 
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;
@@ -9,9 +9,9 @@ export class DisplayInterface {
 
   private rows: number = screenDimensions.chip8.rows;
 
-  private displayScale: number = 12;
+  private displayScale: number = loresDisplayScale;
 
-  private displayBuffer: Array<Array<number>> = [];
+  private displayBuffers: Array<Array<Array<number>>> = [];
 
   private displayWidth: number;
 
@@ -19,7 +19,9 @@ export class DisplayInterface {
 
   private foregroundColor: string;
 
-  private pixelColor: string;
+  private planeColors: string[];
+
+  private bitPlane: number = 1;
 
   constructor(htmlCanvas: HTMLCanvasElement | null) {
     if (!htmlCanvas) {
@@ -35,7 +37,10 @@ export class DisplayInterface {
 
     this.context = canvasContext;
 
-    this.displayBuffer = this.createDisplayBuffer();
+    this.displayBuffers = [
+      this.createDisplayBuffer(),
+      this.createDisplayBuffer(),
+    ];
 
     this.displayWidth = this.columns * this.displayScale;
     this.displayHeight = this.rows * this.displayScale;
@@ -43,8 +48,8 @@ export class DisplayInterface {
     this.context.canvas.width = this.displayWidth;
     this.context.canvas.height = this.displayHeight;
 
-    this.foregroundColor = '#222222';
-    this.pixelColor = '#33FF66';
+    this.foregroundColor = paletteColors.default[0];
+    this.planeColors = paletteColors.default;
   }
 
   createDisplayBuffer() {
@@ -73,37 +78,62 @@ export class DisplayInterface {
     const scaleY = this.canvas.height / this.rows;
     this.displayScale = Math.min(scaleX, scaleY);
 
-    this.displayBuffer = this.createDisplayBuffer();
+    this.displayBuffers = [
+      this.createDisplayBuffer(),
+      this.createDisplayBuffer(),
+    ];
+
     this.clearDisplay();
   }
 
   clearDisplay() {
-    this.displayBuffer = this.createDisplayBuffer();
+    this.displayBuffers = [
+      this.createDisplayBuffer(),
+      this.createDisplayBuffer(),
+    ];
+
     this.context.fillStyle = this.foregroundColor;
     this.context.fillRect(0, 0, this.displayWidth, this.displayHeight);
   }
 
-  setPixel(x: number, y: number, value: number) {
-    const collision = this.displayBuffer[y][x] & value;
-    this.displayBuffer[y][x] ^= value;
+  setPixel(plane: number = 0, x: number, y: number, value: number) {
+    const collision = this.displayBuffers[plane][y][x] & value;
+    this.displayBuffers[plane][y][x] ^= value;
     return collision;
+  }
+
+  setActivePlane(plane: number) {
+    this.bitPlane = plane;
+  }
+
+  private getDrawColor(x: number, y: number) {
+    let colorIndex = 0;
+
+    for (let plane = 0; plane < this.displayBuffers.length; plane++) {
+      if (this.displayBuffers[plane][y][x]) {
+        colorIndex |= 1 << plane;
+      }
+    }
+
+    return this.planeColors[colorIndex];
   }
 
   render() {
     this.context.fillStyle = this.foregroundColor;
     this.context.fillRect(0, 0, this.displayWidth, this.displayHeight);
-    this.context.fillStyle = this.pixelColor;
 
-    for (let y = 0; y < this.displayBuffer.length; y += 1) {
-      for (let x = 0; x < this.displayBuffer[y].length; x += 1) {
-        if (this.displayBuffer[y][x]) {
-          this.context.fillRect(
-            x * this.displayScale,
-            y * this.displayScale,
-            this.displayScale,
-            this.displayScale,
-          );
-        }
+    for (let y = 0; y < this.rows; y += 1) {
+      for (let x = 0; x < this.columns; x += 1) {
+        let drawColor = this.getDrawColor(x, y);
+
+        this.context.fillStyle = drawColor;
+
+        this.context.fillRect(
+          x * this.displayScale,
+          y * this.displayScale,
+          this.displayScale,
+          this.displayScale,
+        );
       }
     }
   }
@@ -111,37 +141,49 @@ export class DisplayInterface {
   scrollUp(n: number = 4) {
     if (n <= 0) return;
 
-    for (let y = 0; y < this.rows - n; y++) {
-      this.displayBuffer[y] = this.displayBuffer[y + n];
-    }
+    for (let plane = 0; plane < 2; plane += 1) {
+      if (!(this.bitPlane & (plane + 1))) continue;
 
-    for (let y = this.rows - n; y < this.rows; y++) {
-      this.displayBuffer[y] = new Array(this.columns).fill(0);
+      for (let y = 0; y < this.rows - n; y += 1) {
+        this.displayBuffers[plane][y] = [ ...this.displayBuffers[plane][y + n] ];
+      }
+
+      for (let y = this.rows - n; y < this.rows; y += 1) {
+        this.displayBuffers[plane][y] = new Array(this.columns).fill(0);
+      }
     }
   }
 
   scrollDown(n: number = 4) {
     if (n <= 0) return;
 
-    for (let y = this.rows - 1; y >= n; y--) {
-      this.displayBuffer[y] = this.displayBuffer[y - n];
-    }
+    for (let plane = 0; plane < 2; plane += 1) {
+      if (!(this.bitPlane & (plane + 1))) continue;
 
-    for (let y = 0; y < n; y++) {
-      this.displayBuffer[y] = new Array(this.columns).fill(0);
+      for (let y = this.rows - 1; y >= n; y -= 1) {
+        this.displayBuffers[plane][y] = [ ...this.displayBuffers[plane][y - n] ];
+      }
+
+      for (let y = 0; y < n; y += 1) {
+        this.displayBuffers[plane][y] = new Array(this.columns).fill(0);
+      }
     }
   }
 
   scrollLeft(n: number = 4) {
     if (n <= 0) return;
 
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.columns - n; x++) {
-        this.displayBuffer[y][x] = this.displayBuffer[y][x + n];
-      }
+    for (let plane = 0; plane < 2; plane += 1) {
+      if (!(this.bitPlane & (plane + 1))) continue;
 
-      for (let x = this.columns - n; x < this.columns; x++) {
-        this.displayBuffer[y][x] = 0;
+      for (let y = 0; y < this.rows; y += 1) {
+        for (let x = 0; x < this.columns - n; x += 1) {
+          this.displayBuffers[plane][y][x] = this.displayBuffers[plane][y][x + n];
+        }
+
+        for (let x = this.columns - n; x < this.columns; x += 1) {
+          this.displayBuffers[plane][y][x] = 0;
+        }
       }
     }
   }
@@ -149,13 +191,17 @@ export class DisplayInterface {
   scrollRight(n: number = 4) {
     if (n <= 0) return;
 
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = this.columns - 1; x >= n; x--) {
-        this.displayBuffer[y][x] = this.displayBuffer[y][x - n];
-      }
+    for (let plane = 0; plane < 2; plane += 1) {
+      if (!(this.bitPlane & (plane + 1))) continue;
 
-      for (let x = 0; x < n; x++) {
-        this.displayBuffer[y][x] = 0;
+      for (let y = 0; y < this.rows; y += 1) {
+        for (let x = this.columns - 1; x >= n; x -= 1) {
+          this.displayBuffers[plane][y][x] = this.displayBuffers[plane][y][x - n];
+        }
+
+        for (let x = 0; x < n; x += 1) {
+          this.displayBuffers[plane][y][x] = 0;
+        }
       }
     }
   }

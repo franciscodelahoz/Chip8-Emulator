@@ -25,6 +25,8 @@ export class Chip8Emulator {
   }
 
   private startEmulatorLoop() {
+    const frameTime = 1000 / 60;
+
     this.emulationLoop = window.setInterval(() => {
       try {
         this.cpuInstance.cycle();
@@ -32,7 +34,7 @@ export class Chip8Emulator {
         this.stopEmulatorLoop();
         console.error((error as Error).message);
       }
-    }, 1000 / 60);
+    }, frameTime);
   }
 
   private stopEmulatorLoop() {
