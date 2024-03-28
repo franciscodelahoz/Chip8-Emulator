@@ -41,7 +41,7 @@ export class CPU {
 
   private cyclesPerFrame: number = defaultCyclesPerFrame;
 
-  public isDrawing: boolean = false;
+  public drawingFlag: boolean = true;
 
   private soundEnabled = true;
 
@@ -87,7 +87,7 @@ export class CPU {
 
     this.waitingForKeyPressed = false;
     this.playing = false;
-    this.isDrawing = false;
+    this.drawingFlag = true;
     this.hiresMode = false;
 
     this.bitPlane = 1;
@@ -171,7 +171,7 @@ export class CPU {
             const n = (opcode & 0xF);
 
             this.displayInstance.scrollDown(n);
-            this.isDrawing = true;
+            this.drawingFlag = true;
 
             return;
           }
@@ -184,7 +184,7 @@ export class CPU {
             const n = (opcode & 0xF);
 
             this.displayInstance.scrollUp(n);
-            this.isDrawing = true;
+            this.drawingFlag = true;
 
             return;
           }
@@ -197,6 +197,7 @@ export class CPU {
            */
           case 0x00E0: {
             this.displayInstance.clearDisplay();
+            this.drawingFlag = true;
             break;
           }
 
@@ -209,7 +210,7 @@ export class CPU {
           case 0x00EE: {
             if (this.SP < 0) {
               this.halted = true;
-              throw new Error('Call stack underflow');
+              this.logError('Call stack underflow', opcode);
             }
 
             this.PC = this.stack[this.SP];
@@ -233,7 +234,7 @@ export class CPU {
            */
            case 0x00FC: {
             this.displayInstance.scrollLeft(4);
-            this.isDrawing = true;
+            this.drawingFlag = true;
             break;
           }
 
@@ -243,7 +244,7 @@ export class CPU {
            */
           case 0x00FB: {
             this.displayInstance.scrollRight(4);
-            this.isDrawing = true;
+            this.drawingFlag = true;
             break;
           }
 
@@ -269,7 +270,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
+            this.logError('Call stack overflow', opcode);
           }
         }
 
@@ -296,7 +297,7 @@ export class CPU {
       case 0x2000: {
         if (this.SP > (this.stack.length - 1)) {
           this.halted = true;
-          throw new Error('Call stack overflow');
+          this.logError('Call stack overflow', opcode);
         }
 
         const nnn = opcode & 0x0FFF;
@@ -393,7 +394,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
+            this.logError('Illegal instruction', opcode);
           }
         }
 
@@ -580,7 +581,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
+            this.logError('Illegal instruction', opcode);
           }
         }
 
@@ -692,7 +693,7 @@ export class CPU {
           i += (n === 0) ? 32 : n;
         }
 
-        this.isDrawing = true;
+        this.drawingFlag = true;
         break;
       }
 
@@ -724,7 +725,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
+            this.logError('Illegal instruction', opcode);
           }
         }
 
@@ -874,7 +875,7 @@ export class CPU {
           case 0x55: {
             if (this.I > this.memorySize - x) {
               this.halted = true;
-              throw new Error('Memory out of bounds.');
+              this.logError('Memory out of bounds.', opcode);
             }
 
             for (let registerIndex = 0; registerIndex <= x; registerIndex += 1) {
@@ -895,7 +896,7 @@ export class CPU {
           case 0x65: {
             if (this.I > this.memorySize - x) {
               this.halted = true;
-              throw new Error('Memory out of bounds.');
+              this.logError('Memory out of bounds', opcode);
             }
 
             for (let registerIndex = 0; registerIndex <= x; registerIndex += 1) {
@@ -916,7 +917,7 @@ export class CPU {
           case 0x75: {
             if (x > 7) {
               this.halted = true;
-              throw new Error('Flag out of bounds.');
+              this.logError('Flag out of bounds', opcode);
             }
 
             for (let i = 0; i <= x; i += 1) {
@@ -933,7 +934,7 @@ export class CPU {
           case 0x85: {
             if (x > 7) {
               this.halted = true;
-              throw new Error('Flag out of bounds.');
+              this.logError('Flag out of bounds', opcode);
             }
 
             for (let i = 0; i <= x; i += 1) {
@@ -955,7 +956,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
+            this.logError('Illegal instruction', opcode);
           }
         }
 
@@ -964,7 +965,7 @@ export class CPU {
 
       default: {
         this.halted = true;
-        throw new Error(`Illegal instruction: 0x${opcode.toString(16)}`);
+        this.logError('Illegal instruction', opcode);
       }
     }
   }
@@ -998,16 +999,16 @@ export class CPU {
     }
 
     for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed) && (!this.halted); i += 1) {
-      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.isDrawing) {
+      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.drawingFlag) {
         continue;
       }
 
       this.step();
     }
 
-    if (this.isDrawing) {
+    if (this.drawingFlag) {
       this.displayInstance.render();
-      this.isDrawing = false
+      this.drawingFlag = false;
     }
   }
 
@@ -1051,5 +1052,30 @@ export class CPU {
     }
 
     this.soundEnabled = soundEnabled;
+  }
+
+  private logError(message: string, opcode: number) {
+    console.error(`${message} @ Address 0x${(this.PC - 2).toString(16)} : Opcode: 0x${opcode.toString(16)}`);
+    this.dumpStatus();
+  }
+
+  public dumpStatus() {
+    console.log('%cCPU Status:', 'font-weight: bold; font-size: 12px;');
+    console.log(`    PC: ${this.PC} SP: ${this.SP} I: ${this.I} DT: ${this.DT} ST: ${this.ST}`);
+
+    console.log('%cRegisters:', 'font-weight: bold; font-size: 12px;');
+    for (const [ index, value ] of this.registers.entries()) {
+      console.log(`    v${index}: ${value}`);
+    }
+
+    console.log('%cStack:', 'font-weight: bold; font-size: 12px;');
+    for (const [ index, value ] of this.stack.entries()) {
+      console.log(`    v${index}: ${value}`);
+    }
+
+    console.log('%cQuirks:', 'font-weight: bold; font-size: 12px;');
+    for (const [ key, value ] of Object.entries(this.quirksConfigurations)) {
+      console.log(`    ${key}: ${value}`);
+    }
   }
 }
