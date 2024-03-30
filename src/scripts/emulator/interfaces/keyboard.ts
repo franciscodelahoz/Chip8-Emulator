@@ -110,4 +110,13 @@ export class KeyBoardInterface {
     const pressedKey = this.keyMap[event.keyCode];
     this.releasedKey(pressedKey)
   }
+
+
+  registerKeyPressedEvent(keys: string[], callback: () => void) {
+    document.addEventListener('keydown', (event) => {
+      if (keys.includes(event.key)) {
+        callback();
+      }
+    });
+  }
 }

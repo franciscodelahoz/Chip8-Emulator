@@ -22,6 +22,8 @@ export class Chip8Emulator {
     this.audioInstance = new AudioInterface();
 
     this.cpuInstance = new CPU(this.displayInstance, this.audioInstance, this.keyboardInstance);
+
+    this.registerKeyboardEvents();
   }
 
   private startEmulatorLoop() {
@@ -128,5 +130,15 @@ export class Chip8Emulator {
     this.stopEmulatorLoop();
     this.cpuInstance.resetRom();
     this.startEmulatorLoop();
+  }
+
+  private registerKeyboardEvents() {
+    this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
+      this.cpuInstance.dumpStatus();
+    });
+
+    this.keyboardInstance.registerKeyPressedEvent(['h'], () => {
+      this.cpuInstance.haltCPU();
+    });
   }
 }

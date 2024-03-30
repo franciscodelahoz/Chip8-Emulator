@@ -639,7 +639,7 @@ export class CPU {
        */
       case 0xC000: {
         const kk = opcode & 0X00FF;
-        const rnd = Math.floor(Math.random() * 0xFF);
+        const rnd = Math.round(Math.random() * 0xFF);
         this.registers[x] = rnd & kk;
         break;
       }
@@ -651,6 +651,9 @@ export class CPU {
        */
       case 0xD000: {
         const n = (opcode & 0xF);
+
+        const vx = this.registers[x];
+        const vy = this.registers[y];
 
         this.registers[0xF] = 0;
 
@@ -672,15 +675,13 @@ export class CPU {
                 : (this.memory[i + rows] >> (7 - columns)) & 1;
 
               if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
-                if ((this.registers[x] % displayColumns) + columns >= displayColumns
-                  || (this.registers[y] % displayRows) + rows >=displayRows
-                ) {
+                if ((vx % displayColumns) + columns >= displayColumns || (vy % displayRows) + rows >=displayRows) {
                   continue;
                 }
               }
 
-              const xPixelPos = (this.registers[x] + columns) % displayColumns;
-              const yPixelPos = (this.registers[y] + rows) % displayRows;
+              const xPixelPos = (vx + columns) % displayColumns;
+              const yPixelPos = (vy + rows) % displayRows;
 
               const setPixel = this.displayInstance.setPixel(plane, xPixelPos, yPixelPos, pixelValue);
 
