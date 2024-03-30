@@ -662,6 +662,10 @@ export class CPU {
 
         let i = this.I;
 
+        if (this.quirksConfigurations[Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK]) {
+          spriteWidth = 8;
+        }
+
         const displayRows = this.displayInstance.getDisplayRows();
         const displayColumns = this.displayInstance.getDisplayColumns();
 
@@ -673,6 +677,11 @@ export class CPU {
 
               let pixelValue = (n === 0) ? (this.memory[i + (rows * 2) + (columns > 7 ? 1 : 0)] >> (7 - (columns % 8))) & 1
                 : (this.memory[i + rows] >> (7 - columns)) & 1;
+
+              // Special handling for n equal to 0 when not in hires, this it's needed for HAP's Rom (I don't know why it's needed, but it is)
+              if (this.quirksConfigurations[Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK] && (n === 0 && !this.hiresMode)) {
+                pixelValue = (this.memory[i + rows] >> (7 - columns)) & 1;
+              }
 
               if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
                 if ((vx % displayColumns) + columns >= displayColumns || (vy % displayRows) + rows >=displayRows) {
@@ -1056,27 +1065,27 @@ export class CPU {
   }
 
   private logError(message: string, opcode: number) {
-    console.error(`${message} @ Address 0x${(this.PC - 2).toString(16)} : Opcode: 0x${opcode.toString(16)}`);
+    console.error(`${message} @ Address 0x${(this.PC - 2).toString(16).toUpperCase()} : Opcode: 0x${opcode.toString(16).toUpperCase()}`);
     this.dumpStatus();
   }
 
   public dumpStatus() {
     console.log('%cCPU Status:', 'font-weight: bold; font-size: 12px;');
-    console.log(`    PC: ${this.PC} SP: ${this.SP} I: ${this.I} DT: ${this.DT} ST: ${this.ST}`);
+    console.log(`  PC: ${this.PC} SP: ${this.SP} I: ${this.I} DT: ${this.DT} ST: ${this.ST}`);
 
     console.log('%cRegisters:', 'font-weight: bold; font-size: 12px;');
     for (const [ index, value ] of this.registers.entries()) {
-      console.log(`    v${index}: ${value}`);
+      console.log(`  v${index}: 0x${value.toString(16).toUpperCase()}`);
     }
 
     console.log('%cStack:', 'font-weight: bold; font-size: 12px;');
     for (const [ index, value ] of this.stack.entries()) {
-      console.log(`    v${index}: ${value}`);
+      console.log(`  v${index}: 0x${value.toString(16).toUpperCase()}`);
     }
 
     console.log('%cQuirks:', 'font-weight: bold; font-size: 12px;');
     for (const [ key, value ] of Object.entries(this.quirksConfigurations)) {
-      console.log(`    ${key}: ${value}`);
+      console.log(`  ${key}: ${value}`);
     }
   }
 }

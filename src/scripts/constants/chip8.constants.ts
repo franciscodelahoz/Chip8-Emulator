@@ -42,6 +42,8 @@ export const enum Chip8Quirks {
   SHIFT_QUIRK = 'shiftQuirk',
   /* The "jump to some address plus v0" instruction (Bnnn) doesn't use v0, but vX instead where X is the highest nibble of nnn */
   JUMP_QUIRK = 'jumpQuirks',
+  /* Adjusts for ROMs that define sprite height as zero in low-resolution mode, interpreting it as a height of 8 pixels. */
+  ZERO_HEIGHT_SPRITE_LORES_QUIRK = 'zeroHeightSpriteLoresQuirk',
 }
 
 export const defaultQuirkConfigurations: Record<Chip8Quirks, boolean> = {
@@ -51,6 +53,7 @@ export const defaultQuirkConfigurations: Record<Chip8Quirks, boolean> = {
   [Chip8Quirks.CLIP_QUIRK]: true,
   [Chip8Quirks.SHIFT_QUIRK]: false,
   [Chip8Quirks.JUMP_QUIRK]: false,
+  [Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK]: false,
 }
 
 export const schipQuirkConfigurations: Record<Chip8Quirks, boolean> = {
@@ -60,6 +63,7 @@ export const schipQuirkConfigurations: Record<Chip8Quirks, boolean> = {
   [Chip8Quirks.CLIP_QUIRK]: true,
   [Chip8Quirks.SHIFT_QUIRK]: true,
   [Chip8Quirks.JUMP_QUIRK]: true,
+  [Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK]: false,
 }
 
 export const xoChipQuirkConfigurations: Record<Chip8Quirks, boolean> = {
@@ -69,6 +73,7 @@ export const xoChipQuirkConfigurations: Record<Chip8Quirks, boolean> = {
   [Chip8Quirks.CLIP_QUIRK]: false,
   [Chip8Quirks.SHIFT_QUIRK]: false,
   [Chip8Quirks.JUMP_QUIRK]: false,
+  [Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK]: false,
 }
 
 export const defaultMemorySize = 4096;
