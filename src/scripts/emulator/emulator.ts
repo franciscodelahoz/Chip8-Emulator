@@ -133,12 +133,12 @@ export class Chip8Emulator {
   }
 
   private registerKeyboardEvents() {
-    this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
+    this.keyboardInstance.registerKeyPressedEvent(['h'], () => {
       this.cpuInstance.dumpStatus();
     });
 
-    this.keyboardInstance.registerKeyPressedEvent(['h'], () => {
-      this.cpuInstance.haltCPU();
+    this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
+      this.cpuInstance.toggleCPUHaltState();
     });
   }
 }

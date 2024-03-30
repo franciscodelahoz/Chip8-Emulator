@@ -1047,6 +1047,10 @@ export class CPU {
     this.memory = new Uint8Array(size);
   }
 
+  public toggleCPUHaltState() {
+    this.halted = !this.halted;
+  }
+
   public haltCPU() {
     this.halted = true;
   }
