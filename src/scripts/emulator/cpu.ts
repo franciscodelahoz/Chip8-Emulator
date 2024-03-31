@@ -1009,8 +1009,8 @@ export class CPU {
     }
 
     for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed) && (!this.halted); i += 1) {
-      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.drawingFlag) {
-        continue;
+      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.memory[this.PC] === 0xD0) {
+        i = this.cyclesPerFrame;
       }
 
       this.step();
