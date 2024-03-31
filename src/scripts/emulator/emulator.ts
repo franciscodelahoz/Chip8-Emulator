@@ -1,5 +1,5 @@
 import { Chip8Quirks } from '../constants/chip8.constants';
-import { Chip8EmulatorProps, EmulatorColorPalette } from '../types/emulator';
+import { Chip8EmulatorProps, EmulatorColorPalette, EmulatorFontAppearance } from '../types/emulator';
 import { CPU } from './cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
@@ -133,12 +133,17 @@ export class Chip8Emulator {
   }
 
   private registerKeyboardEvents() {
-    this.keyboardInstance.registerKeyPressedEvent(['h'], () => {
+    this.keyboardInstance.registerKeyPressedEvent(['k'], () => {
       this.cpuInstance.dumpStatus();
     });
 
     this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
       this.cpuInstance.toggleCPUHaltState();
     });
+  }
+
+  public setFontAppearance(fontAppearance: EmulatorFontAppearance) {
+    this.cpuInstance.setFontAppearance(fontAppearance);
+    this.cpuInstance.resetRom();
   }
 }

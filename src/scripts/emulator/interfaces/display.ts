@@ -1,4 +1,5 @@
-import { loresDisplayScale, paletteColors, screenDimensions } from '../../constants/chip8.constants';
+import { loresDisplayScale, screenDimensions } from '../../constants/chip8.constants';
+import { colorPalettes } from '../../constants/color-palettes.constants';
 import { EmulatorColorPalette } from '../../types/emulator';
 
 export class DisplayInterface {
@@ -49,8 +50,8 @@ export class DisplayInterface {
     this.context.canvas.width = this.displayWidth;
     this.context.canvas.height = this.displayHeight;
 
-    this.foregroundColor = paletteColors.default[0];
-    this.planeColors = paletteColors.default;
+    this.foregroundColor = colorPalettes.default[0];
+    this.planeColors = colorPalettes.default;
   }
 
   createDisplayBuffer() {
@@ -88,12 +89,12 @@ export class DisplayInterface {
   }
 
   public setColorPalette(palette: EmulatorColorPalette) {
-    if (!paletteColors[palette]) {
+    if (!colorPalettes[palette]) {
       throw new Error('Invalid color palette name.');
     }
 
-    this.foregroundColor = paletteColors[palette][0];
-    this.planeColors = paletteColors[palette];
+    this.foregroundColor = colorPalettes[palette][0];
+    this.planeColors = colorPalettes[palette];
   }
 
   clearDisplay() {

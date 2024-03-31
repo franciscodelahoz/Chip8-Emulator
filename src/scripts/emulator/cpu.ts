@@ -3,14 +3,16 @@ import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
 import {
   Chip8Quirks,
-  chip8Fonts,
   defaultCyclesPerFrame,
+  defaultFontAppearance,
   defaultMemorySize,
   defaultQuirkConfigurations,
   registersSize,
   stackSize
 } from '../constants/chip8.constants';
 import { defaultAudioFrequency } from '../constants/audio.constants';
+import { fontSets } from '../constants/fonts.constants';
+import { EmulatorFontAppearance } from '../types/emulator';
 
 export class CPU {
   private memorySize: number = defaultMemorySize;
@@ -59,6 +61,8 @@ export class CPU {
 
   private audioPitch: number = 0; // XO-CHIP: Audio pitch (8-bit)
 
+  private fontAppearance: EmulatorFontAppearance = defaultFontAppearance;
+
   constructor(
     private readonly displayInstance: DisplayInterface,
     private readonly audioInterface: AudioInterface,
@@ -68,8 +72,8 @@ export class CPU {
   }
 
   private loadFont() {
-    for (let byte = 0; byte < chip8Fonts.length; byte += 1) {
-      this.memory[byte] = chip8Fonts[byte];
+    for (let byte = 0; byte < fontSets[this.fontAppearance].length; byte += 1) {
+      this.memory[byte] = fontSets[this.fontAppearance][byte];
     }
   }
 
@@ -1091,5 +1095,10 @@ export class CPU {
     for (const [ key, value ] of Object.entries(this.quirksConfigurations)) {
       console.log(`  ${key}: ${value}`);
     }
+  }
+
+  public setFontAppearance(fontAppearance: EmulatorFontAppearance) {
+    this.fontAppearance = fontAppearance;
+    this.loadFont();
   }
 }

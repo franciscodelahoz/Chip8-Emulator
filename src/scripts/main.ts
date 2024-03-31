@@ -3,6 +3,8 @@ import { maximumAudioGain } from './constants/audio.constants';
 
 import {
   Chip8Quirks,
+  defaultColorPalette,
+  defaultFontAppearance,
   defaultMemorySize,
   defaultQuirkConfigurations,
   schipQuirkConfigurations,
@@ -10,7 +12,7 @@ import {
   xoChipQuirkConfigurations
 } from './constants/chip8.constants';
 import { Chip8Emulator } from './emulator/emulator';
-import { EmulatorColorPalette } from './types/emulator';
+import { EmulatorColorPalette, EmulatorFontAppearance } from './types/emulator';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const input = document.getElementById('file') as HTMLInputElement | null;
@@ -34,7 +36,8 @@ const chip8ProfileBtn = document.getElementById('chip8-profile') as HTMLElement 
 const schipProfileBtn = document.getElementById('schip-profile') as HTMLElement | null;
 const xoChipProfileBtn = document.getElementById('xo-chip-profile') as HTMLElement | null;
 
-const colorPaletteSelect = document.getElementById('color-palette-select') as HTMLSelectElement | null;
+const colorPaletteSelect = document.getElementById('color-palettes-select') as HTMLSelectElement | null;
+const fontAppearanceSelect = document.getElementById('font-appearance-select') as HTMLSelectElement | null;
 
 const emulatorInstance = new Chip8Emulator({ canvas });
 
@@ -121,7 +124,7 @@ function setInitialColorPaletteSelectState() {
   const storedColorPalette = window.localStorage.getItem('colorPalette') as EmulatorColorPalette | null;
 
   if (colorPaletteSelect) {
-    colorPaletteSelect.value = storedColorPalette || 'default';
+    colorPaletteSelect.value = storedColorPalette || defaultColorPalette;
 
     colorPaletteSelect.addEventListener('change', () => {
       const colorPalette = colorPaletteSelect.value;
@@ -129,7 +132,23 @@ function setInitialColorPaletteSelectState() {
       window.localStorage.setItem('colorPalette', colorPalette);
     });
 
-    emulatorInstance.setColorPalette(storedColorPalette || 'default');
+    emulatorInstance.setColorPalette(storedColorPalette || defaultColorPalette);
+  }
+}
+
+function setInitialFontAppearanceSelectState() {
+  const storedFontAppearance = window.localStorage.getItem('fontAppearance') as EmulatorFontAppearance | null;
+
+  if (fontAppearanceSelect) {
+    fontAppearanceSelect.value = storedFontAppearance || defaultFontAppearance;
+
+    fontAppearanceSelect.addEventListener('change', () => {
+      const fontAppearance = fontAppearanceSelect.value;
+      emulatorInstance.setFontAppearance(fontAppearance as EmulatorFontAppearance);
+      window.localStorage.setItem('fontAppearance', fontAppearance);
+    });
+
+    emulatorInstance.setFontAppearance(storedFontAppearance || defaultFontAppearance);
   }
 }
 
@@ -260,6 +279,7 @@ function initializeRomFileInputEventHandlers() {
     input.addEventListener('change', async (event) => {
       try {
         await emulatorInstance.startEmulation(event as GenericEvent<HTMLInputElement>);
+        input.blur();
       } catch(error) {
         console.error(error);
       }
@@ -283,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeRomFileInputEventHandlers();
   initializeResetRomButtonEventHandlers();
   setInitialColorPaletteSelectState();
+  setInitialFontAppearanceSelectState();
 
   closeConfigurationSideBarBtn?.addEventListener('click', closeSideMenu);
   openConfigurationSideBarBtn?.addEventListener('click', openSideMenu);
