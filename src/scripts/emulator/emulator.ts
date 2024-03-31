@@ -138,7 +138,7 @@ export class Chip8Emulator {
     });
 
     this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
-      this.cpuInstance.toggleCPUHaltState();
+      this.cpuInstance.togglePauseState();
     });
   }
 

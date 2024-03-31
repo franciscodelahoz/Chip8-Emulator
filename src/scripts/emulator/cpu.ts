@@ -63,6 +63,10 @@ export class CPU {
 
   private fontAppearance: EmulatorFontAppearance = defaultFontAppearance;
 
+  private cycleCounter: number = 0;
+
+  private isPaused: boolean = false;
+
   constructor(
     private readonly displayInstance: DisplayInterface,
     private readonly audioInterface: AudioInterface,
@@ -100,6 +104,8 @@ export class CPU {
     this.audioPatternBuffer.fill(0);
     this.playingPattern = false;
     this.audioPitch = 0;
+
+    this.cycleCounter = 0;
 
     this.displayInstance.setResolutionMode(this.hiresMode);
     this.displayInstance.clearDisplay();
@@ -990,7 +996,7 @@ export class CPU {
   }
 
   public cycle() {
-    if (this.halted) {
+    if (this.halted || this.isPaused) {
       return;
     }
 
@@ -1012,11 +1018,12 @@ export class CPU {
       }
     }
 
-    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed) && (!this.halted); i += 1) {
+    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed) && (!this.halted) && (!this.isPaused); i += 1) {
       if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.memory[this.PC] === 0xD0) {
         i = this.cyclesPerFrame;
       }
 
+      this.cycleCounter += 1;
       this.step();
     }
 
@@ -1051,12 +1058,12 @@ export class CPU {
     this.memory = new Uint8Array(size);
   }
 
-  public toggleCPUHaltState() {
-    this.halted = !this.halted;
-  }
-
   public haltCPU() {
     this.halted = true;
+  }
+
+  public togglePauseState() {
+    this.isPaused = !this.isPaused;
   }
 
   public getSoundState() {
@@ -1079,7 +1086,7 @@ export class CPU {
 
   public dumpStatus() {
     console.log('%cCPU Status:', 'font-weight: bold; font-size: 12px;');
-    console.log(`  PC: ${this.PC} SP: ${this.SP} I: ${this.I} DT: ${this.DT} ST: ${this.ST}`);
+    console.log(`  PC: ${this.PC} SP: ${this.SP} I: ${this.I} DT: ${this.DT} ST: ${this.ST} Cycle count: ${this.cycleCounter}`);
 
     console.log('%cRegisters:', 'font-weight: bold; font-size: 12px;');
     for (const [ index, value ] of this.registers.entries()) {
