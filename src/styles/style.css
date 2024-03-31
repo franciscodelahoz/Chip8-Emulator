@@ -27,9 +27,13 @@ body {
 }
 
 .header-element-logo {
+  all: unset;
+  color: inherit;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 #open-configurations-button {
