@@ -308,6 +308,16 @@ document.addEventListener('DOMContentLoaded', () => {
   closeConfigurationSideBarBtn?.addEventListener('click', closeSideMenu);
   openConfigurationSideBarBtn?.addEventListener('click', openSideMenu);
 
+  document.addEventListener('click', (event) => {
+    if (
+      !configurationSideBar?.contains(event.target as Node)
+      && !openConfigurationSideBarBtn?.contains(event.target as Node)
+      && configurationSideBar?.classList.contains('active')
+    ) {
+      configurationSideBar?.classList.remove('active');
+    }
+  });
+
   setInitialConfigurationsStates();
   setInitialCyclesPerFrameSelectState();
   setInitialSoundState();
