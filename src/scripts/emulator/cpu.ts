@@ -106,6 +106,7 @@ export class CPU {
     this.audioPitch = 0;
 
     this.cycleCounter = 0;
+    this.isPaused = false;
 
     this.displayInstance.setResolutionMode(this.hiresMode);
     this.displayInstance.clearDisplay();
