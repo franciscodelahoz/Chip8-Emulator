@@ -280,7 +280,7 @@ export class CPU {
 
           default: {
             this.halted = true;
-            this.logError('Call stack overflow', opcode);
+            this.logError('Illegal instruction', opcode);
           }
         }
 
