@@ -1020,7 +1020,7 @@ export class CPU {
     }
 
     for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed) && (!this.halted) && (!this.isPaused); i += 1) {
-      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && this.memory[this.PC] === 0xD0) {
+      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && ((this.memory[this.PC] & 0xF0 ) === 0xD0)) {
         i = this.cyclesPerFrame;
       }
 
