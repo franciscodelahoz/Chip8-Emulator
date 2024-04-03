@@ -70,7 +70,8 @@ body {
 
 .emulator-view canvas {
   width: 100%;
-  border: 1.5px solid #838383;
+  border: 1.5px solid #767676;
+  box-sizing: border-box;
 }
 
 .rom-controller {
