@@ -84,8 +84,6 @@ export class DisplayInterface {
       this.createDisplayBuffer(),
       this.createDisplayBuffer(),
     ];
-
-    this.clearDisplay();
   }
 
   public setColorPalette(palette: EmulatorColorPalette) {
@@ -97,14 +95,16 @@ export class DisplayInterface {
     this.planeColors = colorPalettes[palette];
   }
 
-  clearDisplay() {
-    this.displayBuffers = [
-      this.createDisplayBuffer(),
-      this.createDisplayBuffer(),
-    ];
+  clearDisplayBuffer() {
+    for (let plane = 0; plane < 2; plane += 1) {
+      if (!(this.bitPlane & (plane + 1))) continue;
 
-    this.context.fillStyle = this.foregroundColor;
-    this.context.fillRect(0, 0, this.displayWidth, this.displayHeight);
+      for (let y = 0; y < this.rows; y += 1) {
+        for (let x = 0; x < this.columns; x += 1) {
+          this.displayBuffers[plane][y][x] = 0;
+        }
+      }
+    }
   }
 
   setPixel(plane: number = 0, x: number, y: number, value: number) {
@@ -129,9 +129,13 @@ export class DisplayInterface {
     return this.planeColors[colorIndex];
   }
 
-  render() {
+  clearCanvas() {
     this.context.fillStyle = this.foregroundColor;
     this.context.fillRect(0, 0, this.displayWidth, this.displayHeight);
+  }
+
+  render() {
+    this.clearCanvas();
 
     for (let y = 0; y < this.rows; y += 1) {
       for (let x = 0; x < this.columns; x += 1) {

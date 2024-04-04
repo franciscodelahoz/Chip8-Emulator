@@ -72,7 +72,7 @@ export class CPU {
     private readonly audioInterface: AudioInterface,
     private readonly keyboardInterface: KeyBoardInterface,
   ) {
-    this.displayInstance.clearDisplay();
+    this.displayInstance.clearDisplayBuffer();
   }
 
   private loadFont() {
@@ -109,7 +109,6 @@ export class CPU {
     this.isPaused = false;
 
     this.displayInstance.setResolutionMode(this.hiresMode);
-    this.displayInstance.clearDisplay();
 
     this.displayInstance.render();
     this.keyboardInterface.reset();
@@ -207,7 +206,7 @@ export class CPU {
            * Clear the display.
            */
           case 0x00E0: {
-            this.displayInstance.clearDisplay();
+            this.displayInstance.clearDisplayBuffer();
             this.drawingFlag = true;
             break;
           }
