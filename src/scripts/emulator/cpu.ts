@@ -373,31 +373,49 @@ export class CPU {
           }
 
           /**
-           * XO-Chip instruction
+           * XO-CHIP instruction
            * 5xy2 - LD [I], Vx - Vy
            * Store registers Vx through Vy in memory starting at location I.
            * The interpreter copies the values of registers from Vx to Vy into consecutive
            * memory locations, starting at the address in I.
            */
           case 0x2: {
-            for (let registerIndex = x; registerIndex <= y; registerIndex += 1) {
-              this.memory[this.I + (registerIndex - x)] = this.registers[registerIndex];
+            const registerRange = Math.abs(x - y);
+
+            if (x < y) {
+              for (let index = 0; index <= registerRange; index += 1) {
+                this.memory[this.I + index] = this.registers[x + index];
+              }
+
+            } else {
+              for (let index = 0; index <= registerRange; index += 1) {
+                this.memory[this.I + index] = this.registers[x - index];
+              }
             }
 
             break;
           }
 
+          /**
+           * XO-CHIP instruction
+           * 5xy3 - LD Vx - Vy, [I]
+           * Read registers Vx through Vy from memory starting at location I.
+           * The interpreter reads values from consecutive memory locations, starting at address I,
+           * into registers Vx through Vy.
+           */
           case 0x3: {
-            /**
-             * XO-Chip instruction
-             * 5xy3 - LD Vx - Vy, [I]
-             * Read registers Vx through Vy from memory starting at location I.
-             * The interpreter reads values from consecutive memory locations, starting at address I,
-             * into registers Vx through Vy.
-             */
-              for (let registerIndex = x; registerIndex <= y; registerIndex += 1) {
-                this.registers[registerIndex] = this.memory[this.I + (registerIndex - x)];
+            const registerRange = Math.abs(x - y);
+
+            if (x < y) {
+              for (let index = 0; index <= registerRange; index += 1) {
+                this.registers[x + index] = this.memory[this.I + index];
               }
+
+            } else {
+              for (let index = 0; index <= registerRange; index += 1) {
+                this.registers[x - index] = this.memory[this.I + index];
+              }
+            }
 
             break;
           }
