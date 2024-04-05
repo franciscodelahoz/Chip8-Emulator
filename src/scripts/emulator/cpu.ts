@@ -49,7 +49,7 @@ export class CPU {
 
   private quirksConfigurations = { ...defaultQuirkConfigurations };
 
-  private flags: Array<number> = new Array(8); // Chip8 Flags (from V0 to V7) (HP48-specific)
+  private flags: Array<number> = new Array(8); // SCHIP Flags (from V0 to V7) (HP48-specific)
 
   private hiresMode: boolean = false;
 
@@ -174,7 +174,7 @@ export class CPU {
       case 0x0000: {
         switch (opcode & 0x00F0) {
           /**
-           * Super Chip-8 instruction
+           * SCHIP instruction
            * Scroll the display 4 pixels to down (00C0)
            */
           case 0x00C0: {
@@ -187,7 +187,7 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction
+           * SCHIP instruction
            * Scroll the display 4 pixels to up (00C1)
            */
           case 0x00D0: {
@@ -229,7 +229,7 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction
+           * SCHIP instruction
            * 00FD - EXIT
            * The interpreter exits the execution of the current program.
            */
@@ -239,7 +239,7 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction
+           * SCHIP instruction
            * Scroll the display 4 pixels to the left (00FC)
            */
            case 0x00FC: {
@@ -249,7 +249,7 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction
+           * SCHIP instruction
            * Scroll the display 4 pixels to the right (00FB)
            */
           case 0x00FB: {
@@ -259,7 +259,7 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction
+           * SCHIP instruction
            * Set the extended screen mode (00FF)
            */
           case 0x00FF: {
@@ -269,7 +269,7 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction
+           * SCHIP instruction
            * Disable the extended screen mode (00FE)
            */
           case 0x00FE: {
@@ -864,8 +864,9 @@ export class CPU {
           }
 
           /**
+           * SCHIP instruction
            * Fx30 - LD HF, Vx
-           * Set I = location of 10-byte font for digit Vx (Super Chip-8).
+           * Set I = location of 10-byte font for digit Vx.
            */
           case 0x30: {
             this.I = this.registers[x] * 10 + 80;
@@ -949,8 +950,9 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction (0x0075) (HP48-specific instruction)
-           * Store V0 to Vx in RPL user flags (V0 if x is 0, V0 through V1 if x is 1, etc.).
+           * SCHIP instruction
+           * Fx75 - LD RPL, Vx
+           * Store V0 to Vx in RPL user flags for later use.
            */
           case 0x75: {
             if (x > 7) {
@@ -966,8 +968,9 @@ export class CPU {
           }
 
           /**
-           * Super Chip-8 instruction (0x0085) (HP48-specific instruction)
-           * Read V0 to Vx from RPL user flags (V0 if x is 0, V0 through V1 if x is 1, etc.).
+           * SCHIP instruction
+           * Fx85 - LD Vx, RPL
+           * Read V0 to Vx from RPL user flags to restore the state of registers V0 through Vx.
            */
           case 0x85: {
             if (x > 7) {
