@@ -39,6 +39,8 @@ export class CPU {
 
   private waitingForKeyPressed: boolean = false;
 
+  private waitingKeyRegister: number = -1;
+
   public halted: boolean = true;
 
   private cyclesPerFrame: number = defaultCyclesPerFrame;
@@ -94,6 +96,8 @@ export class CPU {
     this.flags.fill(0);
 
     this.waitingForKeyPressed = false;
+    this.waitingKeyRegister = -1;
+
     this.playing = false;
     this.drawingFlag = true;
     this.hiresMode = false;
@@ -824,13 +828,13 @@ export class CPU {
            */
           case 0x0A: {
             this.waitingForKeyPressed = true;
+            this.waitingKeyRegister = x;
 
-            this.keyboardInterface.onNextKeyPressed = (key) => {
-              this.registers[x] = key;
-            };
+            this.keyboardInterface.onNextKeyPressed = () => {};
 
-            this.keyboardInterface.onNextKeyReleased = () => {
+            this.keyboardInterface.onNextKeyReleased = (key) => {
               this.waitingForKeyPressed = false;
+              this.registers[this.waitingKeyRegister] = key;
             };
 
             break;
