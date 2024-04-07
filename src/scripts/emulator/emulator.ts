@@ -1,4 +1,4 @@
-import { Chip8Quirks } from '../constants/chip8.constants';
+import { Chip8CpuEvents, Chip8Quirks } from '../constants/chip8.constants';
 import { Chip8EmulatorProps, EmulatorColorPalette, EmulatorFontAppearance } from '../types/emulator';
 import { CPU } from './cpu';
 import { AudioInterface } from './interfaces/audio';
@@ -23,6 +23,7 @@ export class Chip8Emulator {
 
     this.cpuInstance = new CPU(this.displayInstance, this.audioInstance, this.keyboardInstance);
 
+    this.registerCpuEvents();
     this.registerKeyboardEvents();
   }
 
@@ -42,6 +43,13 @@ export class Chip8Emulator {
   private stopEmulatorLoop() {
     if (this.emulationLoop) {
       window.clearInterval(this.emulationLoop);
+    }
+  }
+
+  private handleExitInstruction() {
+    if (this.emulationLoop) {
+      console.log('Emulation loop stopped by exit instruction');
+      this.stopEmulatorLoop();
     }
   }
 
@@ -130,6 +138,10 @@ export class Chip8Emulator {
     this.stopEmulatorLoop();
     this.cpuInstance.resetRom();
     this.startEmulatorLoop();
+  }
+
+  private registerCpuEvents() {
+    this.cpuInstance.addEventListener(Chip8CpuEvents.EXIT, this.handleExitInstruction.bind(this));
   }
 
   private registerKeyboardEvents() {

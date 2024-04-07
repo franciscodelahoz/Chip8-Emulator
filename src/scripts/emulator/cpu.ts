@@ -2,6 +2,7 @@ import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
 import {
+  Chip8CpuEvents,
   Chip8Quirks,
   defaultCyclesPerFrame,
   defaultFontAppearance,
@@ -14,7 +15,7 @@ import { defaultAudioFrequency } from '../constants/audio.constants';
 import { fontSets } from '../constants/fonts.constants';
 import { EmulatorFontAppearance } from '../types/emulator';
 
-export class CPU {
+export class CPU extends EventTarget {
   private memorySize: number = defaultMemorySize;
 
   private romFileContent: Uint8Array | null = null;
@@ -74,6 +75,7 @@ export class CPU {
     private readonly audioInterface: AudioInterface,
     private readonly keyboardInterface: KeyBoardInterface,
   ) {
+    super();
     this.displayInstance.clearDisplayBuffer();
   }
 
@@ -239,6 +241,7 @@ export class CPU {
            */
           case 0x00FD: {
             this.halted = true;
+            this.dispatchEvent(new Event(Chip8CpuEvents.EXIT));
             break;
           }
 
