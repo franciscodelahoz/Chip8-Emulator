@@ -74,6 +74,8 @@ export const defaultFontAppearance: EmulatorFontAppearance = 'octo';
 
 export const defaultColorPalette: EmulatorColorPalette = 'default';
 
+export const customColorPaletteKeyName = 'custom';
+
 export enum Chip8CpuEvents {
   EXIT = 'exit',
 }

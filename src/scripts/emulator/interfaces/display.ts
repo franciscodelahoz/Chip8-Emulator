@@ -19,8 +19,6 @@ export class DisplayInterface {
 
   private displayHeight: number;
 
-  private foregroundColor: string;
-
   private planeColors: string[];
 
   private bitPlane: number = 1;
@@ -50,8 +48,11 @@ export class DisplayInterface {
     this.context.canvas.width = this.displayWidth;
     this.context.canvas.height = this.displayHeight;
 
-    this.foregroundColor = colorPalettes.default[0];
-    this.planeColors = colorPalettes.default;
+    this.planeColors = [ ...colorPalettes.default ];
+  }
+
+  setPaletteColor(index: number, color: string) {
+    this.planeColors[index] = color;
   }
 
   createDisplayBuffer() {
@@ -84,15 +85,6 @@ export class DisplayInterface {
       this.createDisplayBuffer(),
       this.createDisplayBuffer(),
     ];
-  }
-
-  public setColorPalette(palette: EmulatorColorPalette) {
-    if (!colorPalettes[palette]) {
-      throw new Error('Invalid color palette name.');
-    }
-
-    this.foregroundColor = colorPalettes[palette][0];
-    this.planeColors = colorPalettes[palette];
   }
 
   clearDisplayBuffer() {
@@ -130,7 +122,7 @@ export class DisplayInterface {
   }
 
   clearCanvas() {
-    this.context.fillStyle = this.foregroundColor;
+    this.context.fillStyle = this.planeColors[0];
     this.context.fillRect(0, 0, this.displayWidth, this.displayHeight);
   }
 

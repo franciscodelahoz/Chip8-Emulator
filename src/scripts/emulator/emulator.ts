@@ -122,11 +122,6 @@ export class Chip8Emulator {
     return this.cpuInstance.getMemorySize();
   }
 
-  public setColorPalette(palette: EmulatorColorPalette) {
-    this.displayInstance.setColorPalette(palette);
-    this.cpuInstance.resetRom();
-  }
-
   public async startEmulation(event: GenericEvent<HTMLInputElement>) {
     const romData = await this.readFile(event as GenericEvent<HTMLInputElement>);
     this.stopEmulatorLoop();
@@ -152,6 +147,14 @@ export class Chip8Emulator {
     this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
       this.cpuInstance.togglePauseState();
     });
+  }
+
+  public resetRom() {
+    this.cpuInstance.resetRom();
+  }
+
+  public setPaletteColor(index: number, color: string) {
+    this.displayInstance.setPaletteColor(index, color);
   }
 
   public setFontAppearance(fontAppearance: EmulatorFontAppearance) {

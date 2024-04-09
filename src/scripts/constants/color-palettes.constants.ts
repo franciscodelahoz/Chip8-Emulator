@@ -46,5 +46,11 @@ export const colorPalettes = {
     '#CBD5E1',
     '#F1F5F9',
     '#64748B',
-  ]
+  ],
+  gameboy: [
+    '#E0F8D0',
+    '#88C070',
+    '#346856',
+    '#081820',
+  ],
 }

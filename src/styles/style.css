@@ -1,6 +1,7 @@
 @font-face {
   font-family: ka1;
-  src: url('../fonts/ka1.ttf');
+  src: url('../fonts/ka1.ttf') format('truetype');
+  font-display: swap;
 }
 
 body {
@@ -245,6 +246,10 @@ input[type="file"]::file-upload-button {
   background-color: #222;
 }
 
+.configuration-subtitle {
+  font-size: 1rem;
+}
+
 .configuration-content > section > ul {
   list-style-type: none;
   padding: 0;
@@ -254,6 +259,15 @@ input[type="file"]::file-upload-button {
 .configuration-content > section > ul > li {
   font-size: .78em;
   margin: 0.8rem auto;
+}
+
+.configuration-subsection {
+  font-size: .78em;
+  margin: 0.8rem auto;
+}
+
+.configuration-subsection > table, label {
+  margin: 0.5rem auto;
 }
 
 .configuration-group:nth-last-child(1) {
@@ -290,6 +304,48 @@ input[type="file"]::file-upload-button {
 
 #sound-level-range {
   flex-grow: 1;
+}
+
+.configuration-table {
+  padding-top: 10px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.configuration-table tbody {
+  background-color: #222222;
+}
+
+.configuration-table td {
+  border: 2px solid #333333;
+  padding: 0.4em;
+  width: calc(100% / 3);
+}
+
+.color-swatch-container {
+  position: relative;
+  width: 100%;
+}
+
+.color-swatch {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.color-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background: #FFFFFF;
+  cursor: pointer;
 }
 
 @media only screen and (max-height: 600px) and (orientation: landscape) {

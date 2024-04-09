@@ -3,6 +3,7 @@ import { maximumAudioGain } from './constants/audio.constants';
 
 import {
   Chip8Quirks,
+  customColorPaletteKeyName,
   defaultColorPalette,
   defaultFontAppearance,
   defaultMemorySize,
@@ -11,6 +12,8 @@ import {
   xoChipMemorySize,
   xoChipQuirkConfigurations
 } from './constants/chip8.constants';
+import { colorPalettes } from './constants/color-palettes.constants';
+import { emulatorConfigurationsKeys } from './constants/emulator.constants';
 import { Chip8Emulator } from './emulator/emulator';
 import { EmulatorColorPalette, EmulatorFontAppearance } from './types/emulator';
 
@@ -38,6 +41,8 @@ const xoChipProfileBtn = document.getElementById('xo-chip-profile') as HTMLEleme
 
 const colorPaletteSelect = document.getElementById('color-palettes-select') as HTMLSelectElement | null;
 const fontAppearanceSelect = document.getElementById('font-appearance-select') as HTMLSelectElement | null;
+
+const colorPaletteTable = document.getElementById('configuration-table');
 
 const emulatorInstance = new Chip8Emulator({ canvas });
 
@@ -120,19 +125,119 @@ function setMemorySizeFromProfile(memorySize: number) {
   }
 }
 
-function setInitialColorPaletteSelectState() {
-  const storedColorPalette = window.localStorage.getItem('colorPalette') as EmulatorColorPalette | null;
+function getColorValueFromLocalStorage(colorIndex: number) {
+  const storedColorValue = window.localStorage.getItem(emulatorConfigurationsKeys.palette_keys[colorIndex]);
 
-  if (colorPaletteSelect) {
-    colorPaletteSelect.value = storedColorPalette || defaultColorPalette;
+  if (!storedColorValue) {
+    return colorPalettes[defaultColorPalette][colorIndex].toUpperCase();
+  }
 
-    colorPaletteSelect.addEventListener('change', () => {
-      const colorPalette = colorPaletteSelect.value;
-      emulatorInstance.setColorPalette((colorPalette as EmulatorColorPalette));
-      window.localStorage.setItem('colorPalette', colorPalette);
+  return storedColorValue.toUpperCase();
+}
+
+function storeColorInLocalStorage(colorIndex: number, colorValue: string) {
+  window.localStorage.setItem(emulatorConfigurationsKeys.palette_keys[colorIndex], colorValue);
+}
+
+function setColorPaletteInLocalStorage(colorPaletteName: EmulatorColorPalette) {
+  colorPalettes[colorPaletteName].forEach((color, index) => {
+    storeColorInLocalStorage(index, color);
+  });
+}
+
+function setColorPaletteInTable(colorPaletteName?: EmulatorColorPalette) {
+  colorPaletteTable?.querySelectorAll(`tr`)?.forEach((element, index) => {
+    const colorInput = element.querySelector('.color-value') as HTMLElement;
+    const colorSwatch = element.querySelector('.color-swatch') as HTMLInputElement;
+    const colorOverlay = element.querySelector('.color-overlay') as HTMLElement;
+
+    const colorValue = colorPaletteName ? colorPalettes[colorPaletteName][index]
+      : getColorValueFromLocalStorage(index);
+
+    if (colorInput) {
+      colorInput.innerText = colorValue;
+    }
+
+    if (colorSwatch) {
+      colorSwatch.value = colorValue;
+    }
+
+    if (colorOverlay) {
+      colorOverlay.style.backgroundColor = colorValue;
+    }
+
+  });
+}
+
+function setColorPaletteInSelect() {
+  for (const key in colorPalettes) {
+    const allColorsMatch = colorPalettes[(key as EmulatorColorPalette)].every((color, index) => {
+      return color === getColorValueFromLocalStorage(index);
     });
 
-    emulatorInstance.setColorPalette(storedColorPalette || defaultColorPalette);
+    if (colorPaletteSelect) {
+      if (allColorsMatch) {
+        colorPaletteSelect.value = key as EmulatorColorPalette;
+        break;
+      } else {
+        colorPaletteSelect.value = customColorPaletteKeyName;
+      }
+    }
+  }
+}
+
+function setColorPaletteInEmulator() {
+  emulatorConfigurationsKeys.palette_keys.forEach((_, index) => {
+    const colorValue = getColorValueFromLocalStorage(index);
+    emulatorInstance.setPaletteColor(index, colorValue);
+  });
+}
+
+function setInitialColorPaletteSelectState() {
+  setColorPaletteInTable();
+  setColorPaletteInSelect();
+
+  setColorPaletteInEmulator();
+
+  if (colorPaletteSelect) {
+    colorPaletteSelect.addEventListener('change', () => {
+      const selectedValue = (colorPaletteSelect.value as EmulatorColorPalette);
+
+      const colorPaletteName = colorPalettes[selectedValue] ? colorPaletteSelect.value
+        : defaultColorPalette;
+
+      colorPaletteSelect.value = colorPaletteName;
+
+      setColorPaletteInLocalStorage(colorPaletteName as EmulatorColorPalette);
+      setColorPaletteInTable(colorPaletteName as EmulatorColorPalette);
+
+      setColorPaletteInEmulator();
+      emulatorInstance.resetRom();
+    });
+  }
+
+  if (colorPaletteTable) {
+    colorPaletteTable.querySelectorAll(`tr .color-swatch-container`).forEach((element, index) => {
+      const colorSwatch = element.querySelector('.color-swatch') as HTMLInputElement;
+
+      [ 'click', 'touchstart' ].forEach((eventType) => {
+        element.addEventListener(eventType, () => {
+          colorSwatch.focus();
+          colorSwatch.click();
+        });
+      });
+
+      colorSwatch?.addEventListener('change', (element) => {
+        const colorValue = (element.target as HTMLInputElement).value.toUpperCase();
+
+        storeColorInLocalStorage(index, colorValue);
+        setColorPaletteInSelect();
+        setColorPaletteInTable();
+
+        setColorPaletteInEmulator();
+        emulatorInstance.resetRom();
+      });
+    });
   }
 }
 

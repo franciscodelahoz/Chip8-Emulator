@@ -166,35 +166,71 @@
         </section>
         <section class="configuration-group">
           <h2 class="configuration-title">Appearance</h2>
-          <ul class="quirks-list">
-            <li>
-              <label>
-                Color Palette
-                <select name="color-palettes-select" id="color-palettes-select">
-                  <option value="default">Default</option>
-                  <option value="black_and_white">Black and white</option>
-                  <option value="cyberpunk">Cyberpunk</option>
-                  <option value="angry_orange">Angry Orange</option>
-                  <option value="octo">Octo</option>
-                  <option value="arctic_horizon">Arctic Horizon</option>
-                  <option value="harbor_mist">Harbor Mist</option>
-                  <option value="autumn">Autumn</option>
-                </select>
-              </label>
-            </li>
-          </ul>
-          <ul class="quirks-list">
-            <li>
-              <label>
-                Font appearance
-                <select name="font-appearance-select" id="font-appearance-select">
-                  <option value="chip8">Chip8</option>
-                  <option value="schip">SCHIP</option>
-                  <option value="octo">Octo</option>
-                </select>
-              </label>
-            </li>
-          </ul>
+          <section class="configuration-subsection">
+            <h3 class="configuration-subtitle">Color settings</h3>
+            <label>
+              Color palette presets
+              <select name="color-palettes-select" id="color-palettes-select">
+                <option value="custom" disabled>Custom</option>
+                <option value="default">Default</option>
+                <option value="black_and_white">Black and white</option>
+                <option value="cyberpunk">Cyberpunk</option>
+                <option value="angry_orange">Angry Orange</option>
+                <option value="octo">Octo</option>
+                <option value="arctic_horizon">Arctic Horizon</option>
+                <option value="harbor_mist">Harbor Mist</option>
+                <option value="autumn">Autumn</option>
+                <option value="gameboy">Game Boy</option>
+              </select>
+            </label>
+            <table class="configuration-table" id="configuration-table">
+              <tbody>
+                <tr>
+                  <td>Background</td>
+                  <td class="color-value"></td>
+                  <td class="color-swatch-container">
+                    <input type="color" class="color-swatch" value="#000000" aria-label="Background color">
+                    <div class="color-overlay"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Foreground 1</td>
+                  <td class="color-value"></td>
+                  <td class="color-swatch-container">
+                    <input type="color" class="color-swatch" value="#000000" aria-label="Foreground 1 color">
+                    <div class="color-overlay"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Foreground 2</td>
+                  <td class="color-value"></td>
+                  <td class="color-swatch-container">
+                    <input type="color" class="color-swatch" value="#000000" aria-label="Foreground 2 color">
+                    <div class="color-overlay"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Blend</td>
+                  <td class="color-value"></td>
+                  <td class="color-swatch-container">
+                    <input type="color" class="color-swatch" value="#000000" aria-label="Blend color">
+                    <div class="color-overlay"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+          <section class="configuration-subsection">
+            <h3 class="configuration-subtitle">Font settings</h3>
+            <label>
+              Font appearance
+              <select name="font-appearance-select" id="font-appearance-select">
+                <option value="chip8">Chip8</option>
+                <option value="schip">SCHIP</option>
+                <option value="octo">Octo</option>
+              </select>
+            </label>
+          </section>
         </section>
       </div>
     </aside>
