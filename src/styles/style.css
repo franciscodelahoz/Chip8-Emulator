@@ -267,7 +267,7 @@ input[type="file"]::file-upload-button {
 }
 
 .configuration-subsection > table, label {
-  margin: 0.5rem auto;
+  margin: 0.8rem auto;
 }
 
 .configuration-group:nth-last-child(1) {
@@ -307,7 +307,6 @@ input[type="file"]::file-upload-button {
 }
 
 .configuration-table {
-  padding-top: 10px;
   width: 100%;
   border-collapse: collapse;
 }
@@ -320,6 +319,20 @@ input[type="file"]::file-upload-button {
   border: 2px solid #333333;
   padding: 0.4em;
   width: calc(100% / 3);
+}
+
+.configuration-table td .color-value {
+  width: 100%;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  color: #34ff66;
+  font-family: inherit;
+  padding: 0;
+}
+
+.configuration-table td .color-value:focus {
+  outline: none;
 }
 
 .color-swatch-container {

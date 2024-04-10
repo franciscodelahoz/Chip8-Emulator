@@ -147,7 +147,7 @@ function setColorPaletteInLocalStorage(colorPaletteName: EmulatorColorPalette) {
 
 function setColorPaletteInTable(colorPaletteName?: EmulatorColorPalette) {
   colorPaletteTable?.querySelectorAll(`tr`)?.forEach((element, index) => {
-    const colorInput = element.querySelector('.color-value') as HTMLElement;
+    const colorInput = element.querySelector('.color-value') as HTMLInputElement;
     const colorSwatch = element.querySelector('.color-swatch') as HTMLInputElement;
     const colorOverlay = element.querySelector('.color-overlay') as HTMLElement;
 
@@ -155,7 +155,7 @@ function setColorPaletteInTable(colorPaletteName?: EmulatorColorPalette) {
       : getColorValueFromLocalStorage(index);
 
     if (colorInput) {
-      colorInput.innerText = colorValue;
+      colorInput.value = colorValue;
     }
 
     if (colorSwatch) {
@@ -193,6 +193,24 @@ function setColorPaletteInEmulator() {
   });
 }
 
+function processInputColorValue(event: Event) {
+  let colorValue = (event.target as HTMLInputElement).value.toUpperCase();
+
+  colorValue = colorValue.replace(/[^#A-F0-9]/g, '').substring(0, 7);
+
+  if (colorValue.length && colorValue.at(0) !== '#') {
+    colorValue = `#${colorValue}`;
+  }
+
+  const validColorLengths = [0, 4, 7];
+  const isValidColor = validColorLengths.includes(colorValue.length);
+
+  return {
+    color_value: colorValue,
+    is_valid: isValidColor
+  }
+}
+
 function setInitialColorPaletteSelectState() {
   setColorPaletteInTable();
   setColorPaletteInSelect();
@@ -217,6 +235,28 @@ function setInitialColorPaletteSelectState() {
   }
 
   if (colorPaletteTable) {
+    colorPaletteTable.querySelectorAll(`tr .color-input-container`).forEach((container, index) => {
+      const colorInput = container.querySelector('.color-value') as HTMLInputElement;
+
+      colorInput?.addEventListener('input', (element) => {
+        const { color_value: colorValue, is_valid: isValidColor } = processInputColorValue(element);
+
+        if (!isValidColor) {
+          (container as HTMLElement).style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+          return;
+        }
+
+        (container as HTMLElement).style.backgroundColor = '';
+
+        storeColorInLocalStorage(index, colorValue);
+        setColorPaletteInSelect();
+        setColorPaletteInTable();
+
+        setColorPaletteInEmulator();
+        emulatorInstance.resetRom();
+      });
+    });
+
     colorPaletteTable.querySelectorAll(`tr .color-swatch-container`).forEach((element, index) => {
       const colorSwatch = element.querySelector('.color-swatch') as HTMLInputElement;
 

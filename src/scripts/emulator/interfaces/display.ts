@@ -1,6 +1,5 @@
 import { loresDisplayScale, screenDimensions } from '../../constants/chip8.constants';
 import { colorPalettes } from '../../constants/color-palettes.constants';
-import { EmulatorColorPalette } from '../../types/emulator';
 
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;
