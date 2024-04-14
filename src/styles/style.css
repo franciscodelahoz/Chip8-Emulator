@@ -212,7 +212,7 @@ input[type="file"]::file-upload-button {
 }
 
 #configuration-sidebar {
-  width: clamp(300px, 40dvh, 400px);;
+  width: clamp(300px, 40dvh, 400px);
   height: 100%;
   background-color: #333;
   position: fixed;
@@ -304,6 +304,38 @@ input[type="file"]::file-upload-button {
 
 #sound-level-range {
   flex-grow: 1;
+}
+
+.color-select-section select {
+  text-overflow: ellipsis;
+  max-width: 80%;
+  flex: 1;
+}
+
+.custom-color-palette-button {
+  padding-left: 6px;
+  padding-right: 6px;
+  font-family: monospace;
+  font-size: 0.7rem;
+  box-sizing: content-box;
+}
+
+.select-container {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.4rem auto;
+  height: 1.3rem;
+}
+
+.select-container .color-palettes-select {
+  width: 100%;
+  flex: 1;
+}
+
+.custom-color-palette-options {
+  display: flex;
+  gap: 0.5rem;
+  align-items: right;
 }
 
 .configuration-table {

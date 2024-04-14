@@ -8,3 +8,18 @@ export interface Chip8EmulatorProps {
 export type EmulatorColorPalette =  keyof typeof colorPalettes;
 
 export type EmulatorFontAppearance = keyof typeof fontSets;
+
+export interface ColorPalettes {
+  [key: string]: string[];
+}
+
+export interface CustomColorPalette {
+  name: string;
+  id: string;
+  colors: string[];
+  created_at: number;
+}
+
+export interface EmulatorSettings {
+  [key: string]: string | number | boolean;
+}

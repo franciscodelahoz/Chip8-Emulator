@@ -72,9 +72,9 @@ export const loresDisplayScale = 12;
 
 export const defaultFontAppearance: EmulatorFontAppearance = 'octo';
 
-export const defaultColorPalette: EmulatorColorPalette = 'default';
+export const defaultColorPaletteId: EmulatorColorPalette = 'default';
 
-export const customColorPaletteKeyName = 'custom';
+export const customColorPaletteKeyId = 'custom';
 
 export enum Chip8CpuEvents {
   EXIT = 'exit',

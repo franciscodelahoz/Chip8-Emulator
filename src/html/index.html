@@ -20,7 +20,7 @@
     </header>
     <main class="container">
       <section class="emulator-view">
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" width="768" height="384"></canvas>
         <div class="rom-controller">
           <input type="file" name="file" id="file" accept=".ch8,.sc8,.xo8" aria-label="Chip8 file selector">
           <button id="reset-rom-btn" class="default-button">Reset rom</button>
@@ -168,27 +168,38 @@
           <h2 class="configuration-title">Appearance</h2>
           <section class="configuration-subsection">
             <h3 class="configuration-subtitle">Color settings</h3>
-            <label>
-              Color palette presets
-              <select name="color-palettes-select" id="color-palettes-select">
-                <option value="custom" disabled>Custom</option>
-                <option value="default">Default</option>
-                <option value="black_and_white">Black and white</option>
-                <option value="cyberpunk">Cyberpunk</option>
-                <option value="angry_orange">Angry Orange</option>
-                <option value="octo">Octo</option>
-                <option value="arctic_horizon">Arctic Horizon</option>
-                <option value="harbor_mist">Harbor Mist</option>
-                <option value="autumn">Autumn</option>
-                <option value="gameboy">Game Boy</option>
-              </select>
-            </label>
+            <div class="color-select-section">
+              <label for="color-palettes-select">Color palettes</label>
+              <div class="select-container">
+                <select name="color-palettes-select" id="color-palettes-select">
+                  <option value="custom" disabled>Custom</option>
+                  <optgroup label="Default palettes">
+                    <option value="default">Default</option>
+                    <option value="black_and_white">Black and white</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                    <option value="angry_orange">Angry Orange</option>
+                    <option value="octo">Octo</option>
+                    <option value="arctic_horizon">Arctic Horizon</option>
+                    <option value="harbor_mist">Harbor Mist</option>
+                    <option value="autumn">Autumn</option>
+                    <option value="gameboy">Game Boy</option>
+                  </optgroup>
+                  <optgroup label="Custom palettes">
+                  </optgroup>
+                </select>
+                <div class="custom-color-palette-options">
+                  <button class="default-button custom-color-palette-button" id="save-custom-color-palette" aria-label="Save current custom color palette" title="Save current custom color palette" style="display: none;" disabled>S</button>
+                  <button class="default-button custom-color-palette-button" id="rename-custom-color-palette" aria-label="Rename current stored custom color palette" title="Rename current stored custom color palette" style="display: none;" disabled>R</button>
+                  <button class="default-button custom-color-palette-button" id="delete-custom-color-palette" aria-label="Delete current stored custom color palette" title="Delete current stored custom color palette" style="display: none;" disabled>D</button>
+                </div>
+              </div>
+            </div>
             <table class="configuration-table" id="configuration-table">
               <tbody>
                 <tr>
                   <td>Background</td>
                   <td class="color-input-container">
-                    <input class="color-value" type="text" value="#000000">
+                    <input class="color-value" type="text" value="#000000" aria-label="Background color value">
                   </td>
                   <td class="color-swatch-container">
                     <input type="color" class="color-swatch" value="#000000" aria-label="Background color">
@@ -198,7 +209,7 @@
                 <tr>
                   <td>Foreground 1</td>
                   <td class="color-input-container">
-                    <input class="color-value" type="text" value="#000000">
+                    <input class="color-value" type="text" value="#000000" aria-label="Foreground 1 color value">
                   </td>
                   <td class="color-swatch-container">
                     <input type="color" class="color-swatch" value="#000000" aria-label="Foreground 1 color">
@@ -208,7 +219,7 @@
                 <tr>
                   <td>Foreground 2</td>
                   <td class="color-input-container">
-                    <input class="color-value" type="text" value="#000000">
+                    <input class="color-value" type="text" value="#000000" aria-label="Foreground 2 color value">
                   </td>
                   <td class="color-swatch-container">
                     <input type="color" class="color-swatch" value="#000000" aria-label="Foreground 2 color">
@@ -218,7 +229,7 @@
                 <tr>
                   <td>Blend</td>
                   <td class="color-input-container">
-                    <input class="color-value" type="text" value="#000000">
+                    <input class="color-value" type="text" value="#000000" aria-label="Blend color value">
                   </td>
                   <td class="color-swatch-container">
                     <input type="color" class="color-swatch" value="#000000" aria-label="Blend color">

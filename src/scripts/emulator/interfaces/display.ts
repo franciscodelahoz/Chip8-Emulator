@@ -1,5 +1,5 @@
 import { loresDisplayScale, screenDimensions } from '../../constants/chip8.constants';
-import { colorPalettes } from '../../constants/color-palettes.constants';
+import ColorPalettesManager from '../../tools/color-palettes-manager.tools';
 
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;
@@ -18,7 +18,7 @@ export class DisplayInterface {
 
   private displayHeight: number;
 
-  private planeColors: string[];
+  private planeColors: string[] = [];
 
   private bitPlane: number = 1;
 
@@ -47,7 +47,7 @@ export class DisplayInterface {
     this.context.canvas.width = this.displayWidth;
     this.context.canvas.height = this.displayHeight;
 
-    this.planeColors = [ ...colorPalettes.default ];
+    this.planeColors = [ ...ColorPalettesManager.getCurrentSelectedPalette() ];
   }
 
   setPaletteColor(index: number, color: string) {
@@ -78,6 +78,7 @@ export class DisplayInterface {
 
     const scaleX = this.canvas.width / this.columns;
     const scaleY = this.canvas.height / this.rows;
+
     this.displayScale = Math.min(scaleX, scaleY);
 
     this.displayBuffers = [
