@@ -4,22 +4,30 @@ import { EmulatorFontAppearance } from '../types/emulator';
 
 const fontAppearanceSelect = document.getElementById('font-appearance-select') as HTMLSelectElement | null;
 
-function setInitialFontAppearanceSelectState(emulatorInstance: Chip8Emulator) {
+function setCurrentFontAppearance(emulatorInstance: Chip8Emulator) {
   const storedFontAppearance = window.localStorage.getItem('fontAppearance') as EmulatorFontAppearance | null;
+  const fontAppearance = storedFontAppearance || defaultFontAppearance;
+
+  if (storedFontAppearance) {
+    emulatorInstance.setFontAppearance(fontAppearance);
+  }
 
   if (fontAppearanceSelect) {
-    fontAppearanceSelect.value = storedFontAppearance || defaultFontAppearance;
-
-    fontAppearanceSelect.addEventListener('change', () => {
-      const fontAppearance = fontAppearanceSelect.value;
-      emulatorInstance.setFontAppearance(fontAppearance as EmulatorFontAppearance);
-      window.localStorage.setItem('fontAppearance', fontAppearance);
-    });
-
-    emulatorInstance.setFontAppearance(storedFontAppearance || defaultFontAppearance);
+    fontAppearanceSelect.value = fontAppearance;
   }
 }
 
+function setInitialFontAppearanceSelectState(emulatorInstance: Chip8Emulator) {
+  if (!fontAppearanceSelect) return;
+
+  fontAppearanceSelect.addEventListener('change', () => {
+    const fontAppearance = fontAppearanceSelect.value;
+    emulatorInstance.setFontAppearance(fontAppearance as EmulatorFontAppearance);
+    window.localStorage.setItem('fontAppearance', fontAppearance);
+  });
+}
+
 export function initializeFontSettingsModule(emulatorInstance: Chip8Emulator) {
+  setCurrentFontAppearance(emulatorInstance);
   setInitialFontAppearanceSelectState(emulatorInstance);
 }
