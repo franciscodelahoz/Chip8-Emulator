@@ -129,6 +129,28 @@ body {
   display: flex;
 }
 
+.default-select {
+  border: 2px solid #34ff66;
+  color: #34ff66;
+  border-radius: 5px;
+  cursor: pointer;
+  background: url("data:image/svg+xml,<svg height='13px' width='13px' viewBox='0 0 16 16' fill='%2334ff66' xmlns='http://www.w3.org/2000/svg'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat;
+  background-position: calc(100% - 0.4rem) center;
+  background-color: #222222;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: .5rem;
+  padding-right: 1.5rem;
+  text-overflow: ellipsis;
+}
+
+.default-select:focus {
+  outline: none;
+}
+
 .icon-button svg {
   width: 1.9rem;
   height: 1.9rem;
@@ -307,7 +329,6 @@ input[type="file"]::file-upload-button {
 }
 
 .color-select-section select {
-  text-overflow: ellipsis;
   max-width: 80%;
   flex: 1;
 }
@@ -316,7 +337,6 @@ input[type="file"]::file-upload-button {
   padding-left: 6px;
   padding-right: 6px;
   font-family: monospace;
-  font-size: 0.7rem;
   box-sizing: content-box;
 }
 
@@ -324,7 +344,8 @@ input[type="file"]::file-upload-button {
   display: flex;
   gap: 0.5rem;
   margin: 0.4rem auto;
-  height: 1.3rem;
+  justify-content: space-between;
+  appearance: none;
 }
 
 .select-container .color-palettes-select {
@@ -348,9 +369,21 @@ input[type="file"]::file-upload-button {
 }
 
 .configuration-table td {
-  border: 2px solid #333333;
-  padding: 0.4em;
   width: calc(100% / 3);
+}
+
+.configuration-table th, .configuration-table td {
+  padding: 0.4em;
+  border-bottom: 2px solid #333333;
+  border-right: 2px solid #333333;
+}
+
+.configuration-table th:last-child, .configuration-table td:last-child {
+  border-right: none;
+}
+
+.configuration-table tr:last-child th, .configuration-table tr:last-child td {
+  border-bottom: none;
 }
 
 .configuration-table td .color-value {
