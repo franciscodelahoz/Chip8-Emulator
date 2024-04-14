@@ -29,7 +29,7 @@ class ColorPalettesManager {
   public async initializeManager(): Promise<void> {
     await this.customPaletteDBTool.openDatabase();
 
-    await this.loadDefaultPalettes();
+    this.loadDefaultPalettes();
     await this.loadCustomPalettes();
 
     this.currentSelectedPalette = [ ...this.colorPalettesStored[defaultColorPaletteId] ];
