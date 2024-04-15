@@ -20,15 +20,16 @@ function getSoundState(emulatorInstance: Chip8Emulator) {
 }
 
 function setInitialSoundState(emulatorInstance: Chip8Emulator) {
-  if (soundStateCheckbox) {
-    soundStateCheckbox.checked = getSoundState(emulatorInstance);
+  if (!soundStateCheckbox) return;
 
-    soundStateCheckbox.addEventListener('change', () => {
-      const soundState = soundStateCheckbox.checked;
-      emulatorInstance.setSoundState(soundState);
-      window.localStorage.setItem('soundState', soundState.toString());
-    });
-  }
+  soundStateCheckbox.checked = getSoundState(emulatorInstance);
+
+  soundStateCheckbox.addEventListener('change', () => {
+    const soundState = soundStateCheckbox.checked;
+
+    emulatorInstance.setSoundState(soundState);
+    window.localStorage.setItem('soundState', soundState.toString());
+  });
 }
 
 function convertAudioGainToSoundLevel(gain: number) {
@@ -52,30 +53,40 @@ function getSoundLevel(emulatorInstance: Chip8Emulator) {
 }
 
 function setSoundGainPercentageValue(value: number, element: HTMLElement | null) {
-  if (element) {
-    const percentage = Math.ceil((value / maximumAudioGain) * 100);
-    element.innerText = `${percentage}%`;
-  }
+  if (!element) return;
+
+  const percentage = Math.ceil((value / maximumAudioGain) * 100);
+  element.innerText = `${percentage}%`;
+}
+
+function setRangeBackgroundColorProgress(value: number) {
+  if (!soundLevelRange) return;
+
+  const soundLevel = value * 10;
+  soundLevelRange.style.background = `linear-gradient(to right, #34ff66 ${soundLevel}%, #ccc ${soundLevel}%)`;
 }
 
 function setInitialSoundLevelState(emulatorInstance: Chip8Emulator) {
-  if (soundLevelRange) {
-    const storedSoundLevel = getSoundLevel(emulatorInstance);
-    const soundLevel = convertAudioGainToSoundLevel(storedSoundLevel).toString();
+  if (!soundLevelRange) return;
 
-    soundLevelRange.value = soundLevel;
-    setSoundGainPercentageValue(storedSoundLevel, soundLevelValue);
+  const storedSoundLevel = getSoundLevel(emulatorInstance);
+  const soundLevel = convertAudioGainToSoundLevel(storedSoundLevel);
 
-    soundLevelRange.addEventListener('change', () => {
-      const soundLevel = Number.parseInt(soundLevelRange.value, 10);
+  soundLevelRange.value = soundLevel.toString();
 
-      const gain = convertSoundLevelToGain(soundLevel);
-      setSoundGainPercentageValue(gain, soundLevelValue);
+  setRangeBackgroundColorProgress(soundLevel);
+  setSoundGainPercentageValue(storedSoundLevel, soundLevelValue);
 
-      emulatorInstance.setAudioGain(gain);
-      window.localStorage.setItem('gainLevel', gain.toString());
-    });
-  }
+  soundLevelRange.addEventListener('input', () => {
+    const soundLevel = Number.parseInt(soundLevelRange.value, 10);
+    const gain = convertSoundLevelToGain(soundLevel);
+
+    setSoundGainPercentageValue(gain, soundLevelValue);
+    setRangeBackgroundColorProgress(soundLevel);
+
+    emulatorInstance.setAudioGain(gain);
+    window.localStorage.setItem('gainLevel', gain.toString());
+  });
 }
 
 export function initializeSoundSettingsModule(emulatorInstance: Chip8Emulator) {

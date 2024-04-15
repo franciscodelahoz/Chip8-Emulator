@@ -205,6 +205,37 @@ input[type="file"]::file-upload-button {
   color: #34ff66;
 }
 
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  border-radius: 15px;
+  height: 6px;
+  background: #ccc;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 15px;
+  width: 15px;
+  background-color: #34ff66;
+  border-radius: 50%;
+  border: none;
+  transition: .2s ease-in-out;
+}
+
+input[type='range']::-moz-range-thumb {
+  height: 15px;
+  width: 15px;
+  background-color: #34ff66;
+  border-radius: 50%;
+  border: none;
+  transition: .2s ease-in-out;
+}
+
 .keyboard-indicator {
   position: absolute;
   bottom: 0.01em;
