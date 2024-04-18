@@ -30,12 +30,24 @@ export class Chip8Emulator {
   private startEmulatorLoop() {
     const frameTime = 1000 / 60;
 
+    const previousTime = Date.now();
+    let nextFrameMidpoint = previousTime + frameTime / 2;
+
     this.emulationLoop = window.setInterval(() => {
-      try {
-        this.cpuInstance.cycle();
-      } catch(error) {
-        this.stopEmulatorLoop();
-        console.error((error as Error).message);
+      const currentTime = Date.now();
+      let cycleCount = 0;
+
+      // Run the emulator cycle up to twice per interval to catch up on missed frames
+      while (nextFrameMidpoint < currentTime - frameTime && cycleCount < 2) {
+        try {
+          this.cpuInstance.cycle();
+        } catch(error) {
+          this.stopEmulatorLoop();
+          console.error((error as Error).message);
+        }
+
+        nextFrameMidpoint += frameTime;
+        cycleCount++;
       }
     }, frameTime);
   }
