@@ -1,5 +1,5 @@
 import { Chip8CpuEvents, Chip8Quirks } from '../constants/chip8.constants';
-import { Chip8EmulatorProps, EmulatorColorPalette, EmulatorFontAppearance } from '../types/emulator';
+import { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
 import { CPU } from './cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
