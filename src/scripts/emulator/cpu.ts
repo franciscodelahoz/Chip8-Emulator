@@ -48,6 +48,8 @@ export class CPU extends EventTarget {
 
   public drawingFlag: boolean = true;
 
+  private audioFlag: boolean = false;
+
   private soundEnabled = true;
 
   private quirksConfigurations = { ...defaultQuirkConfigurations };
@@ -813,6 +815,7 @@ export class CPU extends EventTarget {
             }
 
             this.playingPattern = true;
+            this.audioFlag = true;
             break;
           }
 
@@ -911,6 +914,7 @@ export class CPU extends EventTarget {
             */
           case 0x3A: {
             this.audioPitch = this.registers[x];
+            this.audioFlag = true;
             break;
           }
 
@@ -1035,7 +1039,8 @@ export class CPU extends EventTarget {
     if (this.ST > 0) {
       if (!this.playing && this.soundEnabled) {
         this.playing = true;
-        this.audioInterface.play(defaultAudioFrequency);
+        this.audioInterface.play(this.playingPattern, this.audioPatternBuffer, this.audioPitch);
+        this.audioFlag = false;
       }
 
       this.ST -= 1;
@@ -1043,6 +1048,7 @@ export class CPU extends EventTarget {
       if (this.playing && this.soundEnabled) {
         this.playing = false;
         this.audioInterface.stop();
+        this.audioFlag = false;
       }
     }
 
@@ -1053,6 +1059,11 @@ export class CPU extends EventTarget {
 
       this.cycleCounter += 1;
       this.step();
+    }
+
+    if (this.audioFlag && this.soundEnabled) {
+      this.audioInterface.play(this.playingPattern, this.audioPatternBuffer, this.audioPitch);
+      this.audioFlag = false;
     }
 
     if (this.drawingFlag) {
