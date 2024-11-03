@@ -1,5 +1,5 @@
 import { loresDisplayScale, screenDimensions } from '../../constants/chip8.constants';
-import ColorPalettesManager from '../../tools/color-palettes-manager.tools';
+import ColorPalettesManager from '../../database/managers/color-palettes.manager';
 
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;

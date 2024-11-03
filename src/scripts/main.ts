@@ -1,13 +1,14 @@
 import '../styles/style.css';
 
+import ColorPalettesManager from './database/managers/color-palettes.manager';
+import SettingsManager from './database/managers/settings.manager';
 import { Chip8Emulator } from './emulator/emulator';
-import { initializeColorPaletteSettingsModule } from './settings/color-palettes';
-import { initializeEmulatorControllerModule } from './settings/emulator-controls';
-import { initializeFontSettingsModule } from './settings/fonts';
-import { initializeGeneralSettingsModule } from './settings/general';
-import { initializeROMCompatibilitySettingsModule } from './settings/rom-compatibility';
-import { initializeSoundSettingsModule } from './settings/sound';
-import ColorPalettesManagerTools from './tools/color-palettes-manager.tools';
+import { initializeEmulatorControllerModule } from './ui/controls/emulator';
+import { initializeColorPaletteSettingsModule } from './ui/settings/color-palettes';
+import { initializeFontSettingsModule } from './ui/settings/fonts';
+import { initializeGeneralSettingsModule } from './ui/settings/general';
+import { initializeROMCompatibilitySettingsModule } from './ui/settings/rom-compatibility';
+import { initializeSoundSettingsModule } from './ui/settings/sound';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
@@ -43,7 +44,8 @@ function setSidebarButtonEventHandlers() {
 }
 
 async function initializeManagers() {
-  await ColorPalettesManagerTools.initializeManager();
+  await ColorPalettesManager.initializeManager();
+  await SettingsManager.initializeManager();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -54,7 +56,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   initializeColorPaletteSettingsModule(emulatorInstance);
   initializeGeneralSettingsModule(emulatorInstance);
   initializeSoundSettingsModule(emulatorInstance);
-  initializeGeneralSettingsModule(emulatorInstance);
   initializeROMCompatibilitySettingsModule(emulatorInstance);
   initializeFontSettingsModule(emulatorInstance);
   initializeEmulatorControllerModule(emulatorInstance);

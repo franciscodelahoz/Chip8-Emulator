@@ -1,3 +1,4 @@
+import { Order } from '../constants/database.constants';
 import { database } from '../constants/emulator.constants';
 
 export class DatabaseTool<T = any> {
@@ -103,7 +104,7 @@ export class DatabaseTool<T = any> {
     });
   }
 
-  public async *getAllElementsFromDatabase(storageName: string, orderBy?: string, order: 'next' | 'prev' = 'next'): AsyncGenerator<T> {
+  public async *getAllElementsFromDatabase(storageName: string, orderBy?: string, order: Order = Order.NEXT): AsyncGenerator<T> {
     if (!this.databaseConnection) {
       throw new Error('Database is not opened yet');
     }

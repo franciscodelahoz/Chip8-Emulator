@@ -1,8 +1,8 @@
-import { customColorPaletteKeyId, defaultColorPaletteId } from '../constants/chip8.constants';
-import { colorPalettes } from '../constants/color-palettes.constants';
-import { database, emulatorConfigurationsKeys } from '../constants/emulator.constants';
-import { ColorPalettes, CustomColorPalette } from '../types/emulator';
-import { DatabaseTool } from './database.tools';
+import { customColorPaletteKeyId, defaultColorPaletteId } from '../../constants/chip8.constants';
+import { colorPalettes } from '../../constants/color-palettes.constants';
+import { database, emulatorConfigurationsKeys } from '../../constants/emulator.constants';
+import { ColorPalettes, CustomColorPalette } from '../../types/emulator';
+import { DatabaseTool } from '../database';
 
 class ColorPalettesManager {
   private colorPalettesStored: ColorPalettes = {};
@@ -11,7 +11,7 @@ class ColorPalettesManager {
 
   private currentPaletteId: string = '';
 
-  private customPaletteDBTool: DatabaseTool;
+  private databaseTool: DatabaseTool;
 
   private customColorPaletteStorageName = database.storage_name.custom_color_palettes;
 
@@ -20,14 +20,14 @@ class ColorPalettesManager {
   constructor() {
     this.currentPaletteId = defaultColorPaletteId;
 
-    this.customPaletteDBTool = new DatabaseTool(
+    this.databaseTool = new DatabaseTool(
       database.name,
       database.current_version,
     );
   }
 
   public async initializeManager(): Promise<void> {
-    await this.customPaletteDBTool.openDatabase();
+    await this.databaseTool.openDatabase();
 
     this.loadDefaultPalettes();
     await this.loadCustomPalettes();
@@ -44,7 +44,7 @@ class ColorPalettesManager {
   }
 
   private async loadCustomPalettes(): Promise<void> {
-    const customPaletteGenerator = this.customPaletteDBTool.getAllElementsFromDatabase(
+    const customPaletteGenerator = this.databaseTool.getAllElementsFromDatabase(
       this.customColorPaletteStorageName
     );
 
@@ -64,7 +64,7 @@ class ColorPalettesManager {
     const indexedSettingsKey = this.getCustomPaletteKeys();
 
     for (const [ index, key ] of indexedSettingsKey) {
-      const storedColor = await this.customPaletteDBTool.getObjectFromDatabase(
+      const storedColor = await this.databaseTool.getObjectFromDatabase(
         this.settingsStorageName,
         key
       );
@@ -98,7 +98,7 @@ class ColorPalettesManager {
     for (const [ index, key ] of indexedSettingsKey) {
       const colorValue = { value: this.currentSelectedPalette[index] };
 
-      await this.customPaletteDBTool.putObjectInDatabase(
+      await this.databaseTool.putObjectInDatabase(
         this.settingsStorageName,
         key,
         colorValue,
@@ -110,7 +110,7 @@ class ColorPalettesManager {
     this.currentSelectedPalette[index] = color;
     const colorValue = { value: color };
 
-    await this.customPaletteDBTool.putObjectInDatabase(
+    await this.databaseTool.putObjectInDatabase(
       this.settingsStorageName,
       emulatorConfigurationsKeys.palette_keys[index],
       colorValue,
@@ -142,7 +142,7 @@ class ColorPalettesManager {
   public async addNewColorPalette(paletteInfo: CustomColorPalette): Promise<void> {
     this.colorPalettesStored[paletteInfo.id] = paletteInfo.colors;
 
-    await this.customPaletteDBTool.putObjectInDatabase(
+    await this.databaseTool.putObjectInDatabase(
       this.customColorPaletteStorageName,
       paletteInfo.id,
       paletteInfo
@@ -152,15 +152,15 @@ class ColorPalettesManager {
   public async removeColorPalette(paletteId: string): Promise<void> {
     delete this.colorPalettesStored[paletteId];
 
-    return this.customPaletteDBTool.removeElementFromDatabase(
+    return this.databaseTool.removeElementFromDatabase(
       this.customColorPaletteStorageName,
       paletteId
     );
   }
 
   public async renameCurrentSelectedPalette(newName: string): Promise<void> {
-    const currentPaletteName = await this.getCurrentPaletteId();
-    const paletteInfo = await this.customPaletteDBTool.getObjectFromDatabase(
+    const currentPaletteName = this.getCurrentPaletteId();
+    const paletteInfo = await this.databaseTool.getObjectFromDatabase(
       this.customColorPaletteStorageName,
       currentPaletteName
     );
@@ -168,7 +168,7 @@ class ColorPalettesManager {
     if (paletteInfo) {
       paletteInfo.name = newName;
 
-      await this.customPaletteDBTool.putObjectInDatabase(
+      await this.databaseTool.putObjectInDatabase(
         this.customColorPaletteStorageName,
         paletteInfo.id,
         paletteInfo
@@ -179,14 +179,14 @@ class ColorPalettesManager {
   public async getCurrentPaletteInfoFromStorage(): Promise<CustomColorPalette | null> {
     const paletteId = this.getCurrentPaletteId();
 
-    return this.customPaletteDBTool.getObjectFromDatabase(
+    return this.databaseTool.getObjectFromDatabase(
       this.customColorPaletteStorageName,
       paletteId
     );
   }
 
   public async getCurrentPaletteNameFromId(): Promise<string> {
-    const paletteInfo =  await this.customPaletteDBTool.getObjectFromDatabase(
+    const paletteInfo =  await this.databaseTool.getObjectFromDatabase(
       this.customColorPaletteStorageName,
       this.currentPaletteId
     );
@@ -195,7 +195,7 @@ class ColorPalettesManager {
   }
 
   public getAllCustomPalettesStored(orderBy: string = 'created_at') {
-    return this.customPaletteDBTool.getAllElementsFromDatabase(
+    return this.databaseTool.getAllElementsFromDatabase(
       this.customColorPaletteStorageName,
       orderBy,
     );

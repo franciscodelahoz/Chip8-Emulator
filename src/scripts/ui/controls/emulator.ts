@@ -1,4 +1,4 @@
-import { Chip8Emulator } from '../emulator/emulator';
+import { Chip8Emulator } from '../../emulator/emulator';
 
 const input = document.getElementById('file') as HTMLInputElement | null;
 const resetRomBtn = document.getElementById('reset-rom-btn') as HTMLElement | null;
