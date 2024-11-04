@@ -90,6 +90,8 @@ body {
   user-select: none;
   cursor: pointer;
   flex-grow: 10;
+  font-family: Verdana;
+  font-size: 0.83rem;
 }
 
 .default-button {
@@ -103,6 +105,7 @@ body {
   background-color: #222222;
   color: #34ff66;
   font-family: Verdana;
+  font-size: 0.83rem;
 }
 
 .default-button:hover {
@@ -143,8 +146,10 @@ body {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: .5rem;
-  padding-right: 1.5rem;
+  padding-right: 2rem;
   text-overflow: ellipsis;
+  font-family: Verdana;
+  font-size: 0.76rem;
 }
 
 .default-select:focus {
