@@ -236,6 +236,64 @@ input[type='range']::-moz-range-thumb {
   transition: .2s ease-in-out;
 }
 
+.checkbox-container {
+  display: flex;
+  align-items: flex-start;
+  font-family: verdana;
+}
+
+.checkbox-container-centered {
+  display: flex;
+  align-items: center;
+  font-family: verdana;
+}
+
+.default-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border: 2px solid #CCCCCC;
+  background-color: #222222;
+  outline: none;
+  cursor: pointer;
+  margin-right: 8px;
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 3px;
+  border-radius: 5px;
+}
+
+.default-checkbox:checked {
+  border-color: #34ff66;
+}
+
+.default-checkbox:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='14' height='14' fill='%2334ff66'><rect x='5' y='5' width='14' height='14' rx='3' ry='3' /></svg>") no-repeat center center;
+}
+
+.checkbox-label {
+  user-select: none;
+  margin: 0;
+}
+
+.default-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.default-checkbox:disabled + .checkbox-label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .keyboard-indicator {
   position: absolute;
   bottom: 0.01em;
@@ -293,10 +351,11 @@ input[type='range']::-moz-range-thumb {
 
 .configuration-title {
   color: #34ff66;
-  font-size: 1rem;
+  font-size: 0.95rem;
   text-align: center;
   padding: 5px;
-  background-color: #222;
+  background-color: #222222;
+  font-family: Verdana;
 }
 
 .configuration-subtitle {
@@ -312,6 +371,7 @@ input[type='range']::-moz-range-thumb {
 .configuration-content > section > ul > li {
   font-size: .78em;
   margin: 0.8rem auto;
+  font-family: Verdana;
 }
 
 .configuration-subsection {

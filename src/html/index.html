@@ -79,10 +79,12 @@
           <h2 class="configuration-title">Sound Settings</h2>
           <ul class="quirks-list">
             <li>
-              <label>
-                <input type="checkbox" name="sound-state-checkbox" id="sound-state-checkbox">
-                Enable/Disable sound
-              </label>
+              <div class="checkbox-container-centered">
+                <input type="checkbox" name="sound-state-checkbox" id="sound-state-checkbox" class="default-checkbox">
+                <label class="checkbox-label">
+                  Enable/Disable sound
+                </label>
+              </div>
             </li>
             <li>
               <label class="block-item">
@@ -99,46 +101,60 @@
           <h2 class="configuration-title">ROM Compatibility</h2>
           <ul class="quirks-list">
             <li>
-              <label>
-                <input type="checkbox" name="vf-quirk-checkbox" id="vf-quirk-checkbox" class="quirk-checkbox" data-quirk-property-name="vfQuirk">
-                The AND, OR and XOR opcodes reset the flags register to zero.
-              </label>
+              <div class="checkbox-container">
+                <input type="checkbox" name="vf-quirk-checkbox" id="vf-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="vfQuirk">
+                <label class="checkbox-label">
+                  The AND, OR and XOR opcodes reset the flags register to zero.
+                </label>
+              </div>
             </li>
             <li>
-              <label>
-                <input type="checkbox" name="memory-quirk-checkbox" id="memory-quirk-checkbox" class="quirk-checkbox" data-quirk-property-name="memoryQuirk">
-                The save and load opcodes (Fx55 and Fx65) increment the index register.
-              </label>
+              <div class="checkbox-container">
+                <input type="checkbox" name="memory-quirk-checkbox" id="memory-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="memoryQuirk">
+                <label class="checkbox-label">
+                  The save and load opcodes (Fx55 and Fx65) increment the index register.
+                </label>
+              </div>
             </li>
             <li>
-              <label>
-                <input type="checkbox" name="display-wait-quirk-checkbox" id="display-wait-quirk-checkbox" class="quirk-checkbox" data-quirk-property-name="displayWaitQuirk">
-                Drawing sprites to the display waits for the vertical blank interrupt, limiting their speed to max 60 sprites per second.
-              </label>
+              <div class="checkbox-container">
+                <input type="checkbox" name="display-wait-quirk-checkbox" id="display-wait-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="displayWaitQuirk">
+                <label class="checkbox-label">
+                  Drawing sprites to the display waits for the vertical blank interrupt, limiting their speed to max 60 sprites per second.
+                </label>
+              </div>
             </li>
             <li>
-              <label>
-                <input type="checkbox" name="clipping-quirk-checkbox" id="clipping-quirk-checkbox" class="quirk-checkbox" data-quirk-property-name="clipQuirks">
-                Sprites drawn at the bottom edge of the screen get clipped instead of wrapping around to the top of the screen.
-              </label>
+              <div class="checkbox-container">
+                <input type="checkbox" name="clipping-quirk-checkbox" id="clipping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="clipQuirks">
+                <label class="checkbox-label">
+                  Sprites drawn at the bottom edge of the screen get clipped instead of wrapping around to the top of the screen.
+                </label>
+              </div>
             </li>
             <li>
-              <label>
-                <input type="checkbox" name="shifting-quirk-checkbox" id="shifting-quirk-checkbox" class="quirk-checkbox" data-quirk-property-name="shiftQuirk">
-                The shift opcodes only operate on vX instead of storing the shifted version of vY in vX
-              </label>
+              <div class="checkbox-container">
+                <input type="checkbox" name="shifting-quirk-checkbox" id="shifting-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="shiftQuirk">
+                <label class="checkbox-label">
+                  The shift opcodes only operate on vX instead of storing the shifted version of vY in vX
+                </label>
+              </div>
             </li>
             <li>
-              <label>
-                <input type="checkbox" name="jumping-quirk-checkbox" id="jumping-quirk-checkbox" class="quirk-checkbox" data-quirk-property-name="jumpQuirks">
-                The Bnnn instruction doesn't use v0, but vX instead where X is the highest nibble of nnn
-              </label>
+              <div class="checkbox-container">
+                <input type="checkbox" name="jumping-quirk-checkbox" id="jumping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="jumpQuirks">
+                <label class="checkbox-label">
+                  The Bnnn instruction doesn't use v0, but vX instead where X is the highest nibble of nnn
+                </label>
+              </div>
             </li>
             <li>
-              <label>
-                <input type="checkbox" name="zero-height-sprite-lores-quirk" id="zero-height-sprite-lores-quirk" class="quirk-checkbox" data-quirk-property-name="zeroHeightSpriteLoresQuirk">
-                Adjusts for ROMs that define sprite height as zero in low-resolution mode, interpreting it as a height of 8 pixels.
-              </label>
+              <div class="checkbox-container">
+                <input type="checkbox" name="zero-height-sprite-lores-quirk" id="zero-height-sprite-lores-quirk" class="quirk-checkbox default-checkbox" data-quirk-property-name="zeroHeightSpriteLoresQuirk">
+                <label class="checkbox-label">
+                  Adjusts for ROMs that define sprite height as zero in low-resolution mode, interpreting it as a height of 8 pixels.
+                </label>
+              </div>
             </li>
           </ul>
         </section>
