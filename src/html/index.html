@@ -102,56 +102,56 @@
           <ul class="quirks-list">
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="vf-quirk-checkbox" id="vf-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="vfQuirk">
-                <label class="checkbox-label">
+                <input type="checkbox" name="vf-quirk-checkbox" id="vf-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="vfQuirk" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" for="vf-quirk-checkbox">
                   The AND, OR and XOR opcodes reset the flags register to zero.
                 </label>
               </div>
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="memory-quirk-checkbox" id="memory-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="memoryQuirk">
-                <label class="checkbox-label">
+                <input type="checkbox" name="memory-quirk-checkbox" id="memory-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="memoryQuirk" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" for="memory-quirk-checkbox">
                   The save and load opcodes (Fx55 and Fx65) increment the index register.
                 </label>
               </div>
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="display-wait-quirk-checkbox" id="display-wait-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="displayWaitQuirk">
-                <label class="checkbox-label">
+                <input type="checkbox" name="display-wait-quirk-checkbox" id="display-wait-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="displayWaitQuirk" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" for="display-wait-quirk-checkbox">
                   Drawing sprites to the display waits for the vertical blank interrupt, limiting their speed to max 60 sprites per second.
                 </label>
               </div>
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="clipping-quirk-checkbox" id="clipping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="clipQuirks">
-                <label class="checkbox-label">
+                <input type="checkbox" name="clipping-quirk-checkbox" id="clipping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="clipQuirks" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" for="clipping-quirk-checkbox">
                   Sprites drawn at the bottom edge of the screen get clipped instead of wrapping around to the top of the screen.
                 </label>
               </div>
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="shifting-quirk-checkbox" id="shifting-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="shiftQuirk">
-                <label class="checkbox-label">
+                <input type="checkbox" name="shifting-quirk-checkbox" id="shifting-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="shiftQuirk" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" for="shifting-quirk-checkbox">
                   The shift opcodes only operate on vX instead of storing the shifted version of vY in vX
                 </label>
               </div>
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="jumping-quirk-checkbox" id="jumping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="jumpQuirks">
-                <label class="checkbox-label">
+                <input type="checkbox" name="jumping-quirk-checkbox" id="jumping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="jumpQuirks" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" for="jumping-quirk-checkbox">
                   The Bnnn instruction doesn't use v0, but vX instead where X is the highest nibble of nnn
                 </label>
               </div>
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="zero-height-sprite-lores-quirk" id="zero-height-sprite-lores-quirk" class="quirk-checkbox default-checkbox" data-quirk-property-name="zeroHeightSpriteLoresQuirk">
-                <label class="checkbox-label">
+                <input type="checkbox" name="zero-height-sprite-lores-quirk" id="zero-height-sprite-lores-quirk" class="quirk-checkbox default-checkbox" data-quirk-property-name="zeroHeightSpriteLoresQuirk" style="margin-top: 0.25rem;">
+                <label class="checkbox-label" for="zero-height-sprite-lores-quirk">
                   Adjusts for ROMs that define sprite height as zero in low-resolution mode, interpreting it as a height of 8 pixels.
                 </label>
               </div>
