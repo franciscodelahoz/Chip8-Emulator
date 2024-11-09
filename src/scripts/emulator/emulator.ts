@@ -14,10 +14,14 @@ export class Chip8Emulator {
 
   private cpuInstance: CPU;
 
+  private canvas: HTMLCanvasElement;
+
   private emulationLoop: number = 0;
 
   constructor(props: Chip8EmulatorProps) {
-    this.displayInstance = new DisplayInterface(props.canvas);
+    this.canvas = props.canvas;
+
+    this.displayInstance = new DisplayInterface(this.canvas);
     this.keyboardInstance = new KeyBoardInterface();
     this.audioInstance = new AudioInterface();
 
@@ -29,15 +33,15 @@ export class Chip8Emulator {
 
   private startEmulatorLoop() {
     const frameTime = 1000 / 60;
-
     const previousTime = Date.now();
+
     let nextFrameMidpoint = previousTime + frameTime / 2;
 
     this.emulationLoop = window.setInterval(() => {
-      const currentTime = Date.now();
       let cycleCount = 0;
+      const currentTime = Date.now();
 
-      // Run the emulator cycle up to twice per interval to catch up on missed frames
+      /* Run the emulator cycle up to twice per interval to catch up on missed frames */
       while (nextFrameMidpoint < currentTime - frameTime && cycleCount < 2) {
         try {
           this.cpuInstance.cycle();
@@ -63,29 +67,6 @@ export class Chip8Emulator {
       console.log('Emulation loop stopped by exit instruction');
       this.stopEmulatorLoop();
     }
-  }
-
-  private readAsArrayBuffer(fileInput: HTMLInputElement): Promise<ArrayBuffer> {
-    return new Promise((resolve, reject) => {
-      const input: File | undefined = fileInput?.files?.[0];
-
-      if (!input) {
-        reject('no file input found');
-      }
-
-      const fileReader = new FileReader();
-
-      fileReader.readAsArrayBuffer(input as File);
-
-      fileReader.addEventListener('load', (e) => resolve(e.target?.result as ArrayBuffer));
-      fileReader.addEventListener('error', (error) => reject(error));
-    });
-  }
-
-  private async readFile(fileInput: GenericEvent<HTMLInputElement>) {
-    const arrayBuffer = await this.readAsArrayBuffer(fileInput.target);
-    const romData = new Uint8Array(arrayBuffer);
-    return romData;
   }
 
   public loadRom(romData: Uint8Array) {
@@ -132,13 +113,6 @@ export class Chip8Emulator {
 
   public getMemorySize() {
     return this.cpuInstance.getMemorySize();
-  }
-
-  public async startEmulation(event: GenericEvent<HTMLInputElement>) {
-    const romData = await this.readFile(event as GenericEvent<HTMLInputElement>);
-    this.stopEmulatorLoop();
-    this.cpuInstance.loadRom(romData);
-    this.startEmulatorLoop();
   }
 
   public loadRomFromData(romData: Uint8Array) {

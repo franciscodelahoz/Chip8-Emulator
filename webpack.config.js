@@ -1,8 +1,8 @@
-import path from 'node:path';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
-import MiniCSSExtractPlugin from 'mini-css-extract-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCSSExtractPlugin from 'mini-css-extract-plugin';
+import path from 'node:path';
 import TerserPlugin from 'terser-webpack-plugin';
 import { GenerateSW } from 'workbox-webpack-plugin';
 

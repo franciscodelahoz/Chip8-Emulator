@@ -47,7 +47,9 @@ export class DisplayInterface {
     this.context.canvas.width = this.displayWidth;
     this.context.canvas.height = this.displayHeight;
 
-    this.planeColors = [ ...ColorPalettesManager.getCurrentSelectedPalette() ];
+    this.planeColors = [
+      ...ColorPalettesManager.getCurrentSelectedPalette(),
+    ];
   }
 
   setPaletteColor(index: number, color: string) {
