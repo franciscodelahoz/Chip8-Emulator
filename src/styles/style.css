@@ -82,16 +82,16 @@ body {
   width: 100%;
 }
 
-.rom-controller input {
-  content: 'Upload rom file';
+#file {
+  user-select: none;
+  cursor: pointer;
+  font-family: Verdana;
+  font-size: 0.83rem;
+  flex-grow: 9;
   border: 2px solid #34ff66;
   padding: 5px;
   border-radius: 5px;
-  user-select: none;
-  cursor: pointer;
-  flex-grow: 10;
-  font-family: Verdana;
-  font-size: 0.83rem;
+  text-overflow: ellipsis;
 }
 
 .default-button {
@@ -159,26 +159,6 @@ body {
 .icon-button svg {
   width: 1.9rem;
   height: 1.9rem;
-}
-
-input[type="file"]::-webkit-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::-moz-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::-ms-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::-o-file-upload-button {
-  display: none;
-}
-
-input[type="file"]::file-upload-button {
-  display: none;
 }
 
 .keyboard-container {
