@@ -1,7 +1,7 @@
 {
   "name": "chip8-emulator",
   "version": "1.0.0",
-  "description": "A Chip-8 emulator written in Typescript.",
+  "description": "A Chip-8, Super Chip-8 (SCHIP), and XO-CHIP emulator written in TypeScript.",
   "main": "index.js",
   "type": "module",
   "browserslist": [
@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/franciscodelahoz/Chip8-Emulator#readme",
   "devDependencies": {
+    "@types/wicg-file-system-access": "^2023.10.5",
+    "@types/wicg-web-app-launch": "^2023.1.4",
     "autoprefixer": "^10.4.20",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.0",

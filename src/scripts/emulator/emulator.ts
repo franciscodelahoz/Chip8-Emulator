@@ -141,6 +141,12 @@ export class Chip8Emulator {
     this.startEmulatorLoop();
   }
 
+  public loadRomFromData(romData: Uint8Array) {
+    this.stopEmulatorLoop();
+    this.cpuInstance.loadRom(romData);
+    this.startEmulatorLoop();
+  }
+
   public resetEmulation() {
     this.stopEmulatorLoop();
     this.cpuInstance.resetRom();

@@ -26,7 +26,7 @@ export default (env, argv) => {
       logoMaskable: path.join(path.resolve(), './src/resources/maskable.svg'),
       favicons: {
         appName: 'Chip8 Emulator',
-        appDescription: 'A Chip-8 emulator written in Typescript.',
+        appDescription: 'A Chip-8, Super Chip-8 (SCHIP), and XO-CHIP emulator written in TypeScript.',
         background: '#222222',
         theme_color: '#222222',
         mode: 'webapp',
@@ -42,6 +42,7 @@ export default (env, argv) => {
           yandex: true,
         },
       },
+      manifest: path.join(path.resolve(), './src/resources/templates/manifest.json'),
     }),
   ];
 

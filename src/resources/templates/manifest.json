@@ -1,0 +1,14 @@
+{
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/octet-stream": [
+          ".ch8",
+          ".sc8",
+          ".xo8"
+        ]
+      }
+    }
+  ]
+}
