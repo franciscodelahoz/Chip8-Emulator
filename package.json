@@ -6,7 +6,7 @@
   "type": "module",
   "browserslist": [
     "last 2 versions",
-    "IE 11"
+    "not dead"
   ],
   "scripts": {
     "build": "webpack --mode production",
