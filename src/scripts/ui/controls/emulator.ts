@@ -1,11 +1,12 @@
 import { Chip8Emulator } from '../../emulator/emulator';
 
-const input = document.getElementById('file') as HTMLElement | null;
+const input = document.getElementById('file-picker') as HTMLElement | null;
 const resetRomBtn = document.getElementById('reset-rom-btn') as HTMLElement | null;
 
 async function getFileFromHandle(fileHandle: File | FileSystemFileHandle): Promise<File> {
   if (fileHandle instanceof FileSystemFileHandle) {
     return await fileHandle.getFile();
+
   } else {
     return fileHandle;
   }
@@ -77,9 +78,11 @@ function initializeRomFileInputEventHandlers(emulatorInstance: Chip8Emulator) {
     try {
       if ('showOpenFilePicker' in window) {
         await handleFilePickerEvent(emulatorInstance);
+
       } else {
         await handleFilePickerEventFallback(emulatorInstance);
       }
+
     } catch(error) {
       if ((error as Error)?.name !== 'AbortError') {
         return alert(`Error loading the ROM file.`);
@@ -94,6 +97,7 @@ function initializeResetRomButtonEventHandlers(emulatorInstance: Chip8Emulator) 
   resetRomBtn.addEventListener('click', () => {
     try {
       emulatorInstance.resetEmulation();
+
     } catch(error) {
       console.error(error);
     }
@@ -104,6 +108,7 @@ function registerFileHandlerLoadRom(emulatorInstance: Chip8Emulator) {
   window.launchQueue?.setConsumer(async (launchParams) => {
     if (launchParams.files.length) {
       const files = launchParams.files as Array<FileSystemFileHandle>;
+
       await handleFileInput(files, emulatorInstance);
       setNowPlayingRomName(files[0].name);
     }

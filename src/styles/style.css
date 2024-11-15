@@ -4,6 +4,10 @@
   font-display: swap;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -67,12 +71,30 @@ body {
   padding: 0.6rem;
   align-items: center;
   gap: 1rem;
+  width: clamp(390px, 60vw, 75vw);
 }
 
 .emulator-view canvas {
   width: 100%;
-  border: 1.5px solid #767676;
+  height: auto;
+  border: 2px solid #ccc;
   box-sizing: border-box;
+  aspect-ratio: auto;
+  image-rendering: pixelated;
+  background-color: #222222;
+}
+
+.emulator-view:fullscreen {
+  margin: 0;
+  padding: 0;
+}
+
+.emulator-view canvas:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  top: 0;
+  left: 0;
 }
 
 .rom-controller {
@@ -82,7 +104,7 @@ body {
   width: 100%;
 }
 
-#file {
+#file-picker {
   user-select: none;
   cursor: pointer;
   font-family: Verdana;
@@ -161,16 +183,23 @@ body {
   height: 1.9rem;
 }
 
-.keyboard-container {
-  padding: 0.6rem;
-}
-
 .keyboard {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
   grid-gap: 0.5rem;
   touch-action: none;
+}
+
+.keyboard-indicator {
+  position: absolute;
+  bottom: 0.01em;
+  right: 0.2em;
+  font-size: 0.55rem;
+  background-color: #333333;
+  font-family: Verdana;
+  border-radius: 30%;
+  pointer-events: none;
 }
 
 .key {
@@ -188,6 +217,17 @@ body {
   position: relative;
   border: none;
   color: #34ff66;
+  box-sizing: border-box;
+}
+
+.key:hover, .key:hover .keyboard-indicator {
+  background-color: #34ff66;
+  color: #222222;
+}
+
+.key.active, .key.active .keyboard-indicator {
+  background-color: #198033;
+  color: #e3e3e3;
 }
 
 input[type='range'] {
@@ -280,27 +320,6 @@ input[type='range']::-moz-range-thumb {
 .default-checkbox:disabled + .checkbox-label {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.keyboard-indicator {
-  position: absolute;
-  bottom: 0.01em;
-  right: 0.2em;
-  font-size: 0.55rem;
-  background-color: #333333;
-  font-family: Verdana;
-  border-radius: 30%;
-  pointer-events: none;
-}
-
-.key:hover, .key:hover .keyboard-indicator {
-  background-color: #34ff66;
-  color: #222222;
-}
-
-.key.active, .key.active .keyboard-indicator {
-  background-color: #198033;
-  color: #e3e3e3;
 }
 
 #close-configurations-button {

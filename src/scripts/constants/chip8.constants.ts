@@ -68,8 +68,6 @@ export const screenDimensions = {
   },
 }
 
-export const loresDisplayScale = 12;
-
 export const defaultFontAppearance: EmulatorFontAppearance = 'octo';
 
 export const defaultColorPaletteId: EmulatorColorPalette = 'default';

@@ -1,4 +1,4 @@
-import { loresDisplayScale, screenDimensions } from '../../constants/chip8.constants';
+import { screenDimensions } from '../../constants/chip8.constants';
 import ColorPalettesManager from '../../database/managers/color-palettes.manager';
 
 export class DisplayInterface {
@@ -10,17 +10,15 @@ export class DisplayInterface {
 
   private rows: number = screenDimensions.chip8.rows;
 
-  private displayScale: number = loresDisplayScale;
-
   private displayBuffers: Array<Array<Array<number>>> = [];
-
-  private displayWidth: number;
-
-  private displayHeight: number;
 
   private planeColors: string[] = [];
 
   private bitPlane: number = 1;
+
+  private xDisplayScale: number = 0;
+
+  private yDisplayScale: number = 0;
 
   constructor(htmlCanvas: HTMLCanvasElement | null) {
     if (!htmlCanvas) {
@@ -35,17 +33,15 @@ export class DisplayInterface {
     }
 
     this.context = canvasContext;
+    this.context.imageSmoothingEnabled = false;
 
     this.displayBuffers = [
       this.createDisplayBuffer(),
       this.createDisplayBuffer(),
     ];
 
-    this.displayWidth = this.columns * this.displayScale;
-    this.displayHeight = this.rows * this.displayScale;
-
-    this.context.canvas.width = this.displayWidth;
-    this.context.canvas.height = this.displayHeight;
+    this.setCanvasAspectRatio();
+    this.calculateDisplayScale();
 
     this.planeColors = [
       ...ColorPalettesManager.getCurrentSelectedPalette(),
@@ -61,6 +57,7 @@ export class DisplayInterface {
 
     for (let y = 0; y < this.rows; y += 1) {
       displayBuffer.push([]);
+
       for (let x = 0; x < this.columns; x += 1) {
         displayBuffer[y].push(0);
       }
@@ -69,19 +66,39 @@ export class DisplayInterface {
     return displayBuffer;
   }
 
+  setCanvasAspectRatio() {
+    this.canvas.style.aspectRatio = `${this.columns} / ${this.rows}`;
+  }
+
+  calculateDisplayScale() {
+    const { width, height } = this.canvas.getBoundingClientRect();
+
+    const dpr = window.devicePixelRatio || 1;
+
+    const horizontalScale = Math.floor(width / this.columns) * dpr;
+    const verticalScale = Math.floor(height / this.rows) * dpr;
+
+    const optimalScale = Math.max(horizontalScale, verticalScale);
+
+    this.xDisplayScale = optimalScale;
+    this.yDisplayScale = optimalScale;
+
+    this.canvas.width = this.xDisplayScale * this.columns;
+    this.canvas.height = this.yDisplayScale * this.rows;
+  }
+
   setResolutionMode(hiresMode: boolean) {
     if (hiresMode) {
       this.columns = screenDimensions.schip.columns;
       this.rows = screenDimensions.schip.rows;
+
     } else {
       this.columns = screenDimensions.chip8.columns;
       this.rows = screenDimensions.chip8.rows;
     }
 
-    const scaleX = this.canvas.width / this.columns;
-    const scaleY = this.canvas.height / this.rows;
-
-    this.displayScale = Math.min(scaleX, scaleY);
+    this.setCanvasAspectRatio();
+    this.calculateDisplayScale();
 
     this.displayBuffers = [
       this.createDisplayBuffer(),
@@ -125,7 +142,7 @@ export class DisplayInterface {
 
   clearCanvas() {
     this.context.fillStyle = this.planeColors[0];
-    this.context.fillRect(0, 0, this.displayWidth, this.displayHeight);
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   render() {
@@ -138,10 +155,10 @@ export class DisplayInterface {
         this.context.fillStyle = drawColor;
 
         this.context.fillRect(
-          x * this.displayScale,
-          y * this.displayScale,
-          this.displayScale,
-          this.displayScale,
+          x * this.xDisplayScale,
+          y * this.yDisplayScale,
+          this.xDisplayScale,
+          this.yDisplayScale,
         );
       }
     }

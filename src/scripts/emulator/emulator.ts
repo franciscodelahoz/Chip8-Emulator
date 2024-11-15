@@ -18,6 +18,8 @@ export class Chip8Emulator {
 
   private emulationLoop: number = 0;
 
+  private resizeEventTimeout: number = 0;
+
   constructor(props: Chip8EmulatorProps) {
     this.canvas = props.canvas;
 
@@ -29,6 +31,7 @@ export class Chip8Emulator {
 
     this.registerCpuEvents();
     this.registerKeyboardEvents();
+    this.registerDisplayEvents();
   }
 
   private startEmulatorLoop() {
@@ -128,7 +131,10 @@ export class Chip8Emulator {
   }
 
   private registerCpuEvents() {
-    this.cpuInstance.addEventListener(Chip8CpuEvents.EXIT, this.handleExitInstruction.bind(this));
+    this.cpuInstance.addEventListener(
+      Chip8CpuEvents.EXIT,
+      this.handleExitInstruction.bind(this),
+    );
   }
 
   private registerKeyboardEvents() {
@@ -138,6 +144,23 @@ export class Chip8Emulator {
 
     this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
       this.cpuInstance.togglePauseState();
+    });
+  }
+
+  private registerDisplayEvents() {
+    window.addEventListener('resize', () => {
+      if (this.resizeEventTimeout) {
+        cancelAnimationFrame(this.resizeEventTimeout);
+      }
+
+      this.resizeEventTimeout = requestAnimationFrame(() => {
+        this.handleResizeCanvas();
+      });
+    });
+
+    document.addEventListener('keydown', async (e) => {
+      if (e.key !== '0') return;
+      this.toggleFullScreenMode();
     });
   }
 
@@ -152,5 +175,27 @@ export class Chip8Emulator {
   public setFontAppearance(fontAppearance: EmulatorFontAppearance) {
     this.cpuInstance.setFontAppearance(fontAppearance);
     this.cpuInstance.resetRom();
+  }
+
+  public handleResizeCanvas() {
+    this.displayInstance.calculateDisplayScale();
+
+    if (!this.emulationLoop) {
+      this.displayInstance.clearCanvas();
+
+    } else if (!this.cpuInstance.drawingFlag) {
+      this.displayInstance.render();
+    }
+  }
+
+  public async toggleFullScreenMode() {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+
+    } else {
+      await this.canvas.requestFullscreen();
+    }
+
+    this.handleResizeCanvas();
   }
 }
