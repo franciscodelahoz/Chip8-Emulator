@@ -11,6 +11,12 @@ export const colorPalettes = {
     '#A1A1AA',
     '#71717A',
   ],
+  black_and_white_inverted: [
+    '#A1A1AA',
+    '#18181B',
+    '#F4F4F5',
+    '#71717A',
+  ],
   cyberpunk: [
     '#100019',
     '#FFE1FF',
