@@ -1,7 +1,7 @@
 import { defaultAudioGain, defaultSoundState, maximumAudioGain } from '../../constants/audio.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
 
 const soundStateCheckbox = document.getElementById('sound-state-checkbox') as HTMLInputElement | null;
 
@@ -42,6 +42,7 @@ function setSoundGainPercentageValue(value: number, element: HTMLElement | null)
   if (!element) return;
 
   const percentage = Math.ceil((value / maximumAudioGain) * 100);
+
   element.innerText = `${percentage}%`;
 }
 
@@ -49,6 +50,7 @@ function setRangeBackgroundColorProgress(value: number) {
   if (!soundLevelRange) return;
 
   const soundLevel = value * 10;
+
   soundLevelRange.style.background = `linear-gradient(to right, #34ff66 ${soundLevel}%, #ccc ${soundLevel}%)`;
 }
 
@@ -57,6 +59,7 @@ async function setCurrentSoundLevel(emulatorInstance: Chip8Emulator) {
   const gainLevel = storedGainLevel ?? defaultAudioGain;
 
   emulatorInstance.setAudioGain(gainLevel);
+
   const soundLevel = convertAudioGainToSoundLevel(gainLevel);
 
   if (soundLevelRange) {

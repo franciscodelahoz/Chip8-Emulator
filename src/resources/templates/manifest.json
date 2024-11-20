@@ -3,11 +3,7 @@
     {
       "action": "/",
       "accept": {
-        "application/octet-stream": [
-          ".ch8",
-          ".sc8",
-          ".xo8"
-        ]
+        "application/octet-stream": [".ch8", ".sc8", ".xo8"]
       }
     }
   ]

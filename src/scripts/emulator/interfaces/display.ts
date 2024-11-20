@@ -1,5 +1,6 @@
 import { screenDimensions } from '../../constants/chip8.constants';
 import ColorPalettesManager from '../../database/managers/color-palettes.manager';
+import type { DisplayPosition } from '../../types/emulator';
 
 export class DisplayInterface {
   private canvas: HTMLCanvasElement;
@@ -10,7 +11,7 @@ export class DisplayInterface {
 
   private rows: number = screenDimensions.chip8.rows;
 
-  private displayBuffers: Array<Array<Array<number>>> = [];
+  private displayBuffers: number[][][] = [];
 
   private planeColors: string[] = [];
 
@@ -26,6 +27,7 @@ export class DisplayInterface {
     }
 
     this.canvas = htmlCanvas;
+
     const canvasContext = this.canvas.getContext('2d');
 
     if (!canvasContext) {
@@ -53,7 +55,7 @@ export class DisplayInterface {
   }
 
   createDisplayBuffer() {
-    const displayBuffer: Array<Array<number>>  = [];
+    const displayBuffer: number[][] = [];
 
     for (let y = 0; y < this.rows; y += 1) {
       displayBuffer.push([]);
@@ -91,7 +93,6 @@ export class DisplayInterface {
     if (hiresMode) {
       this.columns = screenDimensions.schip.columns;
       this.rows = screenDimensions.schip.rows;
-
     } else {
       this.columns = screenDimensions.chip8.columns;
       this.rows = screenDimensions.chip8.rows;
@@ -118,9 +119,11 @@ export class DisplayInterface {
     }
   }
 
-  setPixel(plane: number = 0, x: number, y: number, value: number) {
-    const collision = this.displayBuffers[plane][y][x] & value;
-    this.displayBuffers[plane][y][x] ^= value;
+  setPixel(position: DisplayPosition, value: number, plane: number = 0) {
+    const collision = this.displayBuffers[plane][position.y][position.x] & value;
+
+    this.displayBuffers[plane][position.y][position.x] ^= value;
+
     return collision;
   }
 
@@ -131,7 +134,7 @@ export class DisplayInterface {
   private getDrawColor(x: number, y: number) {
     let colorIndex = 0;
 
-    for (let plane = 0; plane < this.displayBuffers.length; plane++) {
+    for (let plane = 0; plane < this.displayBuffers.length; plane += 1) {
       if (this.displayBuffers[plane][y][x]) {
         colorIndex |= 1 << plane;
       }
@@ -141,7 +144,9 @@ export class DisplayInterface {
   }
 
   clearCanvas() {
-    this.context.fillStyle = this.planeColors[0];
+    const [ firstColor ] = this.planeColors;
+
+    this.context.fillStyle = firstColor;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
@@ -150,16 +155,11 @@ export class DisplayInterface {
 
     for (let y = 0; y < this.rows; y += 1) {
       for (let x = 0; x < this.columns; x += 1) {
-        let drawColor = this.getDrawColor(x, y);
+        const drawColor = this.getDrawColor(x, y);
 
         this.context.fillStyle = drawColor;
 
-        this.context.fillRect(
-          x * this.xDisplayScale,
-          y * this.yDisplayScale,
-          this.xDisplayScale,
-          this.yDisplayScale,
-        );
+        this.context.fillRect(x * this.xDisplayScale, y * this.yDisplayScale, this.xDisplayScale, this.yDisplayScale);
       }
     }
   }

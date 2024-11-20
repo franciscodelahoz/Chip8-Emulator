@@ -1,19 +1,19 @@
 export const emulatorConfigurationsKeys = {
-  palette_keys: [
-    'background',
-    'foreground1',
-    'foreground2',
-    'blend'
-  ]
-}
+  palette_keys: [ 'background', 'foreground1', 'foreground2', 'blend' ],
+};
 
 export const customPalettePrefix = 'custom_palette_';
 
+export const enum StorageName {
+  CustomColorPalettes = 'custom_color_palettes',
+  Settings = 'settings',
+}
+
 export const database = {
-  name: 'emulator',
-  storage_name: {
-    custom_color_palettes: 'custom_color_palettes',
-    settings: 'settings',
+  name         : 'emulator',
+  storage_name : {
+    custom_color_palettes : 'custom_color_palettes',
+    settings              : 'settings',
   },
   current_version: 1,
-}
+};

@@ -1,6 +1,7 @@
-import { Chip8CpuEvents, Chip8Quirks } from '../constants/chip8.constants';
-import { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
 import { CPU } from './cpu';
+import type { Chip8Quirks } from '../constants/chip8.constants';
+import { Chip8CpuEvents } from '../constants/chip8.constants';
+import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
@@ -48,13 +49,13 @@ export class Chip8Emulator {
       while (nextFrameMidpoint < currentTime - frameTime && cycleCount < 2) {
         try {
           this.cpuInstance.cycle();
-        } catch(error) {
+        } catch (error) {
           this.stopEmulatorLoop();
           console.error((error as Error).message);
         }
 
         nextFrameMidpoint += frameTime;
-        cycleCount++;
+        cycleCount += 1;
       }
     }, frameTime);
   }
@@ -131,18 +132,15 @@ export class Chip8Emulator {
   }
 
   private registerCpuEvents() {
-    this.cpuInstance.addEventListener(
-      Chip8CpuEvents.EXIT,
-      this.handleExitInstruction.bind(this),
-    );
+    this.cpuInstance.addEventListener(Chip8CpuEvents.EXIT, this.handleExitInstruction.bind(this));
   }
 
   private registerKeyboardEvents() {
-    this.keyboardInstance.registerKeyPressedEvent(['k'], () => {
+    this.keyboardInstance.registerKeyPressedEvent([ 'k' ], () => {
       this.cpuInstance.dumpStatus();
     });
 
-    this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
+    this.keyboardInstance.registerKeyPressedEvent([ 'p' ], () => {
       this.cpuInstance.togglePauseState();
     });
   }
@@ -160,6 +158,7 @@ export class Chip8Emulator {
 
     document.addEventListener('keydown', async (e) => {
       if (e.key !== '0') return;
+
       this.toggleFullScreenMode();
     });
   }
@@ -182,7 +181,6 @@ export class Chip8Emulator {
 
     if (!this.emulationLoop) {
       this.displayInstance.clearCanvas();
-
     } else if (!this.cpuInstance.drawingFlag) {
       this.displayInstance.render();
     }
@@ -191,7 +189,6 @@ export class Chip8Emulator {
   public async toggleFullScreenMode() {
     if (document.fullscreenElement) {
       await document.exitFullscreen();
-
     } else {
       await this.canvas.requestFullscreen();
     }

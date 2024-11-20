@@ -1,18 +1,13 @@
 import { database } from '../../constants/emulator.constants';
-import { EmulatorSettings } from '../../constants/settings.constants';
-import { SettingsObject } from '../../types/settings';
+import type { EmulatorSettings } from '../../constants/settings.constants';
+import type { SettingsObject } from '../../types/settings';
 import { DatabaseTool } from '../database';
 
 class SettingsManager {
-  private databaseTool: DatabaseTool<SettingsObject<unknown>>;
-
-  private settingsStorageName = database.storage_name.settings;
+  private databaseTool: DatabaseTool;
 
   constructor() {
-    this.databaseTool = new DatabaseTool<SettingsObject<unknown>>(
-      database.name,
-      database.current_version,
-    );
+    this.databaseTool = new DatabaseTool(database.name, database.current_version);
   }
 
   public async initializeManager(): Promise<void> {
@@ -25,22 +20,18 @@ class SettingsManager {
       value,
     };
 
-    await this.databaseTool.putObjectInDatabase(
-      this.settingsStorageName,
+    await this.databaseTool.settings?.put(
       settingName,
-      indexedDBValue,
+      (indexedDBValue as any),
     );
   }
 
   public async getSetting<T = string>(settingName: EmulatorSettings): Promise<T | undefined> {
-    const result = await this.databaseTool.getObjectFromDatabase(
-      this.settingsStorageName,
+    const result = await this.databaseTool.settings?.getOne(
       settingName,
     );
 
-    if (!result) return undefined;
-
-    return result.value as T;
+    return result?.value as T ?? undefined;
   }
 }
 

@@ -1,14 +1,17 @@
 import { defaultFontAppearance } from '../../constants/chip8.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
-import { EmulatorFontAppearance } from '../../types/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
+import type { EmulatorFontAppearance } from '../../types/emulator';
 
 const fontAppearanceSelect = document.getElementById('font-appearance-select') as HTMLSelectElement | null;
 
 async function setCurrentFontAppearance(emulatorInstance: Chip8Emulator) {
-  const storedFontAppearance = await SettingsManager.getSetting<EmulatorFontAppearance>(GeneralEmulatorSettings.FONT_APPEARANCE);
-  const fontAppearance = storedFontAppearance || defaultFontAppearance;
+  const storedFontAppearance = await SettingsManager.getSetting<EmulatorFontAppearance>(
+    GeneralEmulatorSettings.FONT_APPEARANCE,
+  );
+
+  const fontAppearance = storedFontAppearance ?? defaultFontAppearance;
 
   if (storedFontAppearance) {
     emulatorInstance.setFontAppearance(fontAppearance);

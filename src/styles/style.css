@@ -159,7 +159,8 @@ body {
   color: #34ff66;
   border-radius: 5px;
   cursor: pointer;
-  background: url("data:image/svg+xml,<svg height='13px' width='13px' viewBox='0 0 16 16' fill='%2334ff66' xmlns='http://www.w3.org/2000/svg'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat;
+  background: url("data:image/svg+xml,<svg height='13px' width='13px' viewBox='0 0 16 16' fill='%2334ff66' xmlns='http://www.w3.org/2000/svg'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>")
+    no-repeat;
   background-position: calc(100% - 0.4rem) center;
   background-color: #222222;
   -moz-appearance: none;
@@ -167,7 +168,7 @@ body {
   appearance: none;
   padding-top: 3px;
   padding-bottom: 3px;
-  padding-left: .5rem;
+  padding-left: 0.5rem;
   padding-right: 2rem;
   text-overflow: ellipsis;
   font-family: Verdana;
@@ -220,12 +221,14 @@ body {
   box-sizing: border-box;
 }
 
-.key:hover, .key:hover .keyboard-indicator {
+.key:hover,
+.key:hover .keyboard-indicator {
   background-color: #34ff66;
   color: #222222;
 }
 
-.key.active, .key.active .keyboard-indicator {
+.key.active,
+.key.active .keyboard-indicator {
   background-color: #198033;
   color: #e3e3e3;
 }
@@ -249,7 +252,7 @@ input[type='range']::-webkit-slider-thumb {
   background-color: #34ff66;
   border-radius: 50%;
   border: none;
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 input[type='range']::-moz-range-thumb {
@@ -258,7 +261,7 @@ input[type='range']::-moz-range-thumb {
   background-color: #34ff66;
   border-radius: 50%;
   border: none;
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 .checkbox-container {
@@ -278,7 +281,7 @@ input[type='range']::-moz-range-thumb {
 .default-checkbox {
   -webkit-appearance: none;
   appearance: none;
-  border: 2px solid #CCCCCC;
+  border: 2px solid #cccccc;
   background-color: #222222;
   outline: none;
   cursor: pointer;
@@ -376,17 +379,18 @@ input[type='range']::-moz-range-thumb {
 }
 
 .configuration-content > section > ul > li {
-  font-size: .78em;
+  font-size: 0.78em;
   margin: 0.8rem auto;
   font-family: Verdana;
 }
 
 .configuration-subsection {
-  font-size: .78em;
+  font-size: 0.78em;
   margin: 0.8rem auto;
 }
 
-.configuration-subsection > table, label {
+.configuration-subsection > table,
+label {
   margin: 0.8rem auto;
 }
 
@@ -470,17 +474,20 @@ input[type='range']::-moz-range-thumb {
   width: calc(100% / 3);
 }
 
-.configuration-table th, .configuration-table td {
+.configuration-table th,
+.configuration-table td {
   padding: 0.4em;
   border-bottom: 2px solid #333333;
   border-right: 2px solid #333333;
 }
 
-.configuration-table th:last-child, .configuration-table td:last-child {
+.configuration-table th:last-child,
+.configuration-table td:last-child {
   border-right: none;
 }
 
-.configuration-table tr:last-child th, .configuration-table tr:last-child td {
+.configuration-table tr:last-child th,
+.configuration-table tr:last-child td {
   border-bottom: none;
 }
 
@@ -520,13 +527,13 @@ input[type='range']::-moz-range-thumb {
   top: 0;
   left: 0;
   z-index: 2;
-  background: #FFFFFF;
+  background: #ffffff;
   cursor: pointer;
 }
 
 @media only screen and (max-height: 600px) and (orientation: landscape) {
   .header-container {
-   display: none;
+    display: none;
   }
 
   .container {

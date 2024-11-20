@@ -1,12 +1,12 @@
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
 
 const cyclesPerFrameSelect = document.getElementById('cycles-per-frame-select') as HTMLSelectElement | null;
 
 async function setCurrentCyclePerFrame(emulatorInstance: Chip8Emulator) {
   const storedCyclesPerFrameValue = await SettingsManager.getSetting<number>(GeneralEmulatorSettings.CYCLES_PER_FRAME);
-  const cyclesPerFrame = storedCyclesPerFrameValue || emulatorInstance.getCpuCyclesPerFrame();
+  const cyclesPerFrame = storedCyclesPerFrameValue ?? emulatorInstance.getCpuCyclesPerFrame();
 
   if (cyclesPerFrameSelect) {
     cyclesPerFrameSelect.value = cyclesPerFrame.toString();

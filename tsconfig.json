@@ -2,10 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "types": [
-      "wicg-web-app-launch",
-      "wicg-file-system-access"
-    ],
+    "types": ["wicg-web-app-launch", "wicg-file-system-access"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
