@@ -68,7 +68,7 @@ body {
 .emulator-view {
   display: flex;
   flex-direction: column;
-  padding: 0.6rem;
+  padding: 0 0.6rem;
   align-items: center;
   gap: 1rem;
   width: clamp(390px, 60vw, 75vw);
