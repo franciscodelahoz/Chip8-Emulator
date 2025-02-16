@@ -1,4 +1,4 @@
-import { Chip8Quirks } from './chip8.constants';
+import type { Chip8Quirks } from './chip8.constants';
 
 export enum GeneralEmulatorSettings {
   FONT_APPEARANCE = 'fontAppearance',

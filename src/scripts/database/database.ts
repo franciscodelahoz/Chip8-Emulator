@@ -16,22 +16,22 @@ export class DatabaseTool<T = any> {
   public async openDatabase(): Promise<void> {
     if (this.databaseConnection) return;
 
-    return new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open(this.databaseName, this.databaseVersion);
 
       request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
         const db = request.result;
 
         const customPalettesTable = db.createObjectStore(database.storage_name.custom_color_palettes, {
-          keyPath: 'id',
-          autoIncrement: true
+          keyPath       : 'id',
+          autoIncrement : true,
         });
 
         customPalettesTable.createIndex('created_at', 'created_at', { unique: false });
 
         db.createObjectStore(database.storage_name.settings, {
-          keyPath: 'id',
-          autoIncrement: true
+          keyPath       : 'id',
+          autoIncrement : true,
         });
       };
 
@@ -41,8 +41,9 @@ export class DatabaseTool<T = any> {
       };
 
       request.onerror = (event) => {
-        const error = (event.target as IDBRequest).error;
-        reject(`Error opening database: ${error}`);
+        const { error } = event.target as IDBRequest;
+
+        reject(new Error(`Error opening database: ${JSON.stringify(error)}`));
       };
     });
   }
@@ -104,7 +105,7 @@ export class DatabaseTool<T = any> {
     });
   }
 
-  public async *getAllElementsFromDatabase(storageName: string, orderBy?: string, order: Order = Order.NEXT): AsyncGenerator<T> {
+  public async* getAllElementsFromDatabase(storageName: string, orderBy?: string, order: Order = Order.NEXT): AsyncGenerator<T> {
     if (!this.databaseConnection) {
       throw new Error('Database is not opened yet');
     }

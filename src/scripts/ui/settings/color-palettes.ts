@@ -1,8 +1,8 @@
 import { customColorPaletteKeyId, defaultColorPaletteId } from '../../constants/chip8.constants';
 import { customPalettePrefix } from '../../constants/emulator.constants';
 import ColorPalettesManager from '../../database/managers/color-palettes.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
-import { CustomColorPalette } from '../../types/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
+import type { CustomColorPalette } from '../../types/emulator';
 
 const colorPaletteSelect = document.getElementById('color-palettes-select') as HTMLSelectElement | null;
 const customPaletteGroup = colorPaletteSelect?.querySelector('optgroup[label="Custom palettes"]') as HTMLOptGroupElement | null;
@@ -17,6 +17,7 @@ function appendCustomPaletteOptionToSelect(paletteInfo: CustomColorPalette) {
   if (!customPaletteGroup) return;
 
   const option = document.createElement('option');
+
   option.value = paletteInfo.id;
   option.innerText = paletteInfo.name;
 
@@ -25,11 +26,13 @@ function appendCustomPaletteOptionToSelect(paletteInfo: CustomColorPalette) {
 
 function deleteOptionFromSelect(optionValue: string) {
   const option = colorPaletteSelect?.querySelector(`option[value="${optionValue}"]`);
+
   if (option) option.remove();
 }
 
 function updateCustomPaletteOptionInSelect(paletteInfo: CustomColorPalette) {
   const option = colorPaletteSelect?.querySelector<HTMLOptionElement>(`option[value="${paletteInfo.id}"]`);
+
   if (option) option.innerText = paletteInfo.name;
 }
 
@@ -43,6 +46,7 @@ async function setInitialColorPaletteInSelect() {
   if (!colorPaletteSelect) return;
 
   const currentPaletteName = ColorPalettesManager.getCurrentPaletteId();
+
   colorPaletteSelect.value = currentPaletteName;
 }
 
@@ -54,6 +58,7 @@ async function setInitialColorPaletteInColorSwatch() {
     const colorOverlay = element.querySelector('.color-overlay') as HTMLElement;
 
     if (colorSwatch) colorSwatch.value = colorPaletteSelected[index];
+
     if (colorOverlay) colorOverlay.style.backgroundColor = colorPaletteSelected[index];
   });
 }
@@ -63,6 +68,7 @@ async function setInitialColorPaletteInColorInputs() {
 
   colorPaletteTable?.querySelectorAll(`tr`)?.forEach((element, index) => {
     const colorInput = element.querySelector('.color-value') as HTMLInputElement;
+
     if (colorInput) colorInput.value = colorPaletteSelected[index];
   });
 }
@@ -109,17 +115,18 @@ function processInputColorValue(colorInput: HTMLInputElement) {
     colorValue = `#${colorValue}`;
   }
 
-  const validColorLengths = [4, 7]; // #FFF or #FFFFFF
+  const validColorLengths = [ 4, 7 ]; // #FFF or #FFFFFF
   const isValidColor = validColorLengths.includes(colorValue.length);
 
   return {
-    color_value: colorValue,
-    is_valid: isValidColor
-  }
+    color_value : colorValue,
+    is_valid    : isValidColor,
+  };
 }
 
 function setColorInputValueEventHandler(emulatorInstance: Chip8Emulator) {
   if (!colorPaletteTable) return;
+
   const colorInputs = colorPaletteTable.querySelectorAll<HTMLDivElement>(`tr .color-input-container`);
 
   colorInputs.forEach((container, index) => {
@@ -133,6 +140,7 @@ function setColorInputValueEventHandler(emulatorInstance: Chip8Emulator) {
 
       if (!isValidColor) {
         container.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+
         return;
       }
 
@@ -150,12 +158,13 @@ function setColorInputValueEventHandler(emulatorInstance: Chip8Emulator) {
 
 function setColorSwatchClickEventHandler() {
   if (!colorPaletteTable) return;
+
   const allColorSwatches = colorPaletteTable.querySelectorAll(`tr .color-swatch-container`);
 
-  allColorSwatches.forEach((element, _) => {
+  allColorSwatches.forEach((element) => {
     const colorSwatch = element.querySelector('.color-swatch') as HTMLInputElement;
 
-    ['click', 'touchstart'].forEach((eventType) => {
+    [ 'click', 'touchstart' ].forEach((eventType) => {
       element.addEventListener(eventType, () => {
         colorSwatch.focus();
         colorSwatch.click();
@@ -166,14 +175,15 @@ function setColorSwatchClickEventHandler() {
 
 function setColorSwatchValueEventHandler(emulatorInstance: Chip8Emulator) {
   if (!colorPaletteTable) return;
+
   const allColorSwatches = colorPaletteTable.querySelectorAll(`tr .color-swatch-container`);
 
   allColorSwatches.forEach((element, index) => {
     const colorSwatch = element.querySelector<HTMLInputElement>('.color-swatch');
     const colorOverlay = element.querySelector<HTMLElement>('.color-overlay');
 
-    colorSwatch?.addEventListener('change', async (element) => {
-      const colorValue = (element.target as HTMLInputElement).value.toUpperCase();
+    colorSwatch?.addEventListener('change', async (colorSwatchElement) => {
+      const colorValue = (colorSwatchElement.target as HTMLInputElement).value.toUpperCase();
 
       await ColorPalettesManager.setColorInPalette(index, colorValue);
 
@@ -188,7 +198,7 @@ function setColorSwatchValueEventHandler(emulatorInstance: Chip8Emulator) {
   });
 }
 
-function setActionButtonState(actionButton: HTMLButtonElement | null, enable: boolean,) {
+function setActionButtonState(actionButton: HTMLButtonElement | null, enable: boolean) {
   if (actionButton) {
     actionButton.disabled = !enable;
     actionButton.style.display = enable ? 'inline-block' : 'none';
@@ -217,8 +227,6 @@ function setCustomColorPalettesButtonState() {
   setActionButtonState(saveCustomColorPaletteBtn, false);
   setActionButtonState(deleteCustomColorPaletteBtn, false);
   setActionButtonState(renameCustomColorPaletteBtn, false);
-
-  return;
 }
 
 function generatePaletteId() {
@@ -230,18 +238,16 @@ function generateNewCustomPaletteInfo(newPaletteName: string): CustomColorPalett
   const paletteColors = ColorPalettesManager.getCurrentSelectedPalette();
 
   const paletteInformation: CustomColorPalette = {
-    name: newPaletteName,
-    id: paletteId,
-    colors: paletteColors,
-    created_at: Date.now(),
+    name       : newPaletteName,
+    id         : paletteId,
+    colors     : paletteColors,
+    created_at : Date.now(),
   };
 
   return paletteInformation;
 }
 
 async function saveCurrentCustomPaletteAsANewPalette(paletteInfo: CustomColorPalette) {
-  ColorPalettesManager
-
   await ColorPalettesManager.addNewColorPalette(paletteInfo);
   await ColorPalettesManager.setSelectedPaletteByPaletteId(paletteInfo.id);
 
@@ -253,12 +259,15 @@ function setSaveCustomColorPaletteButtonEventHandler() {
 
   saveCustomColorPaletteBtn.addEventListener('click', async () => {
     const currentPaletteName = ColorPalettesManager.getCurrentPaletteId();
+
     if (currentPaletteName !== customColorPaletteKeyId) return;
 
     const paletteName = prompt('Enter a name for the custom color palette');
 
     if (!paletteName) {
-      return alert('Please enter a name for the custom color palette');
+      alert('Please enter a name for the custom color palette');
+
+      return;
     }
 
     const palette = generateNewCustomPaletteInfo(paletteName);
@@ -308,10 +317,13 @@ function setRenameCustomPaletteButtonEventHandler() {
     const newPaletteName = prompt('Enter a new name for the custom color palette', currentPaletteName);
 
     if (!newPaletteName) {
-      return alert('Please enter a name for the custom color palette');
+      alert('Please enter a name for the custom color palette');
+
+      return;
     }
 
     await ColorPalettesManager.renameCurrentSelectedPalette(newPaletteName);
+
     const storedCustomPalette = await ColorPalettesManager.getCurrentPaletteInfoFromStorage();
 
     if (storedCustomPalette) {

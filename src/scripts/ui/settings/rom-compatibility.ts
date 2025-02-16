@@ -1,14 +1,14 @@
+import type { Chip8Quirks } from '../../constants/chip8.constants';
 import {
-  Chip8Quirks,
   defaultMemorySize,
   defaultQuirkConfigurations,
   schipQuirkConfigurations,
   xoChipMemorySize,
-  xoChipQuirkConfigurations
+  xoChipQuirkConfigurations,
 } from '../../constants/chip8.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
 
 const quirkConfigCheckboxes = document.getElementsByClassName('quirk-checkbox') as HTMLCollectionOf<HTMLInputElement>;
 const memorySizeSelect = document.getElementById('memory-size-select') as HTMLSelectElement | null;
@@ -33,7 +33,7 @@ async function setQuirkValue(quirkName: Chip8Quirks, value: boolean, emulatorIns
 }
 
 function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>, emulatorInstance: Chip8Emulator) {
-  const quirkValuesKeys = Object.keys(quirkValues) as Array<Chip8Quirks>;
+  const quirkValuesKeys = Object.keys(quirkValues) as Chip8Quirks[];
 
   quirkValuesKeys.forEach(async (quirkName) => {
     const quirk = [ ...quirkConfigCheckboxes ].find((element) => {

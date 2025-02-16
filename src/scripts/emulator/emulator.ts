@@ -1,6 +1,7 @@
-import { Chip8CpuEvents, EmulatorEvents, Chip8Quirks } from '../constants/chip8.constants';
-import { Chip8EmulatorProps, EmulatorFontAppearance, PaletteColorChangeEvent } from '../types/emulator';
 import { CPU } from './cpu';
+import type { Chip8Quirks } from '../constants/chip8.constants';
+import { Chip8CpuEvents, EmulatorEvents } from '../constants/chip8.constants';
+import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
@@ -50,13 +51,13 @@ export class Chip8Emulator extends EventTarget {
       while (nextFrameMidpoint < currentTime - frameTime && cycleCount < 2) {
         try {
           this.cpuInstance.cycle();
-        } catch(error) {
+        } catch (error) {
           this.stopEmulatorLoop();
           console.error((error as Error).message);
         }
 
         nextFrameMidpoint += frameTime;
-        cycleCount++;
+        cycleCount += 1;
       }
     }, frameTime);
   }
@@ -140,11 +141,11 @@ export class Chip8Emulator extends EventTarget {
   }
 
   private registerKeyboardEvents() {
-    this.keyboardInstance.registerKeyPressedEvent(['k'], () => {
+    this.keyboardInstance.registerKeyPressedEvent([ 'k' ], () => {
       this.cpuInstance.dumpStatus();
     });
 
-    this.keyboardInstance.registerKeyPressedEvent(['p'], () => {
+    this.keyboardInstance.registerKeyPressedEvent([ 'p' ], () => {
       this.cpuInstance.togglePauseState();
     });
   }
@@ -162,6 +163,7 @@ export class Chip8Emulator extends EventTarget {
 
     document.addEventListener('keydown', async (e) => {
       if (e.key !== '0') return;
+
       this.toggleFullScreenMode();
     });
   }
@@ -172,6 +174,7 @@ export class Chip8Emulator extends EventTarget {
 
   private dispatchEmulatorEvent<T>(event: EmulatorEvents, detail: T) {
     const customEvent = new CustomEvent(event, { detail });
+
     this.dispatchEvent(customEvent);
   }
 
@@ -202,7 +205,6 @@ export class Chip8Emulator extends EventTarget {
 
     if (!this.emulationLoop) {
       this.displayInstance.clearCanvas();
-
     } else if (!this.cpuInstance.drawingFlag) {
       this.displayInstance.render();
     }
@@ -211,7 +213,6 @@ export class Chip8Emulator extends EventTarget {
   public async toggleFullScreenMode() {
     if (document.fullscreenElement) {
       await document.exitFullscreen();
-
     } else {
       await this.canvas.requestFullscreen();
     }

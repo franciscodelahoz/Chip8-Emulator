@@ -1,6 +1,6 @@
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
 
 const cyclesPerFrameSelect = document.getElementById('cycles-per-frame-select') as HTMLSelectElement | null;
 

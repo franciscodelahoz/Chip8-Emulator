@@ -5,10 +5,10 @@ import {
   charWidthSmall,
   fontCharacterCount,
   fontSets,
-  loresFontBytes
+  loresFontBytes,
 } from '../../../constants/fonts.constants';
-import { Chip8Emulator } from '../../../emulator/emulator';
-import { EmulatorFontAppearance } from '../../../types/emulator';
+import type { Chip8Emulator } from '../../../emulator/emulator';
+import type { EmulatorFontAppearance } from '../../../types/emulator';
 
 export class FontPreviewCanvas {
   private canvasContext: CanvasRenderingContext2D;
@@ -89,7 +89,7 @@ export class FontPreviewCanvas {
             this.fontScale * ((9 * characterPosition) + xPos + this.pixelXOffset + spacing * characterPosition),
             this.fontScale * (yPos + yOffset),
             this.fontScale,
-            this.fontScale
+            this.fontScale,
           );
         }
       }
@@ -100,12 +100,13 @@ export class FontPreviewCanvas {
     this.clearCanvas();
 
     this.canvasContext.fillStyle = this.emulatorInstance.getCurrentPalette(1);
+
     const fontData = fontSets[fontAppearance];
 
     const chip8LowRes = fontData.slice(0, loresFontBytes);
     const chip8HighRes = fontData.slice(loresFontBytes);
 
-    for(let characterPosition = 0; characterPosition < fontCharacterCount; characterPosition += 1) {
+    for (let characterPosition = 0; characterPosition < fontCharacterCount; characterPosition += 1) {
       // Draw lores character
       this.drawCharacter(chip8LowRes, characterPosition, false);
       // Draw hires character
