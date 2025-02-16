@@ -23,3 +23,8 @@ export interface CustomColorPalette {
 export interface EmulatorSettings {
   [key: string]: string | number | boolean;
 }
+
+export interface PaletteColorChangeEvent {
+  index: number;
+  color: string;
+}

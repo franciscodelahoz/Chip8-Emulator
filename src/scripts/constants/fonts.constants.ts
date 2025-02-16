@@ -144,3 +144,15 @@ export const fontSets = {
     0xFE, 0x66, 0x62, 0x64, 0x7C, 0x64, 0x60, 0x60, 0xF0, 0x00, // F
   ],
 };
+
+export const loresFontBytes = 80;
+
+export const charWidthSmall = 5;
+
+export const charHeightSmall = 5;
+
+export const charWidthHires = 8;
+
+export const charHeightHires = 10;
+
+export const fontCharacterCount = 16;

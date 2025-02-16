@@ -52,6 +52,10 @@ export class DisplayInterface {
     this.planeColors[index] = color;
   }
 
+  getPaletteColor(index: number): string {
+    return this.planeColors[index];
+  }
+
   createDisplayBuffer() {
     const displayBuffer: Array<Array<number>>  = [];
 

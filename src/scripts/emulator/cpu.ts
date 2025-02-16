@@ -1136,4 +1136,8 @@ export class CPU extends EventTarget {
     this.fontAppearance = fontAppearance;
     this.loadFont();
   }
+
+  public getFontAppearance() {
+    return this.fontAppearance;
+  }
 }

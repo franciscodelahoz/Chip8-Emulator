@@ -1,11 +1,11 @@
-import { Chip8CpuEvents, Chip8Quirks } from '../constants/chip8.constants';
-import { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
+import { Chip8CpuEvents, EmulatorEvents, Chip8Quirks } from '../constants/chip8.constants';
+import { Chip8EmulatorProps, EmulatorFontAppearance, PaletteColorChangeEvent } from '../types/emulator';
 import { CPU } from './cpu';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
 
-export class Chip8Emulator {
+export class Chip8Emulator extends EventTarget {
   private displayInstance: DisplayInterface;
 
   private keyboardInstance: KeyBoardInterface;
@@ -21,6 +21,8 @@ export class Chip8Emulator {
   private resizeEventTimeout: number = 0;
 
   constructor(props: Chip8EmulatorProps) {
+    super();
+
     this.canvas = props.canvas;
 
     this.displayInstance = new DisplayInterface(this.canvas);
@@ -168,13 +170,31 @@ export class Chip8Emulator {
     this.cpuInstance.resetRom();
   }
 
+  private dispatchEmulatorEvent<T>(event: EmulatorEvents, detail: T) {
+    const customEvent = new CustomEvent(event, { detail });
+    this.dispatchEvent(customEvent);
+  }
+
   public setPaletteColor(index: number, color: string) {
     this.displayInstance.setPaletteColor(index, color);
+
+    this.dispatchEmulatorEvent(EmulatorEvents.DISPLAY_COLOR_CHANGED, {
+      index,
+      color,
+    });
+  }
+
+  public getCurrentPalette(index: number): string {
+    return this.displayInstance.getPaletteColor(index);
   }
 
   public setFontAppearance(fontAppearance: EmulatorFontAppearance) {
     this.cpuInstance.setFontAppearance(fontAppearance);
     this.cpuInstance.resetRom();
+  }
+
+  public getFontAppearance(): EmulatorFontAppearance {
+    return this.cpuInstance.getFontAppearance();
   }
 
   public handleResizeCanvas() {

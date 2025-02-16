@@ -524,6 +524,10 @@ input[type='range']::-moz-range-thumb {
   cursor: pointer;
 }
 
+#font-preview {
+  image-rendering: pixelated;
+}
+
 @media only screen and (max-height: 600px) and (orientation: landscape) {
   .header-container {
    display: none;

@@ -77,3 +77,7 @@ export const customColorPaletteKeyId = 'custom';
 export enum Chip8CpuEvents {
   EXIT = 'exit',
 }
+
+export enum EmulatorEvents {
+  DISPLAY_COLOR_CHANGED = 'display:color:changed',
+}
