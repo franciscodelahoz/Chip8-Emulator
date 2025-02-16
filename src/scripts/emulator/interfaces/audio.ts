@@ -1,15 +1,15 @@
 import {
   defaultAudioFrequency,
   defaultAudioGain,
-  maximumAudioGain
+  maximumAudioGain,
 } from '../../constants/audio.constants';
 
 export class AudioInterface {
-  private audioContext: AudioContext;
+  private readonly audioContext: AudioContext;
 
-  private gain: GainNode;
+  private readonly gain: GainNode;
 
-  private finish: AudioDestinationNode;
+  private readonly finish: AudioDestinationNode;
 
   private oscillator: OscillatorNode | null = null;
 
@@ -24,7 +24,7 @@ export class AudioInterface {
     this.gain.connect(this.finish);
   }
 
-  play(frequency: number = defaultAudioFrequency) {
+  play(frequency: number = defaultAudioFrequency): void {
     if (this.audioContext && !this.oscillator) {
       this.oscillator = new OscillatorNode(this.audioContext, {
         type: 'triangle',
@@ -36,7 +36,7 @@ export class AudioInterface {
     }
   }
 
-  stop() {
+  stop(): void {
     if (this.oscillator) {
       this.oscillator.stop();
       this.oscillator.disconnect();
@@ -45,11 +45,11 @@ export class AudioInterface {
     }
   }
 
-  getAudioGain() {
+  getAudioGain(): number {
     return this.gain.gain.value;
   }
 
-  setAudioGain(gain: number) {
+  setAudioGain(gain: number): void {
     this.gain.gain.value = Math.min(gain, maximumAudioGain);
   }
 }

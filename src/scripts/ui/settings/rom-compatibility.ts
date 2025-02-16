@@ -1,23 +1,23 @@
+import type { Chip8Quirks } from '../../constants/chip8.constants';
 import {
-  Chip8Quirks,
   defaultMemorySize,
   defaultQuirkConfigurations,
   schipQuirkConfigurations,
   xoChipMemorySize,
-  xoChipQuirkConfigurations
+  xoChipQuirkConfigurations,
 } from '../../constants/chip8.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
 
 const quirkConfigCheckboxes = document.getElementsByClassName('quirk-checkbox') as HTMLCollectionOf<HTMLInputElement>;
 const memorySizeSelect = document.getElementById('memory-size-select') as HTMLSelectElement | null;
 
-const chip8ProfileBtn = document.getElementById('chip8-profile') as HTMLElement | null;
-const schipProfileBtn = document.getElementById('schip-profile') as HTMLElement | null;
-const xoChipProfileBtn = document.getElementById('xo-chip-profile') as HTMLElement | null;
+const chip8ProfileBtn = document.getElementById('chip8-profile');
+const schipProfileBtn = document.getElementById('schip-profile');
+const xoChipProfileBtn = document.getElementById('xo-chip-profile');
 
-async function getQuirkValue(quirkName: Chip8Quirks, emulatorInstance: Chip8Emulator) {
+async function getQuirkValue(quirkName: Chip8Quirks, emulatorInstance: Chip8Emulator): Promise<boolean> {
   const storedQuirkValue = await SettingsManager.getSetting<boolean>(quirkName);
 
   if (storedQuirkValue === undefined) {
@@ -27,18 +27,16 @@ async function getQuirkValue(quirkName: Chip8Quirks, emulatorInstance: Chip8Emul
   return storedQuirkValue;
 }
 
-async function setQuirkValue(quirkName: Chip8Quirks, value: boolean, emulatorInstance: Chip8Emulator) {
+async function setQuirkValue(quirkName: Chip8Quirks, value: boolean, emulatorInstance: Chip8Emulator): Promise<void> {
   await SettingsManager.setSetting(quirkName, value);
   emulatorInstance.setCpuQuirkValue(quirkName, value);
 }
 
-function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>, emulatorInstance: Chip8Emulator) {
-  const quirkValuesKeys = Object.keys(quirkValues) as Array<Chip8Quirks>;
+function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>, emulatorInstance: Chip8Emulator): void {
+  const quirkValuesKeys = Object.keys(quirkValues) as Chip8Quirks[];
 
   quirkValuesKeys.forEach(async (quirkName) => {
-    const quirk = [ ...quirkConfigCheckboxes ].find((element) => {
-      return element.getAttribute('data-quirk-property-name') === quirkName;
-    });
+    const quirk = [ ...quirkConfigCheckboxes ].find((element) => element.getAttribute('data-quirk-property-name') === quirkName);
 
     if (quirk) {
       quirk.checked = quirkValues[quirkName];
@@ -47,7 +45,7 @@ function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>, e
   });
 }
 
-async function setCurrentMemorySize(emulatorInstance: Chip8Emulator) {
+async function setCurrentMemorySize(emulatorInstance: Chip8Emulator): Promise<void> {
   const storedMemorySize = await SettingsManager.getSetting<number>(GeneralEmulatorSettings.MEMORY_SIZE);
   const memorySize = storedMemorySize ?? defaultMemorySize;
 
@@ -58,7 +56,7 @@ async function setCurrentMemorySize(emulatorInstance: Chip8Emulator) {
   }
 }
 
-async function setMemorySizeFromProfile(memorySize: number, emulatorInstance: Chip8Emulator) {
+async function setMemorySizeFromProfile(memorySize: number, emulatorInstance: Chip8Emulator): Promise<void> {
   if (memorySizeSelect) {
     memorySizeSelect.value = memorySize.toString();
 
@@ -67,7 +65,7 @@ async function setMemorySizeFromProfile(memorySize: number, emulatorInstance: Ch
   }
 }
 
-function setInitialMemorySizeSelectState(emulatorInstance: Chip8Emulator) {
+function setInitialMemorySizeSelectState(emulatorInstance: Chip8Emulator): void {
   if (!memorySizeSelect) return;
 
   memorySizeSelect.addEventListener('change', async () => {
@@ -78,7 +76,7 @@ function setInitialMemorySizeSelectState(emulatorInstance: Chip8Emulator) {
   });
 }
 
-function setInitialConfigurationsStates(emulatorInstance: Chip8Emulator) {
+function setInitialConfigurationsStates(emulatorInstance: Chip8Emulator): void {
   [ ...quirkConfigCheckboxes ].forEach(async (element) => {
     const quirkName = element.getAttribute('data-quirk-property-name') as Chip8Quirks;
     const storedQuirkValue = await getQuirkValue(quirkName, emulatorInstance);
@@ -107,7 +105,7 @@ function setInitialConfigurationsStates(emulatorInstance: Chip8Emulator) {
   });
 }
 
-export async function initializeROMCompatibilitySettingsModule(emulatorInstance: Chip8Emulator) {
+export async function initializeROMCompatibilitySettingsModule(emulatorInstance: Chip8Emulator): Promise<void> {
   await setCurrentMemorySize(emulatorInstance);
 
   setInitialMemorySizeSelectState(emulatorInstance);

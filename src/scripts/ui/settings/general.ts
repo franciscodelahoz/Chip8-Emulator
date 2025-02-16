@@ -1,10 +1,10 @@
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
 
 const cyclesPerFrameSelect = document.getElementById('cycles-per-frame-select') as HTMLSelectElement | null;
 
-async function setCurrentCyclePerFrame(emulatorInstance: Chip8Emulator) {
+async function setCurrentCyclePerFrame(emulatorInstance: Chip8Emulator): Promise<void> {
   const storedCyclesPerFrameValue = await SettingsManager.getSetting<number>(GeneralEmulatorSettings.CYCLES_PER_FRAME);
   const cyclesPerFrame = storedCyclesPerFrameValue || emulatorInstance.getCpuCyclesPerFrame();
 
@@ -15,7 +15,7 @@ async function setCurrentCyclePerFrame(emulatorInstance: Chip8Emulator) {
   emulatorInstance.setCpuCyclesPerFrame(cyclesPerFrame);
 }
 
-async function setInitialCyclesPerFrameSelectState(emulatorInstance: Chip8Emulator) {
+function setInitialCyclesPerFrameSelectState(emulatorInstance: Chip8Emulator): void {
   if (!cyclesPerFrameSelect) return;
 
   cyclesPerFrameSelect.addEventListener('change', async () => {
@@ -26,7 +26,7 @@ async function setInitialCyclesPerFrameSelectState(emulatorInstance: Chip8Emulat
   });
 }
 
-export async function initializeGeneralSettingsModule(emulatorInstance: Chip8Emulator) {
+export async function initializeGeneralSettingsModule(emulatorInstance: Chip8Emulator): Promise<void> {
   await setCurrentCyclePerFrame(emulatorInstance);
   setInitialCyclesPerFrameSelectState(emulatorInstance);
 }

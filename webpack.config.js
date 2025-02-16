@@ -18,28 +18,28 @@ export default (env, argv) => {
       filename: '[name]-bundle.css',
     }),
     new HtmlWebpackPlugin({
-      title: 'Chip8 Emulator',
-      template: path.join(path.resolve(), './src/html/index.html'),
+      title    : 'Chip8 Emulator',
+      template : path.join(path.resolve(), './src/html/index.html'),
     }),
     new FaviconsWebpackPlugin({
-      logo: path.join(path.resolve(), './src/resources/favicon.svg'),
-      logoMaskable: path.join(path.resolve(), './src/resources/maskable.svg'),
-      favicons: {
-        appName: 'Chip8 Emulator',
-        appDescription: 'A Chip-8, Super Chip-8 (SCHIP), and XO-CHIP emulator written in TypeScript.',
-        background: '#222222',
-        theme_color: '#222222',
-        mode: 'webapp',
-        start_url: '/',
-        appleStatusBarStyle: 'black-translucent',
-        version: '1.0',
-        icons: {
-          android: true,
-          appleIcon: true,
-          appleStartup: true,
-          favicons: true,
-          windows: true,
-          yandex: true,
+      logo         : path.join(path.resolve(), './src/resources/favicon.svg'),
+      logoMaskable : path.join(path.resolve(), './src/resources/maskable.svg'),
+      favicons     : {
+        appName             : 'Chip8 Emulator',
+        appDescription      : 'A Chip-8, Super Chip-8 (SCHIP), and XO-CHIP emulator written in TypeScript.',
+        background          : '#222222',
+        theme_color         : '#222222',
+        mode                : 'webapp',
+        start_url           : '/',
+        appleStatusBarStyle : 'black-translucent',
+        version             : '1.0',
+        icons               : {
+          android      : true,
+          appleIcon    : true,
+          appleStartup : true,
+          favicons     : true,
+          windows      : true,
+          yandex       : true,
         },
       },
       manifest: path.join(path.resolve(), './src/resources/templates/manifest.json'),
@@ -49,10 +49,10 @@ export default (env, argv) => {
   if (isProduction) {
     plugins.push(
       new GenerateSW({
-        clientsClaim: true,
-        skipWaiting: true,
-        navigateFallback: 'index.html',
-        cleanupOutdatedCaches: true,
+        clientsClaim          : true,
+        skipWaiting           : true,
+        navigateFallback      : 'index.html',
+        cleanupOutdatedCaches : true,
       }),
     );
 
@@ -62,11 +62,11 @@ export default (env, argv) => {
   }
 
   return {
-    entry: { ...entryFiles },
-    output: {
-      path: path.join(path.resolve(), 'dist'),
-      filename: '[name]-bundle.js',
-      clean: true,
+    entry  : { ...entryFiles },
+    output : {
+      path     : path.join(path.resolve(), 'dist'),
+      filename : '[name]-bundle.js',
+      clean    : true,
     },
     watchOptions: {
       ignored: '**/node_modules',
@@ -75,17 +75,17 @@ export default (env, argv) => {
       extensions: [ '.ts', '.js' ],
     },
     resolveLoader: {
-      modules: ['node_modules']
+      modules: [ 'node_modules' ],
     },
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
-          loader: 'ts-loader'
+          test   : /\.tsx?$/,
+          loader : 'ts-loader',
         },
         {
-          test: /\.css$/,
-          use: [
+          test : /\.css$/,
+          use  : [
             {
               loader: MiniCSSExtractPlugin.loader,
             },
@@ -93,20 +93,20 @@ export default (env, argv) => {
               loader: 'css-loader',
             },
             {
-              loader: "postcss-loader",
-              options: {
+              loader  : 'postcss-loader',
+              options : {
                 postcssOptions: {
                   plugins: [
-                    'autoprefixer'
-                  ]
-                }
-              }
+                    'autoprefixer',
+                  ],
+                },
+              },
             },
           ],
         },
         {
-          test: /\.svg$/,
-          type: 'asset/source',
+          test : /\.svg$/,
+          type : 'asset/source',
         },
       ],
     },
@@ -116,12 +116,12 @@ export default (env, argv) => {
         new TerserPlugin(),
       ],
     },
-    plugins: [ ...plugins ],
-    devServer: {
-      static: path.join(path.resolve(), 'dist'),
-      compress: true,
-      port: 4000,
-      open: true,
+    plugins   : [ ...plugins ],
+    devServer : {
+      static   : path.join(path.resolve(), 'dist'),
+      compress : true,
+      port     : 4000,
+      open     : true,
     },
-  }
-}
+  };
+};

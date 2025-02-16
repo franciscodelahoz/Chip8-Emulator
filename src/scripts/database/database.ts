@@ -2,9 +2,9 @@ import { Order } from '../constants/database.constants';
 import { database } from '../constants/emulator.constants';
 
 export class DatabaseTool<T = any> {
-  private databaseName: string;
+  private readonly databaseName: string;
 
-  private databaseVersion: number;
+  private readonly databaseVersion: number;
 
   private databaseConnection: IDBDatabase | null = null;
 
@@ -16,38 +16,39 @@ export class DatabaseTool<T = any> {
   public async openDatabase(): Promise<void> {
     if (this.databaseConnection) return;
 
-    return new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open(this.databaseName, this.databaseVersion);
 
-      request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+      request.onupgradeneeded = (event: IDBVersionChangeEvent): void => {
         const db = request.result;
 
         const customPalettesTable = db.createObjectStore(database.storage_name.custom_color_palettes, {
-          keyPath: 'id',
-          autoIncrement: true
+          keyPath       : 'id',
+          autoIncrement : true,
         });
 
         customPalettesTable.createIndex('created_at', 'created_at', { unique: false });
 
         db.createObjectStore(database.storage_name.settings, {
-          keyPath: 'id',
-          autoIncrement: true
+          keyPath       : 'id',
+          autoIncrement : true,
         });
       };
 
-      request.onsuccess = () => {
+      request.onsuccess = (): void => {
         this.databaseConnection = request.result;
         resolve();
       };
 
-      request.onerror = (event) => {
-        const error = (event.target as IDBRequest).error;
-        reject(`Error opening database: ${error}`);
+      request.onerror = (event): void => {
+        const { error } = event.target as IDBRequest;
+
+        reject(new Error(`Error opening database: ${JSON.stringify(error)}`));
       };
     });
   }
 
-  public async closeDatabase(): Promise<void> {
+  public closeDatabase(): void {
     if (!this.databaseConnection) {
       throw new Error('Database is not opened yet');
     }
@@ -67,12 +68,12 @@ export class DatabaseTool<T = any> {
     const request = store.put({ id: key, ...value });
 
     return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      request.onsuccess = (): void => resolve();
+      request.onerror = (): void => reject(request.error);
     });
   }
 
-  public getObjectFromDatabase(storageName: string, key: string): Promise<T | null> {
+  public async getObjectFromDatabase(storageName: string, key: string): Promise<T | null> {
     if (!this.databaseConnection) {
       throw new Error('Database is not opened yet');
     }
@@ -83,12 +84,12 @@ export class DatabaseTool<T = any> {
     const request = store.get(key);
 
     return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      request.onsuccess = (): void => resolve(request.result);
+      request.onerror = (): void => reject(request.error);
     });
   }
 
-  public removeElementFromDatabase(storageName: string, key: string): Promise<void> {
+  public async removeElementFromDatabase(storageName: string, key: string): Promise<void> {
     if (!this.databaseConnection) {
       throw new Error('Database is not opened yet');
     }
@@ -99,12 +100,12 @@ export class DatabaseTool<T = any> {
     const request = store.delete(key);
 
     return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      request.onsuccess = (): void => resolve();
+      request.onerror = (): void => reject(request.error);
     });
   }
 
-  public async *getAllElementsFromDatabase(storageName: string, orderBy?: string, order: Order = Order.NEXT): AsyncGenerator<T> {
+  public async* getAllElementsFromDatabase(storageName: string, orderBy?: string, order: Order = Order.NEXT): AsyncGenerator<T> {
     if (!this.databaseConnection) {
       throw new Error('Database is not opened yet');
     }
@@ -122,8 +123,8 @@ export class DatabaseTool<T = any> {
 
     while (true) {
       const cursor = await new Promise<IDBCursorWithValue | null>((resolve, reject) => {
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
+        request.onsuccess = (): void => resolve(request.result);
+        request.onerror = (): void => reject(request.error);
       });
 
       if (cursor) {

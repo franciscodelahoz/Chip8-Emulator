@@ -1,4 +1,4 @@
-import { Chip8Quirks } from './chip8.constants';
+import type { Chip8Quirks } from './chip8.constants';
 
 export enum GeneralEmulatorSettings {
   FONT_APPEARANCE = 'fontAppearance',
@@ -8,4 +8,4 @@ export enum GeneralEmulatorSettings {
   MEMORY_SIZE = 'memorySize',
 }
 
-export type EmulatorSettings = GeneralEmulatorSettings | Chip8Quirks;
+export type EmulatorSettings = Chip8Quirks | GeneralEmulatorSettings;

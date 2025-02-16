@@ -5,29 +5,29 @@ import {
   charWidthSmall,
   fontCharacterCount,
   fontSets,
-  loresFontBytes
+  loresFontBytes,
 } from '../../../constants/fonts.constants';
-import { Chip8Emulator } from '../../../emulator/emulator';
-import { EmulatorFontAppearance } from '../../../types/emulator';
+import type { Chip8Emulator } from '../../../emulator/emulator';
+import type { EmulatorFontAppearance } from '../../../types/emulator';
 
 export class FontPreviewCanvas {
-  private canvasContext: CanvasRenderingContext2D;
+  private readonly canvasContext: CanvasRenderingContext2D;
 
-  private canvasWidth: number;
+  private readonly canvasWidth: number;
 
-  private canvasHeight: number;
+  private readonly canvasHeight: number;
 
   private fontScale: number = 1;
 
-  private emulatorInstance: Chip8Emulator;
+  private readonly emulatorInstance: Chip8Emulator;
 
-  private pixelXOffset: number = 2;
+  private readonly pixelXOffset: number = 2;
 
-  private loresPixelYOffset: number = 2;
+  private readonly loresPixelYOffset: number = 2;
 
-  private hiresPixelYOffset: number = 12;
+  private readonly hiresPixelYOffset: number = 12;
 
-  constructor(private canvas: HTMLCanvasElement, emulatorInstance: Chip8Emulator) {
+  constructor(private readonly canvas: HTMLCanvasElement, emulatorInstance: Chip8Emulator) {
     const canvasContext = this.canvas.getContext('2d');
 
     if (!canvasContext) {
@@ -48,7 +48,7 @@ export class FontPreviewCanvas {
     this.calculateFontScale();
   }
 
-  private setCanvasDimensions() {
+  private setCanvasDimensions(): void {
     this.canvas.width = this.canvasWidth;
     this.canvas.height = this.canvasHeight;
 
@@ -56,14 +56,14 @@ export class FontPreviewCanvas {
     this.canvas.style.height = `${this.canvasHeight}px`;
   }
 
-  private calculateFontScale() {
+  private calculateFontScale(): void {
     const scaleX = Math.floor(this.canvasWidth / (fontCharacterCount * charWidthHires));
     const scaleY = Math.floor(this.canvasHeight / (charHeightHires + this.hiresPixelYOffset));
 
     this.fontScale = Math.min(scaleX, scaleY);
   }
 
-  public clearCanvas() {
+  public clearCanvas(): void {
     this.canvasContext.fillStyle = this.emulatorInstance.getCurrentPalette(0);
     this.canvasContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
   }
@@ -72,7 +72,7 @@ export class FontPreviewCanvas {
     return ((byte >> (7 - xPos)) & 1) === 1;
   }
 
-  public drawCharacter(fontSet: number[], characterPosition: number, isHires: boolean) {
+  public drawCharacter(fontSet: number[], characterPosition: number, isHires: boolean): void {
     const yOffset = isHires ? this.hiresPixelYOffset : this.loresPixelYOffset;
 
     const characterWidth = isHires ? charWidthHires : charWidthSmall;
@@ -89,23 +89,24 @@ export class FontPreviewCanvas {
             this.fontScale * ((9 * characterPosition) + xPos + this.pixelXOffset + spacing * characterPosition),
             this.fontScale * (yPos + yOffset),
             this.fontScale,
-            this.fontScale
+            this.fontScale,
           );
         }
       }
     }
   }
 
-  public renderFontAppearancePreview(fontAppearance: EmulatorFontAppearance) {
+  public renderFontAppearancePreview(fontAppearance: EmulatorFontAppearance): void {
     this.clearCanvas();
 
     this.canvasContext.fillStyle = this.emulatorInstance.getCurrentPalette(1);
+
     const fontData = fontSets[fontAppearance];
 
     const chip8LowRes = fontData.slice(0, loresFontBytes);
     const chip8HighRes = fontData.slice(loresFontBytes);
 
-    for(let characterPosition = 0; characterPosition < fontCharacterCount; characterPosition += 1) {
+    for (let characterPosition = 0; characterPosition < fontCharacterCount; characterPosition += 1) {
       // Draw lores character
       this.drawCharacter(chip8LowRes, characterPosition, false);
       // Draw hires character

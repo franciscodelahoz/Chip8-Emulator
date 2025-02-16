@@ -1,20 +1,20 @@
-const configurationSideBar = document.getElementById('configuration-sidebar') as HTMLElement | null;
-const closeConfigurationSideBarBtn = document.getElementById('close-configurations-button') as HTMLElement | null;
-const openConfigurationSideBarBtn = document.getElementById('open-configurations-button') as HTMLElement | null;
+const configurationSideBar = document.getElementById('configuration-sidebar');
+const closeConfigurationSideBarBtn = document.getElementById('close-configurations-button');
+const openConfigurationSideBarBtn = document.getElementById('open-configurations-button');
 
-function closeSideMenu() {
+function closeSideMenu(): void {
   if (configurationSideBar) {
     configurationSideBar.classList.remove('active');
   }
 }
 
-function openSideMenu() {
+function openSideMenu(): void {
   if (configurationSideBar) {
     configurationSideBar.classList.toggle('active');
   }
 }
 
-function registerCloseSideMenuOnClickOutside() {
+function registerCloseSideMenuOnClickOutside(): void {
   if (!configurationSideBar || !openConfigurationSideBarBtn) return;
 
   document.addEventListener('click', (event) => {
@@ -28,14 +28,14 @@ function registerCloseSideMenuOnClickOutside() {
   });
 }
 
-function registerSidebarButtonEventHandlers() {
+function registerSidebarButtonEventHandlers(): void {
   if (!closeConfigurationSideBarBtn || !openConfigurationSideBarBtn) return;
 
   closeConfigurationSideBarBtn.addEventListener('click', closeSideMenu);
   openConfigurationSideBarBtn.addEventListener('click', openSideMenu);
 }
 
-export function initializeSidebarMenuModule() {
+export function initializeSidebarMenuModule(): void {
   registerCloseSideMenuOnClickOutside();
   registerSidebarButtonEventHandlers();
 }

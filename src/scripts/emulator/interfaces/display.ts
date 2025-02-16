@@ -1,16 +1,17 @@
 import { screenDimensions } from '../../constants/chip8.constants';
 import ColorPalettesManager from '../../database/managers/color-palettes.manager';
+import type { DisplayBuffer } from '../../types/emulator';
 
 export class DisplayInterface {
-  private canvas: HTMLCanvasElement;
+  private readonly canvas: HTMLCanvasElement;
 
-  private context: CanvasRenderingContext2D;
+  private readonly context: CanvasRenderingContext2D;
 
   private columns: number = screenDimensions.chip8.columns;
 
   private rows: number = screenDimensions.chip8.rows;
 
-  private displayBuffers: Array<Array<Array<number>>> = [];
+  private displayBuffers: DisplayBuffer[] = [];
 
   private planeColors: string[] = [];
 
@@ -26,6 +27,7 @@ export class DisplayInterface {
     }
 
     this.canvas = htmlCanvas;
+
     const canvasContext = this.canvas.getContext('2d');
 
     if (!canvasContext) {
@@ -48,7 +50,7 @@ export class DisplayInterface {
     ];
   }
 
-  setPaletteColor(index: number, color: string) {
+  setPaletteColor(index: number, color: string): void {
     this.planeColors[index] = color;
   }
 
@@ -56,8 +58,8 @@ export class DisplayInterface {
     return this.planeColors[index];
   }
 
-  createDisplayBuffer() {
-    const displayBuffer: Array<Array<number>>  = [];
+  createDisplayBuffer(): DisplayBuffer {
+    const displayBuffer: DisplayBuffer = [];
 
     for (let y = 0; y < this.rows; y += 1) {
       displayBuffer.push([]);
@@ -70,11 +72,11 @@ export class DisplayInterface {
     return displayBuffer;
   }
 
-  setCanvasAspectRatio() {
+  setCanvasAspectRatio(): void {
     this.canvas.style.aspectRatio = `${this.columns} / ${this.rows}`;
   }
 
-  calculateDisplayScale() {
+  calculateDisplayScale(): void {
     const { width, height } = this.canvas.getBoundingClientRect();
 
     const dpr = window.devicePixelRatio || 1;
@@ -91,11 +93,10 @@ export class DisplayInterface {
     this.canvas.height = this.yDisplayScale * this.rows;
   }
 
-  setResolutionMode(hiresMode: boolean) {
+  setResolutionMode(hiresMode: boolean): void {
     if (hiresMode) {
       this.columns = screenDimensions.schip.columns;
       this.rows = screenDimensions.schip.rows;
-
     } else {
       this.columns = screenDimensions.chip8.columns;
       this.rows = screenDimensions.chip8.rows;
@@ -110,7 +111,7 @@ export class DisplayInterface {
     ];
   }
 
-  clearDisplayBuffer() {
+  clearDisplayBuffer(): void {
     for (let plane = 0; plane < 2; plane += 1) {
       if (!(this.bitPlane & (plane + 1))) continue;
 
@@ -122,20 +123,22 @@ export class DisplayInterface {
     }
   }
 
-  setPixel(plane: number = 0, x: number, y: number, value: number) {
+  setPixel(x: number, y: number, value: number, plane: number = 0): number {
     const collision = this.displayBuffers[plane][y][x] & value;
+
     this.displayBuffers[plane][y][x] ^= value;
+
     return collision;
   }
 
-  setActivePlane(plane: number) {
+  setActivePlane(plane: number): void {
     this.bitPlane = plane;
   }
 
-  private getDrawColor(x: number, y: number) {
+  private getDrawColor(x: number, y: number): string {
     let colorIndex = 0;
 
-    for (let plane = 0; plane < this.displayBuffers.length; plane++) {
+    for (let plane = 0; plane < this.displayBuffers.length; plane += 1) {
       if (this.displayBuffers[plane][y][x]) {
         colorIndex |= 1 << plane;
       }
@@ -144,17 +147,19 @@ export class DisplayInterface {
     return this.planeColors[colorIndex];
   }
 
-  clearCanvas() {
-    this.context.fillStyle = this.planeColors[0];
+  clearCanvas(): void {
+    const [ backgroundColor ] = this.planeColors;
+
+    this.context.fillStyle = backgroundColor;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  render() {
+  render(): void {
     this.clearCanvas();
 
     for (let y = 0; y < this.rows; y += 1) {
       for (let x = 0; x < this.columns; x += 1) {
-        let drawColor = this.getDrawColor(x, y);
+        const drawColor = this.getDrawColor(x, y);
 
         this.context.fillStyle = drawColor;
 
@@ -168,7 +173,7 @@ export class DisplayInterface {
     }
   }
 
-  scrollUp(n: number = 4) {
+  scrollUp(n: number = 4): void {
     if (n <= 0) return;
 
     for (let plane = 0; plane < 2; plane += 1) {
@@ -184,7 +189,7 @@ export class DisplayInterface {
     }
   }
 
-  scrollDown(n: number = 4) {
+  scrollDown(n: number = 4): void {
     if (n <= 0) return;
 
     for (let plane = 0; plane < 2; plane += 1) {
@@ -200,7 +205,7 @@ export class DisplayInterface {
     }
   }
 
-  scrollLeft(n: number = 4) {
+  scrollLeft(n: number = 4): void {
     if (n <= 0) return;
 
     for (let plane = 0; plane < 2; plane += 1) {
@@ -218,7 +223,7 @@ export class DisplayInterface {
     }
   }
 
-  scrollRight(n: number = 4) {
+  scrollRight(n: number = 4): void {
     if (n <= 0) return;
 
     for (let plane = 0; plane < 2; plane += 1) {

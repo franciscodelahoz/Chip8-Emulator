@@ -1,12 +1,12 @@
 import { database } from '../../constants/emulator.constants';
-import { EmulatorSettings } from '../../constants/settings.constants';
-import { SettingsObject } from '../../types/settings';
+import type { EmulatorSettings } from '../../constants/settings.constants';
+import type { SettingsObject } from '../../types/settings';
 import { DatabaseTool } from '../database';
 
 class SettingsManager {
-  private databaseTool: DatabaseTool<SettingsObject<unknown>>;
+  private readonly databaseTool: DatabaseTool<SettingsObject<unknown>>;
 
-  private settingsStorageName = database.storage_name.settings;
+  private readonly settingsStorageName: string = database.storage_name.settings;
 
   constructor() {
     this.databaseTool = new DatabaseTool<SettingsObject<unknown>>(

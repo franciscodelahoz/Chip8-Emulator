@@ -1,6 +1,7 @@
-import { AudioInterface } from './interfaces/audio';
-import { DisplayInterface } from './interfaces/display';
-import { KeyBoardInterface } from './interfaces/keyboard';
+import type { AudioInterface } from './interfaces/audio';
+import type { DisplayInterface } from './interfaces/display';
+import type { KeyBoardInterface } from './interfaces/keyboard';
+import { defaultAudioFrequency } from '../constants/audio.constants';
 import {
   Chip8CpuEvents,
   Chip8Quirks,
@@ -9,11 +10,10 @@ import {
   defaultMemorySize,
   defaultQuirkConfigurations,
   registersSize,
-  stackSize
+  stackSize,
 } from '../constants/chip8.constants';
-import { defaultAudioFrequency } from '../constants/audio.constants';
 import { fontSets } from '../constants/fonts.constants';
-import { EmulatorFontAppearance } from '../types/emulator';
+import type { EmulatorFontAppearance } from '../types/emulator';
 
 export class CPU extends EventTarget {
   private memorySize: number = defaultMemorySize;
@@ -24,7 +24,7 @@ export class CPU extends EventTarget {
 
   private registers: Uint8Array = new Uint8Array(registersSize); // Registers - (16 * 8-bit) V0 through VF; VF is a flag
 
-  private stack: Array<number> = new Array(stackSize); // Stack - (16 * 16-bit)
+  private stack: number[] = new Array(stackSize); // Stack - (16 * 16-bit)
 
   private ST: number = 0; // ST - Sound Timer (8-bit)
 
@@ -48,11 +48,11 @@ export class CPU extends EventTarget {
 
   public drawingFlag: boolean = true;
 
-  private soundEnabled = true;
+  private soundEnabled: boolean = true;
 
-  private quirksConfigurations = { ...defaultQuirkConfigurations };
+  private quirksConfigurations: Record<Chip8Quirks, boolean> = { ...defaultQuirkConfigurations };
 
-  private flags: Array<number> = new Array(8); // SCHIP Flags (from V0 to V7) (HP48-specific)
+  private flags: number[] = new Array(8); // SCHIP Flags (from V0 to V7) (HP48-specific)
 
   private hiresMode: boolean = false;
 
@@ -79,13 +79,13 @@ export class CPU extends EventTarget {
     this.displayInstance.clearDisplayBuffer();
   }
 
-  private loadFont() {
+  private loadFont(): void {
     for (let byte = 0; byte < fontSets[this.fontAppearance].length; byte += 1) {
       this.memory[byte] = fontSets[this.fontAppearance][byte];
     }
   }
 
-  private setCPUInitialState() {
+  private setCPUInitialState(): void {
     this.memory.fill(0);
     this.registers.fill(0);
     this.stack.fill(0);
@@ -123,7 +123,7 @@ export class CPU extends EventTarget {
     this.loadFont();
   }
 
-  private loadRomInMemory() {
+  private loadRomInMemory(): void {
     if (this.romFileContent !== null) {
       for (let byte = 0; byte < this.romFileContent.length; byte += 1) {
         this.memory[0x200 + byte] = this.romFileContent[byte];
@@ -131,7 +131,7 @@ export class CPU extends EventTarget {
     }
   }
 
-  loadRom(fileContent: Uint8Array) {
+  loadRom(fileContent: Uint8Array): void {
     this.halted = true;
     this.romFileContent = fileContent;
 
@@ -141,7 +141,7 @@ export class CPU extends EventTarget {
     this.halted = false;
   }
 
-  resetRom() {
+  resetRom(): void {
     this.halted = true;
 
     this.setCPUInitialState();
@@ -154,7 +154,7 @@ export class CPU extends EventTarget {
     return (this.memory[this.PC] << 8) | this.memory[this.PC + 1];
   }
 
-  private skipNextInstruction() {
+  private skipNextInstruction(): void {
     const nextInstruction = (this.memory[this.PC] << 8) | this.memory[this.PC + 1];
 
     /**
@@ -169,10 +169,10 @@ export class CPU extends EventTarget {
     }
   }
 
-  private executeOpcode(opcode: number) {
+  private executeOpcode(opcode: number): void {
     this.PC += 2;
 
-    let x = (opcode & 0x0F00) >> 8;
+    const x = (opcode & 0x0F00) >> 8;
     let y = (opcode & 0x00F0) >> 4;
 
     // Check The first nibble to determinate the opcode
@@ -184,7 +184,7 @@ export class CPU extends EventTarget {
            * Scroll the display 4 pixels to down (00C0)
            */
           case 0x00C0: {
-            const n = (opcode & 0xF);
+            const n = opcode & 0xF;
 
             this.displayInstance.scrollDown(n);
             this.drawingFlag = true;
@@ -197,7 +197,7 @@ export class CPU extends EventTarget {
            * Scroll the display 4 pixels to up (00C1)
            */
           case 0x00D0: {
-            const n = (opcode & 0xF);
+            const n = opcode & 0xF;
 
             this.displayInstance.scrollUp(n);
             this.drawingFlag = true;
@@ -249,7 +249,7 @@ export class CPU extends EventTarget {
            * SCHIP instruction
            * Scroll the display 4 pixels to the left (00FC)
            */
-           case 0x00FC: {
+          case 0x00FC: {
             this.displayInstance.scrollLeft(4);
             this.drawingFlag = true;
             break;
@@ -301,6 +301,7 @@ export class CPU extends EventTarget {
        */
       case 0x1000: {
         const nnn = opcode & 0x0FFF;
+
         this.PC = nnn;
         break;
       }
@@ -318,6 +319,7 @@ export class CPU extends EventTarget {
         }
 
         const nnn = opcode & 0x0FFF;
+
         this.SP += 1;
 
         this.stack[this.SP] = this.PC;
@@ -393,7 +395,6 @@ export class CPU extends EventTarget {
               for (let index = 0; index <= registerRange; index += 1) {
                 this.memory[this.I + index] = this.registers[x + index];
               }
-
             } else {
               for (let index = 0; index <= registerRange; index += 1) {
                 this.memory[this.I + index] = this.registers[x - index];
@@ -417,7 +418,6 @@ export class CPU extends EventTarget {
               for (let index = 0; index <= registerRange; index += 1) {
                 this.registers[x + index] = this.memory[this.I + index];
               }
-
             } else {
               for (let index = 0; index <= registerRange; index += 1) {
                 this.registers[x - index] = this.memory[this.I + index];
@@ -443,6 +443,7 @@ export class CPU extends EventTarget {
        */
       case 0x6000: {
         const kk = opcode & 0x00FF;
+
         this.registers[x] = kk;
         break;
       }
@@ -455,6 +456,7 @@ export class CPU extends EventTarget {
        */
       case 0x7000: {
         const kk = opcode & 0x00FF;
+
         this.registers[x] += kk;
         break;
       }
@@ -536,8 +538,9 @@ export class CPU extends EventTarget {
            */
           case 0x4: {
             const sum = this.registers[x] + this.registers[y];
+
             this.registers[x] = sum & 0xFF;
-            this.registers[0xF] = sum > 0XFF ? 1 : 0;
+            this.registers[0xF] = sum > 0xFF ? 1 : 0;
 
             break;
           }
@@ -644,6 +647,7 @@ export class CPU extends EventTarget {
        */
       case 0xA000: {
         const nnn = opcode & 0x0FFF;
+
         this.I = nnn;
         break;
       }
@@ -673,8 +677,9 @@ export class CPU extends EventTarget {
        *  instruction 8xy2 for more information on AND.
        */
       case 0xC000: {
-        const kk = opcode & 0X00FF;
+        const kk = opcode & 0x00FF;
         const rnd = Math.round(Math.random() * 0xFF);
+
         this.registers[x] = rnd & kk;
         break;
       }
@@ -685,14 +690,14 @@ export class CPU extends EventTarget {
        *  set VF = collision.
        */
       case 0xD000: {
-        const n = (opcode & 0xF);
+        const n = opcode & 0xF;
 
         const vx = this.registers[x];
         const vy = this.registers[y];
 
         this.registers[0xF] = 0;
 
-        let spriteHeight = (n === 0) ? 16 : n;
+        const spriteHeight = (n === 0) ? 16 : n;
         let spriteWidth = (n === 0) ? 16 : 8;
 
         let i = this.I;
@@ -709,9 +714,8 @@ export class CPU extends EventTarget {
 
           for (let rows = 0; rows < spriteHeight; rows += 1) {
             for (let columns = 0; columns < spriteWidth; columns += 1) {
-
-              let pixelValue = (n === 0) ? (this.memory[i + (rows * 2) + (columns > 7 ? 1 : 0)] >> (7 - (columns % 8))) & 1
-                : (this.memory[i + rows] >> (7 - columns)) & 1;
+              let pixelValue = (n === 0) ? (this.memory[i + (rows * 2) + (columns > 7 ? 1 : 0)] >> (7 - (columns % 8))) & 1 :
+                (this.memory[i + rows] >> (7 - columns)) & 1;
 
               // Special handling for n equal to 0 when not in hires, this it's needed for HAP's Rom (I don't know why it's needed, but it is)
               if (this.quirksConfigurations[Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK] && (n === 0 && !this.hiresMode)) {
@@ -719,7 +723,7 @@ export class CPU extends EventTarget {
               }
 
               if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
-                if ((vx % displayColumns) + columns >= displayColumns || (vy % displayRows) + rows >=displayRows) {
+                if ((vx % displayColumns) + columns >= displayColumns || (vy % displayRows) + rows >= displayRows) {
                   continue;
                 }
               }
@@ -727,7 +731,7 @@ export class CPU extends EventTarget {
               const xPixelPos = (vx + columns) % displayColumns;
               const yPixelPos = (vy + rows) % displayRows;
 
-              const setPixel = this.displayInstance.setPixel(plane, xPixelPos, yPixelPos, pixelValue);
+              const setPixel = this.displayInstance.setPixel(xPixelPos, yPixelPos, pixelValue, plane);
 
               if (setPixel) {
                 this.registers[0xF] = 1;
@@ -833,9 +837,9 @@ export class CPU extends EventTarget {
             this.waitingForKeyPressed = true;
             this.waitingKeyRegister = x;
 
-            this.keyboardInterface.onNextKeyPressed = () => {};
+            this.keyboardInterface.onNextKeyPressed = (): void => {};
 
-            this.keyboardInterface.onNextKeyReleased = (key) => {
+            this.keyboardInterface.onNextKeyReleased = (key): void => {
               this.waitingForKeyPressed = false;
               this.registers[this.waitingKeyRegister] = key;
             };
@@ -998,6 +1002,7 @@ export class CPU extends EventTarget {
            */
           case 0x1E: {
             const sum = this.I + this.registers[x];
+
             this.I = sum;
             break;
           }
@@ -1018,17 +1023,18 @@ export class CPU extends EventTarget {
     }
   }
 
-  private step() {
+  private step(): void {
     const opcode = this.fetchOpcode();
+
     this.executeOpcode(opcode);
   }
 
-  public cycle() {
+  public cycle(): void {
     if (this.halted || this.isPaused) {
       return;
     }
 
-    if (this.DT > 0 ){
+    if (this.DT > 0) {
       this.DT -= 1;
     }
 
@@ -1039,15 +1045,13 @@ export class CPU extends EventTarget {
       }
 
       this.ST -= 1;
-    } else {
-      if (this.playing && this.soundEnabled) {
-        this.playing = false;
-        this.audioInterface.stop();
-      }
+    } else if (this.playing && this.soundEnabled) {
+      this.playing = false;
+      this.audioInterface.stop();
     }
 
-    for (let i = 0; (i < this.cyclesPerFrame) && (!this.waitingForKeyPressed) && (!this.halted) && (!this.isPaused); i += 1) {
-      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && ((this.memory[this.PC] & 0xF0 ) === 0xD0)) {
+    for (let i = 0; (i < this.cyclesPerFrame) && !this.waitingForKeyPressed && !this.halted && !this.isPaused; i += 1) {
+      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && ((this.memory[this.PC] & 0xF0) === 0xD0)) {
         i = this.cyclesPerFrame;
       }
 
@@ -1061,44 +1065,44 @@ export class CPU extends EventTarget {
     }
   }
 
-  public getQuirkValue(quirkName: Chip8Quirks) {
+  public getQuirkValue(quirkName: Chip8Quirks): boolean {
     return this.quirksConfigurations[quirkName];
   }
 
-  public setQuirkValue(quirkName: Chip8Quirks, value: boolean) {
+  public setQuirkValue(quirkName: Chip8Quirks, value: boolean): void {
     this.quirksConfigurations[quirkName] = value;
   }
 
-  public getCyclesPerFrame() {
+  public getCyclesPerFrame(): number {
     return this.cyclesPerFrame;
   }
 
-  public setCyclesPerFrame(cyclesPerFrame: number) {
+  public setCyclesPerFrame(cyclesPerFrame: number): void {
     this.cyclesPerFrame = cyclesPerFrame;
   }
 
-  public getMemorySize() {
+  public getMemorySize(): number {
     return this.memorySize;
   }
 
-  public setMemorySize(size: number) {
+  public setMemorySize(size: number): void {
     this.memorySize = size;
     this.memory = new Uint8Array(size);
   }
 
-  public haltCPU() {
+  public haltCPU(): void {
     this.halted = true;
   }
 
-  public togglePauseState() {
+  public togglePauseState(): void {
     this.isPaused = !this.isPaused;
   }
 
-  public getSoundState() {
+  public getSoundState(): boolean {
     return this.soundEnabled;
   }
 
-  public setSoundState(soundEnabled: boolean) {
+  public setSoundState(soundEnabled: boolean): void {
     if (!soundEnabled && this.playing) {
       this.playing = false;
       this.audioInterface.stop();
@@ -1107,37 +1111,40 @@ export class CPU extends EventTarget {
     this.soundEnabled = soundEnabled;
   }
 
-  private logError(message: string, opcode: number) {
+  private logError(message: string, opcode: number): void {
     console.error(`${message} @ Address 0x${(this.PC - 2).toString(16).toUpperCase()} : Opcode: 0x${opcode.toString(16).toUpperCase()}`);
     this.dumpStatus();
   }
 
-  public dumpStatus() {
+  public dumpStatus(): void {
     console.log('%cCPU Status:', 'font-weight: bold; font-size: 12px;');
     console.log(`  PC: ${this.PC} SP: ${this.SP} I: ${this.I} DT: ${this.DT} ST: ${this.ST} Cycle count: ${this.cycleCounter}`);
 
     console.log('%cRegisters:', 'font-weight: bold; font-size: 12px;');
+
     for (const [ index, value ] of this.registers.entries()) {
       console.log(`  v${index}: 0x${value.toString(16).toUpperCase()}`);
     }
 
     console.log('%cStack:', 'font-weight: bold; font-size: 12px;');
+
     for (const [ index, value ] of this.stack.entries()) {
       console.log(`  v${index}: 0x${value.toString(16).toUpperCase()}`);
     }
 
     console.log('%cQuirks:', 'font-weight: bold; font-size: 12px;');
+
     for (const [ key, value ] of Object.entries(this.quirksConfigurations)) {
       console.log(`  ${key}: ${value}`);
     }
   }
 
-  public setFontAppearance(fontAppearance: EmulatorFontAppearance) {
+  public setFontAppearance(fontAppearance: EmulatorFontAppearance): void {
     this.fontAppearance = fontAppearance;
     this.loadFont();
   }
 
-  public getFontAppearance() {
+  public getFontAppearance(): EmulatorFontAppearance {
     return this.fontAppearance;
   }
 }

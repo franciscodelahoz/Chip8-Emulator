@@ -13,7 +13,7 @@ import { initializeSoundSettingsModule } from './ui/settings/sound';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
-async function initializeManagers() {
+async function initializeManagers(): Promise<void> {
   await ColorPalettesManager.initializeManager();
   await SettingsManager.initializeManager();
 }

@@ -21,7 +21,7 @@ export const colorPalettes = {
     '#100019',
     '#FFE1FF',
     '#EF46E0',
-    '#AB269C'
+    '#AB269C',
   ],
   angry_orange: [
     '#492D17',
@@ -59,4 +59,4 @@ export const colorPalettes = {
     '#346856',
     '#081820',
   ],
-}
+};

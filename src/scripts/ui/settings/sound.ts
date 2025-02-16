@@ -1,14 +1,14 @@
 import { defaultAudioGain, defaultSoundState, maximumAudioGain } from '../../constants/audio.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import SettingsManager from '../../database/managers/settings.manager';
-import { Chip8Emulator } from '../../emulator/emulator';
+import type { Chip8Emulator } from '../../emulator/emulator';
 
 const soundStateCheckbox = document.getElementById('sound-state-checkbox') as HTMLInputElement | null;
 
 const soundLevelRange = document.getElementById('sound-level-range') as HTMLInputElement | null;
-const soundLevelValue = document.getElementById('sound-level-value') as HTMLElement | null;
+const soundLevelValue = document.getElementById('sound-level-value');
 
-async function setCurrentSoundState(emulatorInstance: Chip8Emulator) {
+async function setCurrentSoundState(emulatorInstance: Chip8Emulator): Promise<void> {
   const storedSoundState = await SettingsManager.getSetting<boolean>(GeneralEmulatorSettings.SOUND_STATE);
   const soundState = storedSoundState ?? defaultSoundState;
 
@@ -19,7 +19,7 @@ async function setCurrentSoundState(emulatorInstance: Chip8Emulator) {
   emulatorInstance.setSoundState(soundState);
 }
 
-function setInitialSoundStateCheckboxState(emulatorInstance: Chip8Emulator) {
+function setInitialSoundStateCheckboxState(emulatorInstance: Chip8Emulator): void {
   if (!soundStateCheckbox) return;
 
   soundStateCheckbox.addEventListener('change', async () => {
@@ -30,33 +30,36 @@ function setInitialSoundStateCheckboxState(emulatorInstance: Chip8Emulator) {
   });
 }
 
-function convertAudioGainToSoundLevel(gain: number) {
+function convertAudioGainToSoundLevel(gain: number): number {
   return Math.round(gain * 100);
 }
 
-function convertSoundLevelToGain(soundLevel: number) {
+function convertSoundLevelToGain(soundLevel: number): number {
   return soundLevel / 100;
 }
 
-function setSoundGainPercentageValue(value: number, element: HTMLElement | null) {
+function setSoundGainPercentageValue(value: number, element: HTMLElement | null): void {
   if (!element) return;
 
   const percentage = Math.ceil((value / maximumAudioGain) * 100);
+
   element.innerText = `${percentage}%`;
 }
 
-function setRangeBackgroundColorProgress(value: number) {
+function setRangeBackgroundColorProgress(value: number): void {
   if (!soundLevelRange) return;
 
   const soundLevel = value * 10;
+
   soundLevelRange.style.background = `linear-gradient(to right, #34ff66 ${soundLevel}%, #ccc ${soundLevel}%)`;
 }
 
-async function setCurrentSoundLevel(emulatorInstance: Chip8Emulator) {
+async function setCurrentSoundLevel(emulatorInstance: Chip8Emulator): Promise<void> {
   const storedGainLevel = await SettingsManager.getSetting<number>(GeneralEmulatorSettings.GAIN_LEVEL);
   const gainLevel = storedGainLevel ?? defaultAudioGain;
 
   emulatorInstance.setAudioGain(gainLevel);
+
   const soundLevel = convertAudioGainToSoundLevel(gainLevel);
 
   if (soundLevelRange) {
@@ -67,7 +70,7 @@ async function setCurrentSoundLevel(emulatorInstance: Chip8Emulator) {
   setSoundGainPercentageValue(gainLevel, soundLevelValue);
 }
 
-function setInitialSoundLevelRangeState(emulatorInstance: Chip8Emulator) {
+function setInitialSoundLevelRangeState(emulatorInstance: Chip8Emulator): void {
   if (!soundLevelRange) return;
 
   soundLevelRange.addEventListener('input', async () => {
@@ -82,7 +85,7 @@ function setInitialSoundLevelRangeState(emulatorInstance: Chip8Emulator) {
   });
 }
 
-export async function initializeSoundSettingsModule(emulatorInstance: Chip8Emulator) {
+export async function initializeSoundSettingsModule(emulatorInstance: Chip8Emulator): Promise<void> {
   await setCurrentSoundState(emulatorInstance);
   await setCurrentSoundLevel(emulatorInstance);
 
