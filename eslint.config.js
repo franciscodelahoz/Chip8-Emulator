@@ -288,7 +288,7 @@ export default [
       'no-case-declarations'                 : 'error',
       'no-constructor-return'                : 'error',
       'no-else-return'                       : [ 'error', { allowElseIf: false } ],
-      'no-empty-function'                    : [ 'error', { allow: [ 'arrowFunctions', 'functions', 'methods' ] } ],
+      'no-empty-function'                    : [ 'error', { allow: [ 'arrowFunctions', 'constructors' ] } ],
       'no-empty-pattern'                     : 'error',
       'no-eq-null'                           : 'error',
       'no-eval'                              : 'error',
@@ -615,6 +615,7 @@ export default [
       'unicorn/prefer-blob-reading-methods'   : 'error',
       'unicorn/no-useless-undefined'          : 'error',
       'unicorn/no-console-spaces'             : 'error',
+      'unicorn/prefer-add-event-listener'     : 'error',
     },
   },
   {
@@ -638,8 +639,13 @@ export default [
       '@typescript-eslint/require-array-sort-compare'             : 'error',
       '@typescript-eslint/restrict-plus-operands'                 : 'error',
       '@typescript-eslint/await-thenable'                         : 'warn',
-      '@typescript-eslint/no-explicit-any'                        : 'off',
-      '@typescript-eslint/consistent-type-imports'                : [
+      '@typescript-eslint/no-explicit-any'                        : [
+        'error',
+        {
+          fixToUnknown: false,
+        },
+      ],
+      '@typescript-eslint/consistent-type-imports': [
         'error',
         {
           prefer                  : 'type-imports',

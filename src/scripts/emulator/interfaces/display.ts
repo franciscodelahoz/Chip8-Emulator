@@ -1,5 +1,5 @@
 import { screenDimensions } from '../../constants/chip8.constants';
-import ColorPalettesManager from '../../database/managers/color-palettes.manager';
+import { colorPalettesStorage } from '../../storage/color-palettes.storage';
 import type { DisplayBuffer } from '../../types/emulator';
 
 export class DisplayInterface {
@@ -46,7 +46,7 @@ export class DisplayInterface {
     this.calculateDisplayScale();
 
     this.planeColors = [
-      ...ColorPalettesManager.getCurrentSelectedPalette(),
+      ...colorPalettesStorage.getCurrentSelectedPalette(),
     ];
   }
 

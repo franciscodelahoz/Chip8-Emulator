@@ -20,6 +20,11 @@ export interface CustomColorPalette {
   created_at: number;
 }
 
+export interface SettingsObject<T> {
+  id: string;
+  value: T;
+}
+
 export interface EmulatorSettings {
   [key: string]: boolean | number | string;
 }

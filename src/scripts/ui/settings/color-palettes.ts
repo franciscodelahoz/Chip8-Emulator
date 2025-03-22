@@ -1,7 +1,7 @@
 import { customColorPaletteKeyId, defaultColorPaletteId } from '../../constants/chip8.constants';
 import { customPalettePrefix } from '../../constants/emulator.constants';
-import ColorPalettesManager from '../../database/managers/color-palettes.manager';
 import type { Chip8Emulator } from '../../emulator/emulator';
+import { colorPalettesStorage } from '../../storage/color-palettes.storage';
 import type { CustomColorPalette, ProcessedColorValue } from '../../types/emulator';
 
 const colorPaletteSelect = document.getElementById('color-palettes-select') as HTMLSelectElement | null;
@@ -37,7 +37,7 @@ function updateCustomPaletteOptionInSelect(paletteInfo: CustomColorPalette): voi
 }
 
 async function loadStoredCustomPalettesInSelect(): Promise<void> {
-  for await (const customPalette of ColorPalettesManager.getAllCustomPalettesStored()) {
+  for await (const customPalette of colorPalettesStorage.getAllCustomPalettesStored()) {
     appendCustomPaletteOptionToSelect(customPalette);
   }
 }
@@ -45,13 +45,13 @@ async function loadStoredCustomPalettesInSelect(): Promise<void> {
 function setInitialColorPaletteInSelect(): void {
   if (!colorPaletteSelect) return;
 
-  const currentPaletteName = ColorPalettesManager.getCurrentPaletteId();
+  const currentPaletteName = colorPalettesStorage.getCurrentPaletteId();
 
   colorPaletteSelect.value = currentPaletteName;
 }
 
 function setInitialColorPaletteInColorSwatch(): void {
-  const colorPaletteSelected = ColorPalettesManager.getCurrentSelectedPalette();
+  const colorPaletteSelected = colorPalettesStorage.getCurrentSelectedPalette();
 
   colorPaletteTable?.querySelectorAll(`tr`)?.forEach((element, index) => {
     const colorSwatch = element.querySelector('.color-swatch') as HTMLInputElement;
@@ -64,7 +64,7 @@ function setInitialColorPaletteInColorSwatch(): void {
 }
 
 function setInitialColorPaletteInColorInputs(): void {
-  const colorPaletteSelected = ColorPalettesManager.getCurrentSelectedPalette();
+  const colorPaletteSelected = colorPalettesStorage.getCurrentSelectedPalette();
 
   colorPaletteTable?.querySelectorAll(`tr`)?.forEach((element, index) => {
     const colorInput = element.querySelector('.color-value') as HTMLInputElement;
@@ -74,7 +74,7 @@ function setInitialColorPaletteInColorInputs(): void {
 }
 
 function setColorPaletteInEmulator(emulatorInstance: Chip8Emulator): void {
-  const colorPaletteSelected = ColorPalettesManager.getCurrentSelectedPalette();
+  const colorPaletteSelected = colorPalettesStorage.getCurrentSelectedPalette();
 
   colorPaletteSelected.forEach((value, index) => {
     emulatorInstance.setPaletteColor(index, value);
@@ -89,14 +89,14 @@ function setColorPaletteSelectEventHandler(emulatorInstance: Chip8Emulator): voi
   colorPaletteSelect.addEventListener('change', async (event) => {
     let selectedValue = (event.target as HTMLSelectElement).value;
 
-    const colorPalette = ColorPalettesManager.getColorPalette(selectedValue);
+    const colorPalette = colorPalettesStorage.getColorPalette(selectedValue);
 
     if (!colorPalette) {
       selectedValue = defaultColorPaletteId;
       colorPaletteSelect.value = defaultColorPaletteId;
     }
 
-    await ColorPalettesManager.setSelectedPaletteByPaletteId(selectedValue);
+    await colorPalettesStorage.setSelectedPaletteByPaletteId(selectedValue);
 
     setInitialColorPaletteInColorInputs();
     setInitialColorPaletteInColorSwatch();
@@ -145,7 +145,7 @@ function setColorInputValueEventHandler(emulatorInstance: Chip8Emulator): void {
       }
 
       container.style.backgroundColor = '';
-      await ColorPalettesManager.setColorInPalette(index, colorValue);
+      await colorPalettesStorage.setColorInPalette(index, colorValue);
 
       setInitialColorPaletteInSelect();
       setInitialColorPaletteInColorSwatch();
@@ -185,7 +185,7 @@ function setColorSwatchValueEventHandler(emulatorInstance: Chip8Emulator): void 
     colorSwatch?.addEventListener('change', async (colorSwatchElement) => {
       const colorValue = (colorSwatchElement.target as HTMLInputElement).value.toUpperCase();
 
-      await ColorPalettesManager.setColorInPalette(index, colorValue);
+      await colorPalettesStorage.setColorInPalette(index, colorValue);
 
       if (colorOverlay) colorOverlay.style.backgroundColor = colorValue;
 
@@ -206,7 +206,7 @@ function setActionButtonState(actionButton: HTMLButtonElement | null, enable: bo
 }
 
 function setCustomColorPalettesButtonState(): void {
-  const colorPaletteName = ColorPalettesManager.getCurrentPaletteId();
+  const colorPaletteName = colorPalettesStorage.getCurrentPaletteId();
 
   if (colorPaletteName === customColorPaletteKeyId) {
     setActionButtonState(saveCustomColorPaletteBtn, true);
@@ -235,7 +235,7 @@ function generatePaletteId(): string {
 
 function generateNewCustomPaletteInfo(newPaletteName: string): CustomColorPalette | undefined {
   const paletteId = generatePaletteId();
-  const paletteColors = ColorPalettesManager.getCurrentSelectedPalette();
+  const paletteColors = colorPalettesStorage.getCurrentSelectedPalette();
 
   const paletteInformation: CustomColorPalette = {
     name       : newPaletteName,
@@ -248,8 +248,8 @@ function generateNewCustomPaletteInfo(newPaletteName: string): CustomColorPalett
 }
 
 async function saveCurrentCustomPaletteAsANewPalette(paletteInfo: CustomColorPalette): Promise<void> {
-  await ColorPalettesManager.addNewColorPalette(paletteInfo);
-  await ColorPalettesManager.setSelectedPaletteByPaletteId(paletteInfo.id);
+  await colorPalettesStorage.addNewColorPalette(paletteInfo);
+  await colorPalettesStorage.setSelectedPaletteByPaletteId(paletteInfo.id);
 
   appendCustomPaletteOptionToSelect(paletteInfo);
 }
@@ -258,7 +258,7 @@ function setSaveCustomColorPaletteButtonEventHandler(): void {
   if (!saveCustomColorPaletteBtn) return;
 
   saveCustomColorPaletteBtn.addEventListener('click', async () => {
-    const currentPaletteName = ColorPalettesManager.getCurrentPaletteId();
+    const currentPaletteName = colorPalettesStorage.getCurrentPaletteId();
 
     if (currentPaletteName !== customColorPaletteKeyId) return;
 
@@ -295,8 +295,8 @@ function setDeleteCustomColorPaletteButtonEventHandler(emulatorInstance: Chip8Em
 
     deleteOptionFromSelect(selectedPalette);
 
-    await ColorPalettesManager.removeColorPalette(selectedPalette);
-    await ColorPalettesManager.setSelectedPaletteByPaletteId(defaultColorPaletteId);
+    await colorPalettesStorage.removeColorPalette(selectedPalette);
+    await colorPalettesStorage.setSelectedPaletteByPaletteId(defaultColorPaletteId);
 
     setInitialColorPaletteInSelect();
     setInitialColorPaletteInColorInputs();
@@ -312,7 +312,7 @@ function setRenameCustomPaletteButtonEventHandler(): void {
   if (!renameCustomColorPaletteBtn) return;
 
   renameCustomColorPaletteBtn.addEventListener('click', async () => {
-    const currentPaletteName = await ColorPalettesManager.getCurrentPaletteNameFromId();
+    const currentPaletteName = await colorPalettesStorage.getCurrentPaletteNameFromId();
 
     const newPaletteName = prompt('Enter a new name for the custom color palette', currentPaletteName);
 
@@ -322,9 +322,9 @@ function setRenameCustomPaletteButtonEventHandler(): void {
       return;
     }
 
-    await ColorPalettesManager.renameCurrentSelectedPalette(newPaletteName);
+    await colorPalettesStorage.renameCurrentSelectedPalette(newPaletteName);
 
-    const storedCustomPalette = await ColorPalettesManager.getCurrentPaletteInfoFromStorage();
+    const storedCustomPalette = await colorPalettesStorage.getCurrentPaletteInfoFromStorage();
 
     if (storedCustomPalette) {
       updateCustomPaletteOptionInSelect(storedCustomPalette);

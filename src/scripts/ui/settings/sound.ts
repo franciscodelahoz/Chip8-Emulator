@@ -1,7 +1,7 @@
 import { defaultAudioGain, defaultSoundState, maximumAudioGain } from '../../constants/audio.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
-import SettingsManager from '../../database/managers/settings.manager';
 import type { Chip8Emulator } from '../../emulator/emulator';
+import { settingsStorage } from '../../storage/settings.storage';
 
 const soundStateCheckbox = document.getElementById('sound-state-checkbox') as HTMLInputElement | null;
 
@@ -9,7 +9,7 @@ const soundLevelRange = document.getElementById('sound-level-range') as HTMLInpu
 const soundLevelValue = document.getElementById('sound-level-value');
 
 async function setCurrentSoundState(emulatorInstance: Chip8Emulator): Promise<void> {
-  const storedSoundState = await SettingsManager.getSetting<boolean>(GeneralEmulatorSettings.SOUND_STATE);
+  const storedSoundState = await settingsStorage.getSetting<boolean>(GeneralEmulatorSettings.SOUND_STATE);
   const soundState = storedSoundState ?? defaultSoundState;
 
   if (soundStateCheckbox) {
@@ -26,7 +26,7 @@ function setInitialSoundStateCheckboxState(emulatorInstance: Chip8Emulator): voi
     const soundState = soundStateCheckbox.checked;
 
     emulatorInstance.setSoundState(soundState);
-    await SettingsManager.setSetting(GeneralEmulatorSettings.SOUND_STATE, soundState);
+    await settingsStorage.setSetting(GeneralEmulatorSettings.SOUND_STATE, soundState);
   });
 }
 
@@ -55,7 +55,7 @@ function setRangeBackgroundColorProgress(value: number): void {
 }
 
 async function setCurrentSoundLevel(emulatorInstance: Chip8Emulator): Promise<void> {
-  const storedGainLevel = await SettingsManager.getSetting<number>(GeneralEmulatorSettings.GAIN_LEVEL);
+  const storedGainLevel = await settingsStorage.getSetting<number>(GeneralEmulatorSettings.GAIN_LEVEL);
   const gainLevel = storedGainLevel ?? defaultAudioGain;
 
   emulatorInstance.setAudioGain(gainLevel);
@@ -81,7 +81,7 @@ function setInitialSoundLevelRangeState(emulatorInstance: Chip8Emulator): void {
     setRangeBackgroundColorProgress(soundLevel);
 
     emulatorInstance.setAudioGain(gain);
-    await SettingsManager.setSetting(GeneralEmulatorSettings.GAIN_LEVEL, gain);
+    await settingsStorage.setSetting(GeneralEmulatorSettings.GAIN_LEVEL, gain);
   });
 }
 

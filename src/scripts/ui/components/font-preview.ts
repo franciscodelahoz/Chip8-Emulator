@@ -6,12 +6,14 @@ import {
   fontCharacterCount,
   fontSets,
   loresFontBytes,
-} from '../../../constants/fonts.constants';
-import type { Chip8Emulator } from '../../../emulator/emulator';
-import type { EmulatorFontAppearance } from '../../../types/emulator';
+} from '../../constants/fonts.constants';
+import type { Chip8Emulator } from '../../emulator/emulator';
+import type { EmulatorFontAppearance } from '../../types/emulator';
 
 export class FontPreviewCanvas {
   private readonly canvasContext: CanvasRenderingContext2D;
+
+  private readonly canvas: HTMLCanvasElement;
 
   private readonly canvasWidth: number;
 
@@ -27,7 +29,9 @@ export class FontPreviewCanvas {
 
   private readonly hiresPixelYOffset: number = 12;
 
-  constructor(private readonly canvas: HTMLCanvasElement, emulatorInstance: Chip8Emulator) {
+  constructor(canvas: HTMLCanvasElement, emulatorInstance: Chip8Emulator) {
+    this.canvas = canvas;
+
     const canvasContext = this.canvas.getContext('2d');
 
     if (!canvasContext) {

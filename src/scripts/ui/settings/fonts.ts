@@ -1,16 +1,16 @@
-import { FontPreviewCanvas } from './components/font-preview';
 import { EmulatorEvents, defaultFontAppearance } from '../../constants/chip8.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
-import SettingsManager from '../../database/managers/settings.manager';
 import type { Chip8Emulator } from '../../emulator/emulator';
+import { debounce } from '../../libraries/timing';
+import { settingsStorage } from '../../storage/settings.storage';
 import type { EmulatorFontAppearance, PaletteColorChangeEvent } from '../../types/emulator';
-import { debounce } from '../../utils/timing';
+import { FontPreviewCanvas } from '../components/font-preview';
 
 const fontAppearanceSelect = document.getElementById('font-appearance-select') as HTMLSelectElement | null;
 const fontPreviewCanvas = document.getElementById('font-preview') as HTMLCanvasElement | null;
 
 async function getCurrentFontName(): Promise<EmulatorFontAppearance> {
-  const storedFontAppearance = await SettingsManager.getSetting<EmulatorFontAppearance>(
+  const storedFontAppearance = await settingsStorage.getSetting<EmulatorFontAppearance>(
     GeneralEmulatorSettings.FONT_APPEARANCE,
   );
 
@@ -32,7 +32,7 @@ function setInitialFontAppearanceSelectState(emulatorInstance: Chip8Emulator, fo
     const fontAppearance = fontAppearanceSelect.value as EmulatorFontAppearance;
 
     emulatorInstance.setFontAppearance(fontAppearance);
-    await SettingsManager.setSetting(GeneralEmulatorSettings.FONT_APPEARANCE, fontAppearance);
+    await settingsStorage.setSetting(GeneralEmulatorSettings.FONT_APPEARANCE, fontAppearance);
 
     fontCanvas.renderFontAppearancePreview(fontAppearance);
   });

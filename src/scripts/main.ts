@@ -1,8 +1,8 @@
 import '../styles/style.css';
 
-import ColorPalettesManager from './database/managers/color-palettes.manager';
-import SettingsManager from './database/managers/settings.manager';
 import { Chip8Emulator } from './emulator/emulator';
+import { colorPalettesStorage } from './storage/color-palettes.storage';
+import { settingsStorage } from './storage/settings.storage';
 import { initializeEmulatorControllerModule } from './ui/controls/emulator';
 import { initializeSidebarMenuModule } from './ui/controls/sidebar-menu';
 import { initializeColorPaletteSettingsModule } from './ui/settings/color-palettes';
@@ -14,8 +14,8 @@ import { initializeSoundSettingsModule } from './ui/settings/sound';
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
 async function initializeManagers(): Promise<void> {
-  await ColorPalettesManager.initializeManager();
-  await SettingsManager.initializeManager();
+  await colorPalettesStorage.initializeManager();
+  await settingsStorage.initializeManager();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

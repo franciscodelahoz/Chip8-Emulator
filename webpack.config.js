@@ -57,7 +57,7 @@ export default (env, argv) => {
     );
 
     Object.assign(entryFiles, {
-      register_service: path.join(path.resolve(), './src/scripts/utils/service-worker-registration.ts'),
+      register_service: path.join(path.resolve(), './src/scripts/service-worker.ts'),
     });
   }
 

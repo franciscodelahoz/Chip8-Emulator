@@ -7,8 +7,8 @@ import {
   xoChipQuirkConfigurations,
 } from '../../constants/chip8.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
-import SettingsManager from '../../database/managers/settings.manager';
 import type { Chip8Emulator } from '../../emulator/emulator';
+import { settingsStorage } from '../../storage/settings.storage';
 
 const quirkConfigCheckboxes = document.getElementsByClassName('quirk-checkbox') as HTMLCollectionOf<HTMLInputElement>;
 const memorySizeSelect = document.getElementById('memory-size-select') as HTMLSelectElement | null;
@@ -18,7 +18,7 @@ const schipProfileBtn = document.getElementById('schip-profile');
 const xoChipProfileBtn = document.getElementById('xo-chip-profile');
 
 async function getQuirkValue(quirkName: Chip8Quirks, emulatorInstance: Chip8Emulator): Promise<boolean> {
-  const storedQuirkValue = await SettingsManager.getSetting<boolean>(quirkName);
+  const storedQuirkValue = await settingsStorage.getSetting<boolean>(quirkName);
 
   if (storedQuirkValue === undefined) {
     return emulatorInstance.getCpuQuirkValue(quirkName);
@@ -28,7 +28,7 @@ async function getQuirkValue(quirkName: Chip8Quirks, emulatorInstance: Chip8Emul
 }
 
 async function setQuirkValue(quirkName: Chip8Quirks, value: boolean, emulatorInstance: Chip8Emulator): Promise<void> {
-  await SettingsManager.setSetting(quirkName, value);
+  await settingsStorage.setSetting(quirkName, value);
   emulatorInstance.setCpuQuirkValue(quirkName, value);
 }
 
@@ -46,7 +46,7 @@ function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>, e
 }
 
 async function setCurrentMemorySize(emulatorInstance: Chip8Emulator): Promise<void> {
-  const storedMemorySize = await SettingsManager.getSetting<number>(GeneralEmulatorSettings.MEMORY_SIZE);
+  const storedMemorySize = await settingsStorage.getSetting<number>(GeneralEmulatorSettings.MEMORY_SIZE);
   const memorySize = storedMemorySize ?? defaultMemorySize;
 
   emulatorInstance.setMemorySize(memorySize);
@@ -61,7 +61,7 @@ async function setMemorySizeFromProfile(memorySize: number, emulatorInstance: Ch
     memorySizeSelect.value = memorySize.toString();
 
     emulatorInstance.setMemorySize(memorySize);
-    await SettingsManager.setSetting(GeneralEmulatorSettings.MEMORY_SIZE, memorySize);
+    await settingsStorage.setSetting(GeneralEmulatorSettings.MEMORY_SIZE, memorySize);
   }
 }
 
@@ -72,7 +72,7 @@ function setInitialMemorySizeSelectState(emulatorInstance: Chip8Emulator): void 
     const memorySize = Number.parseInt(memorySizeSelect.value, 10);
 
     emulatorInstance.setMemorySize(memorySize);
-    await SettingsManager.setSetting(GeneralEmulatorSettings.MEMORY_SIZE, memorySize);
+    await settingsStorage.setSetting(GeneralEmulatorSettings.MEMORY_SIZE, memorySize);
   });
 }
 

@@ -9,11 +9,7 @@ export const emulatorConfigurationsKeys = {
 
 export const customPalettePrefix = 'custom_palette_';
 
-export const database = {
-  name         : 'emulator',
-  storage_name : {
-    custom_color_palettes : 'custom_color_palettes',
-    settings              : 'settings',
-  },
-  current_version: 1,
+export const emulatorDatabase = {
+  name            : 'emulator',
+  current_version : 1,
 };
