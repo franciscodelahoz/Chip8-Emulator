@@ -40,3 +40,16 @@ export interface ProcessedColorValue {
 }
 
 export type DisplayBuffer = number[][];
+
+export interface CPUStatus {
+  PC: number;
+  SP: number;
+  I: number;
+  DT: number;
+  ST: number;
+  memorySize: number;
+  cycleCounter: number;
+  registers: Uint8Array;
+  stack: number[];
+  quirksConfigurations: Record<string, boolean>;
+}

@@ -733,8 +733,9 @@ export default [
           leadingUnderscore : 'allow',
         },
         {
-          selector : 'parameter',
-          format   : [ 'camelCase', 'PascalCase' ],
+          selector          : 'parameter',
+          format            : [ 'camelCase', 'PascalCase' ],
+          leadingUnderscore : 'allow',
         },
       ],
       '@typescript-eslint/no-shadow'          : 'error',

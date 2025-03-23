@@ -13,6 +13,7 @@ import {
   stackSize,
 } from '../constants/chip8.constants';
 import { fontSets } from '../constants/fonts.constants';
+import { dumpStatus, logError } from '../libraries/cpu-inspector';
 import type { EmulatorFontAppearance } from '../types/emulator';
 
 export class CPU extends EventTarget {
@@ -1112,31 +1113,23 @@ export class CPU extends EventTarget {
   }
 
   private logError(message: string, opcode: number): void {
-    console.error(`${message} @ Address 0x${(this.PC - 2).toString(16).toUpperCase()} : Opcode: 0x${opcode.toString(16).toUpperCase()}`);
+    logError(message, opcode, this.PC);
     this.dumpStatus();
   }
 
   public dumpStatus(): void {
-    console.log('%cCPU Status:', 'font-weight: bold; font-size: 12px;');
-    console.log(`  PC: ${this.PC} SP: ${this.SP} I: ${this.I} DT: ${this.DT} ST: ${this.ST} Cycle count: ${this.cycleCounter}`);
-
-    console.log('%cRegisters:', 'font-weight: bold; font-size: 12px;');
-
-    for (const [ index, value ] of this.registers.entries()) {
-      console.log(`  v${index}: 0x${value.toString(16).toUpperCase()}`);
-    }
-
-    console.log('%cStack:', 'font-weight: bold; font-size: 12px;');
-
-    for (const [ index, value ] of this.stack.entries()) {
-      console.log(`  v${index}: 0x${value.toString(16).toUpperCase()}`);
-    }
-
-    console.log('%cQuirks:', 'font-weight: bold; font-size: 12px;');
-
-    for (const [ key, value ] of Object.entries(this.quirksConfigurations)) {
-      console.log(`  ${key}: ${value}`);
-    }
+    dumpStatus({
+      registers            : this.registers,
+      stack                : this.stack,
+      I                    : this.I,
+      PC                   : this.PC,
+      SP                   : this.SP,
+      DT                   : this.DT,
+      ST                   : this.ST,
+      memorySize           : this.memorySize,
+      quirksConfigurations : this.quirksConfigurations,
+      cycleCounter         : this.cycleCounter,
+    });
   }
 
   public setFontAppearance(fontAppearance: EmulatorFontAppearance): void {
