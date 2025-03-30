@@ -1,7 +1,6 @@
 import type { AudioInterface } from './interfaces/audio';
 import type { DisplayInterface } from './interfaces/display';
 import type { KeyBoardInterface } from './interfaces/keyboard';
-import { defaultAudioFrequency } from '../constants/audio.constants';
 import {
   Chip8CpuEvents,
   Chip8Quirks,
@@ -818,6 +817,8 @@ export class CPU extends EventTarget {
             }
 
             this.playingPattern = true;
+            // Update the audio interface with the new pattern
+            this.audioInterface.setAudioPattern(this.audioPatternBuffer);
             break;
           }
 
@@ -916,6 +917,8 @@ export class CPU extends EventTarget {
             */
           case 0x3A: {
             this.audioPitch = this.registers[x];
+            // Update the pitch in the audio interface
+            this.audioInterface.setAudioPitch(this.audioPitch);
             break;
           }
 
@@ -1039,16 +1042,24 @@ export class CPU extends EventTarget {
       this.DT -= 1;
     }
 
-    if (this.ST > 0) {
-      if (!this.playing && this.soundEnabled) {
-        this.playing = true;
-        this.audioInterface.play(defaultAudioFrequency);
-      }
+    // Support both standard and XO-CHIP audio
+    if (this.soundEnabled) {
+      if (this.ST > 0) {
+        // If using XO-CHIP audio, update the pattern
+        if (this.playingPattern) {
+          this.audioInterface.updateAudio(this.ST);
+        } else if (!this.playing) {
+          // Standard CHIP-8 audio
+          this.playing = true;
+          this.audioInterface.play();
+        }
 
-      this.ST -= 1;
-    } else if (this.playing && this.soundEnabled) {
-      this.playing = false;
-      this.audioInterface.stop();
+        this.ST -= 1;
+      } else if (this.playing || this.playingPattern) {
+        this.playing = false;
+        this.playingPattern = false;
+        this.audioInterface.stop();
+      }
     }
 
     for (let i = 0; (i < this.cyclesPerFrame) && !this.waitingForKeyPressed && !this.halted && !this.isPaused; i += 1) {
