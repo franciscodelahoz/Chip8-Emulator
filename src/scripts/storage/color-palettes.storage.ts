@@ -2,7 +2,7 @@ import { customColorPaletteKeyId, defaultColorPaletteId } from '../constants/chi
 import { colorPalettes } from '../constants/color-palettes.constants';
 import { emulatorConfigurationsKeys } from '../constants/emulator.constants';
 import { db } from '../services/database.service';
-import type { ColorPalettes, CustomColorPalette } from '../types/emulator';
+import type { ColorPalettes, CustomColorPalette, SettingsObject } from '../types/emulator';
 
 class ColorPalettesStorage {
   private colorPalettesStored: ColorPalettes = {};
@@ -53,11 +53,17 @@ class ColorPalettesStorage {
     const transaction = db.transaction('settings', 'readonly');
     const settingsTable = transaction.store('settings');
 
-    for (const [ index, key ] of indexedSettingsKey) {
-      const storedColor = await settingsTable.get(key);
+    const colorPromises = indexedSettingsKey.map(async ([ index, key ]) => {
+      const storedColor = await settingsTable.get(key) as SettingsObject<string> | undefined;
       const color = storedColor?.value || this.colorPalettesStored[defaultColorPaletteId][index];
 
-      this.currentSelectedPalette[index] = color as string;
+      return { index, color };
+    });
+
+    const results = await Promise.all(colorPromises);
+
+    for (const { index, color } of results) {
+      this.currentSelectedPalette[index] = color;
     }
 
     await transaction.done();
@@ -86,15 +92,13 @@ class ColorPalettesStorage {
     const transaction = db.transaction('settings', 'readwrite');
     const settingsTable = transaction.store('settings');
 
-    for (const [ index, key ] of indexedSettingsKey) {
-      const colorValue = this.currentSelectedPalette[index];
+    const bulkPutPromises = indexedSettingsKey.map(async ([ index, key ]) => {
+      const colorValue = this.colorPalettesStored[paletteId][index];
 
-      await settingsTable.put({
-        id    : key,
-        value : colorValue,
-      });
-    }
+      return settingsTable.put({ id: key, value: colorValue });
+    });
 
+    await Promise.all(bulkPutPromises);
     await transaction.done();
   }
 
