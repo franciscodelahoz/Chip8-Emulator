@@ -32,17 +32,28 @@ async function setQuirkValue(quirkName: Chip8Quirks, value: boolean, emulatorIns
   emulatorInstance.setCpuQuirkValue(quirkName, value);
 }
 
-function setQuirkValuesFromProfiles(quirkValues: Record<Chip8Quirks, boolean>, emulatorInstance: Chip8Emulator): void {
+async function setQuirkValuesFromProfiles(
+  quirkValues: Record<Chip8Quirks, boolean>,
+  emulatorInstance: Chip8Emulator,
+): Promise<void> {
   const quirkValuesKeys = Object.keys(quirkValues) as Chip8Quirks[];
 
-  quirkValuesKeys.forEach(async (quirkName) => {
-    const quirk = [ ...quirkConfigCheckboxes ].find((element) => element.getAttribute('data-quirk-property-name') === quirkName);
+  for (const quirkName of quirkValuesKeys) {
+    const quirk = [ ...quirkConfigCheckboxes ].find((element) =>
+      element.getAttribute('data-quirk-property-name') === quirkName);
 
-    if (quirk) {
-      quirk.checked = quirkValues[quirkName];
-      await setQuirkValue(quirkName, quirkValues[quirkName], emulatorInstance);
-    }
-  });
+    if (quirk === undefined) continue;
+
+    quirk.checked = quirkValues[quirkName];
+    emulatorInstance.setCpuQuirkValue(quirkName, quirkValues[quirkName]);
+  }
+
+  const quirkValuesArray = quirkValuesKeys.map((quirkName) => ({
+    id    : quirkName,
+    value : quirkValues[quirkName],
+  }));
+
+  await settingsStorage.setMultipleSettings(quirkValuesArray);
 }
 
 async function setCurrentMemorySize(emulatorInstance: Chip8Emulator): Promise<void> {
@@ -90,17 +101,17 @@ function setInitialConfigurationsStates(emulatorInstance: Chip8Emulator): void {
   });
 
   chip8ProfileBtn?.addEventListener('click', async () => {
-    setQuirkValuesFromProfiles(defaultQuirkConfigurations, emulatorInstance);
+    await setQuirkValuesFromProfiles(defaultQuirkConfigurations, emulatorInstance);
     await setMemorySizeFromProfile(defaultMemorySize, emulatorInstance);
   });
 
   schipProfileBtn?.addEventListener('click', async () => {
-    setQuirkValuesFromProfiles(schipQuirkConfigurations, emulatorInstance);
+    await setQuirkValuesFromProfiles(schipQuirkConfigurations, emulatorInstance);
     await setMemorySizeFromProfile(defaultMemorySize, emulatorInstance);
   });
 
   xoChipProfileBtn?.addEventListener('click', async () => {
-    setQuirkValuesFromProfiles(xoChipQuirkConfigurations, emulatorInstance);
+    await setQuirkValuesFromProfiles(xoChipQuirkConfigurations, emulatorInstance);
     await setMemorySizeFromProfile(xoChipMemorySize, emulatorInstance);
   });
 }

@@ -21,6 +21,16 @@ class SettingsStorage {
 
     return result?.value as T ?? undefined;
   }
+
+  public async setMultipleSettings<T = string>(settings: Array<SettingsObject<T>>): Promise<void> {
+    const transaction = db.transaction('settings', 'readwrite');
+    const store = transaction.store('settings');
+
+    const bulkPutPromises = settings.map(async (setting) => store.put(setting));
+
+    await Promise.all(bulkPutPromises);
+    await transaction.done();
+  }
 }
 
 export const settingsStorage = new SettingsStorage();
