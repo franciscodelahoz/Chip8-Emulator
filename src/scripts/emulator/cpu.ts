@@ -917,6 +917,8 @@ export class CPU extends EventTarget {
             */
           case 0x3A: {
             this.audioPitch = this.registers[x];
+            this.playingPattern = true;
+
             // Update the pitch in the audio interface
             this.audioInterface.setAudioPitch(this.audioPitch);
             break;
@@ -1042,24 +1044,13 @@ export class CPU extends EventTarget {
       this.DT -= 1;
     }
 
-    // Support both standard and XO-CHIP audio
-    if (this.soundEnabled) {
-      if (this.ST > 0) {
-        // If using XO-CHIP audio, update the pattern
-        if (this.playingPattern) {
-          this.audioInterface.updateAudio(this.ST);
-        } else if (!this.playing) {
-          // Standard CHIP-8 audio
-          this.playing = true;
-          this.audioInterface.play();
-        }
-
-        this.ST -= 1;
-      } else if (this.playing || this.playingPattern) {
-        this.playing = false;
-        this.playingPattern = false;
-        this.audioInterface.stop();
-      }
+    if (this.soundEnabled && this.ST > 0) {
+      this.audioInterface.play();
+      this.ST -= 1;
+    } else if (this.playing || this.playingPattern) {
+      this.playing = false;
+      this.playingPattern = false;
+      this.audioInterface.stop();
     }
 
     for (let i = 0; (i < this.cyclesPerFrame) && !this.waitingForKeyPressed && !this.halted && !this.isPaused; i += 1) {

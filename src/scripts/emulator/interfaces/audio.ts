@@ -167,7 +167,7 @@ export class AudioInterface {
   }
 
   // Standard CHIP-8 Audio methods
-  play(): void {
+  private playBeep(): void {
     if (this.audioContext && !this.oscillator) {
       // Resume audio context if suspended
       if (this.audioContext.state === 'suspended') {
@@ -190,6 +190,8 @@ export class AudioInterface {
       this.oscillator.disconnect();
       this.oscillator = null;
     }
+
+    this.audioPatternPosition = 0;
 
     // Clear any pending buffers
     if (this.audioWorkletNode && this.audioProcessorReady) {
@@ -217,7 +219,7 @@ export class AudioInterface {
   }
 
   // Called from the emulator's cycle method
-  updateAudio(soundTimer: number): void {
+  play(): void {
     if (!this.audioContext) return;
 
     // Resume audio context if suspended
@@ -225,19 +227,12 @@ export class AudioInterface {
       this.audioContext.resume();
     }
 
-    // If sound timer is active, play sound
-    if (soundTimer > 0) {
-      if (this.isPlayingPattern) {
-        // Play XO-CHIP pattern
-        this.playXOChipPattern();
-      } else {
-        // Standard CHIP-8 beep
-        this.play();
-      }
+    if (this.isPlayingPattern) {
+      // Play XO-CHIP pattern
+      this.playXOChipPattern();
     } else {
-      // Stop audio when timer reaches zero
-      this.stop();
-      this.isPlayingPattern = false;
+      // Standard CHIP-8 beep
+      this.playBeep();
     }
   }
 
