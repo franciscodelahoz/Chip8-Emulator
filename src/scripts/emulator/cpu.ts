@@ -1,6 +1,7 @@
 import type { AudioInterface } from './interfaces/audio';
 import type { DisplayInterface } from './interfaces/display';
 import type { KeyBoardInterface } from './interfaces/keyboard';
+import { defaultAudioPitch } from '../constants/audio.constants';
 import {
   Chip8CpuEvents,
   Chip8Quirks,
@@ -62,7 +63,7 @@ export class CPU extends EventTarget {
 
   private playingPattern: boolean = false;
 
-  private audioPitch: number = 0; // XO-CHIP: Audio pitch (8-bit)
+  private audioPitch: number = defaultAudioPitch; // XO-CHIP: Audio pitch (8-bit)
 
   private fontAppearance: EmulatorFontAppearance = defaultFontAppearance;
 
@@ -109,7 +110,7 @@ export class CPU extends EventTarget {
 
     this.audioPatternBuffer.fill(0);
     this.playingPattern = false;
-    this.audioPitch = 0;
+    this.audioPitch = defaultAudioPitch;
 
     this.cycleCounter = 0;
     this.isPaused = false;
@@ -817,8 +818,6 @@ export class CPU extends EventTarget {
             }
 
             this.playingPattern = true;
-            // Update the audio interface with the new pattern
-            this.audioInterface.setAudioPattern(this.audioPatternBuffer);
             break;
           }
 
@@ -919,8 +918,6 @@ export class CPU extends EventTarget {
             this.audioPitch = this.registers[x];
             this.playingPattern = true;
 
-            // Update the pitch in the audio interface
-            this.audioInterface.setAudioPitch(this.audioPitch);
             break;
           }
 
@@ -1045,7 +1042,9 @@ export class CPU extends EventTarget {
     }
 
     if (this.soundEnabled && this.ST > 0) {
-      this.audioInterface.play();
+      this.audioInterface.playSound(this.playingPattern, this.audioPatternBuffer, this.audioPitch);
+      this.playing = true;
+
       this.ST -= 1;
     } else if (this.playing || this.playingPattern) {
       this.playing = false;

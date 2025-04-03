@@ -19,4 +19,6 @@ export const frequency = 4000;
 
 export const pitchBias = 64;
 
+export const defaultAudioPitch = 64;
+
 export const cutOffFrequency = 18000;

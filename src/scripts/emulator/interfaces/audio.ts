@@ -56,12 +56,6 @@ export class AudioInterface {
 
   private audioPatternPosition: number = 0;
 
-  private currentAudioPattern: Uint8Array = new Uint8Array(16);
-
-  private currentPitch: number = 64;
-
-  private isPlayingPattern: boolean = false;
-
   private readonly lowPassBuffer: number[] = new Array(5).fill(0); // 4 filter steps + 1
 
   constructor() {
@@ -87,6 +81,7 @@ export class AudioInterface {
         class Chip8AudioProcessor extends AudioWorkletProcessor {
           constructor() {
             super();
+
             this.buffers = [];
             this.port.onmessage = this.handleMessage.bind(this);
           }
@@ -119,7 +114,10 @@ export class AudioInterface {
             // Process audio data in the queue
             while (this.buffers.length && index < channel.length) {
               const bufferInfo = this.buffers[0];
-              const size = Math.min(channel.length - index, bufferInfo.buffer.length - bufferInfo.position);
+              const size = Math.min(
+                channel.length - index,
+                bufferInfo.buffer.length - bufferInfo.position
+              );
 
               if (size <= 0) {
                 this.buffers.shift();
@@ -127,7 +125,7 @@ export class AudioInterface {
               }
 
               // Copy data to output channel
-              for (let i = 0; i < size; i++) {
+              for (let i = 0; i < size; i += 1) {
                 channel[index + i] = bufferInfo.buffer[bufferInfo.position + i];
               }
 
@@ -141,8 +139,8 @@ export class AudioInterface {
             }
 
             // Fill the rest with silence
-            while (index < channel.length) {
-              channel[index++] = 0;
+            for (; index < channel.length; index += 1) {
+              channel[index] = 0;
             }
 
             // Keep processor running
@@ -207,19 +205,8 @@ export class AudioInterface {
     this.gain.gain.value = Math.min(gain, maximumAudioGain);
   }
 
-  // XO-CHIP Audio methods
-  setAudioPattern(patternBuffer: Uint8Array): void {
-    // Copy the 16 bytes of pattern buffer
-    this.currentAudioPattern = new Uint8Array(patternBuffer);
-    this.isPlayingPattern = true;
-  }
-
-  setAudioPitch(pitch: number): void {
-    this.currentPitch = pitch;
-  }
-
   // Called from the emulator's cycle method
-  play(): void {
+  playSound(isPlayingPattern: boolean, audioPatternBuffer: Uint8Array, pitch: number): void {
     if (!this.audioContext) return;
 
     // Resume audio context if suspended
@@ -227,15 +214,16 @@ export class AudioInterface {
       this.audioContext.resume();
     }
 
-    if (this.isPlayingPattern) {
+    if (isPlayingPattern) {
       // Play XO-CHIP pattern
-      this.playXOChipPattern();
+      this.playXOChipPattern(audioPatternBuffer, pitch);
     } else {
       // Standard CHIP-8 beep
       this.playBeep();
     }
   }
 
+  // XO-CHIP Audio methods
   private getLowPassAlpha(samplingFrequency: number): number {
     const cosineCoefficient = Math.cos((2 * Math.PI * cutOffFrequency) / samplingFrequency);
 
@@ -252,17 +240,17 @@ export class AudioInterface {
     return this.lowPassBuffer[this.lowPassBuffer.length - 1];
   }
 
-  private playXOChipPattern(): void {
+  private playXOChipPattern(audioPatternBuffer: Uint8Array, pitch: number): void {
     if (!this.audioContext || !this.audioProcessorReady) return;
 
     // Calculate audio parameters
     const soundLength = 1 / audioFrameRate;
 
-    const freq = frequency * 2 ** ((this.currentPitch - pitchBias) / pitchScaleFactor);
+    const freq = frequency * 2 ** ((pitch - pitchBias) / pitchScaleFactor);
 
     const samples = Math.ceil(this.audioContext.sampleRate * soundLength);
 
-    const bufferLength = this.currentAudioPattern.length * audioPatternBits;
+    const bufferLength = audioPatternBuffer.length * audioPatternBits;
 
     const audioBuffer = new Float32Array(samples);
 
@@ -284,7 +272,7 @@ export class AudioInterface {
 
         value = this.getLowPassFilteredValue(
           lowPassAlpha,
-          (this.currentAudioPattern[cell] >> shift) & 1,
+          (audioPatternBuffer[cell] >> shift) & 1,
         );
 
         pos = (pos + step / quality) % bufferLength;
