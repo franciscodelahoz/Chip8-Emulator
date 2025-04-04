@@ -39,6 +39,7 @@ import {
   pitchBias,
   oscillatorFrequency,
 } from '../../constants/audio.constants';
+import type { GeneratedAudioSamples } from '../../types/audio';
 
 export class AudioInterface {
   private readonly audioContext: AudioContext;
@@ -60,6 +61,7 @@ export class AudioInterface {
 
   constructor() {
     this.audioContext = new AudioContext();
+
     this.gain = new GainNode(this.audioContext, {
       gain: defaultAudioGain,
     });
@@ -154,46 +156,12 @@ export class AudioInterface {
       await this.audioContext.audioWorklet.addModule(processorUrl);
       URL.revokeObjectURL(processorUrl);
 
-      // Create AudioWorkletNode
       this.audioWorkletNode = new AudioWorkletNode(this.audioContext, 'chip8-audio-processor');
       this.audioWorkletNode.connect(this.gain);
 
       this.audioProcessorReady = true;
     } catch (error) {
       console.error('Error setting up AudioWorklet:', error);
-    }
-  }
-
-  // Standard CHIP-8 Audio methods
-  private playBeep(): void {
-    if (this.audioContext && !this.oscillator) {
-      // Resume audio context if suspended
-      if (this.audioContext.state === 'suspended') {
-        this.audioContext.resume();
-      }
-
-      this.oscillator = new OscillatorNode(this.audioContext, {
-        type      : 'triangle',
-        frequency : oscillatorFrequency,
-      });
-
-      this.oscillator.connect(this.gain);
-      this.oscillator.start();
-    }
-  }
-
-  stop(): void {
-    if (this.oscillator) {
-      this.oscillator.stop();
-      this.oscillator.disconnect();
-      this.oscillator = null;
-    }
-
-    this.audioPatternPosition = 0;
-
-    // Clear any pending buffers
-    if (this.audioWorkletNode && this.audioProcessorReady) {
-      this.audioWorkletNode.port.postMessage({ type: 'clear' });
     }
   }
 
@@ -205,21 +173,20 @@ export class AudioInterface {
     this.gain.gain.value = Math.min(gain, maximumAudioGain);
   }
 
-  // Called from the emulator's cycle method
-  playSound(isPlayingPattern: boolean, audioPatternBuffer: Uint8Array, pitch: number): void {
-    if (!this.audioContext) return;
+  // Standard CHIP-8 Audio methods
+  private playBeep(): void {
+    if (this.audioContext && !this.oscillator) {
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
 
-    // Resume audio context if suspended
-    if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume();
-    }
+      this.oscillator = new OscillatorNode(this.audioContext, {
+        type      : 'triangle',
+        frequency : oscillatorFrequency,
+      });
 
-    if (isPlayingPattern) {
-      // Play XO-CHIP pattern
-      this.playXOChipPattern(audioPatternBuffer, pitch);
-    } else {
-      // Standard CHIP-8 beep
-      this.playBeep();
+      this.oscillator.connect(this.gain);
+      this.oscillator.start();
     }
   }
 
@@ -240,9 +207,11 @@ export class AudioInterface {
     return this.lowPassBuffer[this.lowPassBuffer.length - 1];
   }
 
-  private playXOChipPattern(audioPatternBuffer: Uint8Array, pitch: number): void {
-    if (!this.audioContext || !this.audioProcessorReady) return;
-
+  private generateXOChipAudioSamples(
+    audioPatternBuffer: Uint8Array,
+    pitch: number,
+    patternPosition: number,
+  ): GeneratedAudioSamples {
     // Audio parameters
     const { sampleRate } = this.audioContext;
     const soundLength = 1 / audioFrameRate;
@@ -258,7 +227,7 @@ export class AudioInterface {
     const quality = Math.ceil(supersamplingRate / sampleRate);
     const lowPassAlpha = this.getLowPassAlpha(sampleRate * quality);
 
-    let pos = this.audioPatternPosition;
+    let pos = patternPosition;
     let value = 0;
 
     // Generate audio samples
@@ -277,16 +246,64 @@ export class AudioInterface {
       audioBuffer[i] = value;
     }
 
-    // Send buffer to AudioWorkletNode
-    if (this.audioWorkletNode) {
-      this.audioWorkletNode.port.postMessage({
-        type     : 'buffer',
-        buffer   : audioBuffer,
-        duration : samples,
-      });
+    return {
+      buffer       : audioBuffer,
+      new_position : pos,
+      duration     : samples,
+    };
+  }
+
+  private enqueueAudioSamples(audioBuffer: Float32Array, audioDuration: number): void {
+    if (!this.audioWorkletNode || !this.audioProcessorReady) return;
+
+    this.audioWorkletNode.port.postMessage({
+      type     : 'buffer',
+      buffer   : audioBuffer,
+      duration : audioDuration,
+    });
+  }
+
+  private playXOChipPattern(audioPatternBuffer: Uint8Array, pitch: number): void {
+    if (!this.audioContext || !this.audioProcessorReady) return;
+
+    const { buffer, duration, new_position: newPosition } = this.generateXOChipAudioSamples(
+      audioPatternBuffer,
+      pitch,
+      this.audioPatternPosition,
+    );
+
+    this.enqueueAudioSamples(buffer, duration);
+    this.audioPatternPosition = newPosition;
+  }
+
+  playSound(isPlayingPattern: boolean, audioPatternBuffer: Uint8Array, pitch: number): void {
+    if (!this.audioContext) return;
+
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
     }
 
-    // Update position for next frame
-    this.audioPatternPosition = pos;
+    if (isPlayingPattern) {
+      // Play XO-CHIP pattern
+      this.playXOChipPattern(audioPatternBuffer, pitch);
+    } else {
+      // Standard CHIP-8 beep
+      this.playBeep();
+    }
+  }
+
+  stop(): void {
+    if (this.oscillator) {
+      this.oscillator.stop();
+      this.oscillator.disconnect();
+      this.oscillator = null;
+    }
+
+    this.audioPatternPosition = 0;
+
+    // Clear any pending buffers
+    if (this.audioWorkletNode && this.audioProcessorReady) {
+      this.audioWorkletNode.port.postMessage({ type: 'clear' });
+    }
   }
 }
