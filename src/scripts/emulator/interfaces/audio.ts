@@ -243,38 +243,34 @@ export class AudioInterface {
   private playXOChipPattern(audioPatternBuffer: Uint8Array, pitch: number): void {
     if (!this.audioContext || !this.audioProcessorReady) return;
 
-    // Calculate audio parameters
+    // Audio parameters
+    const { sampleRate } = this.audioContext;
     const soundLength = 1 / audioFrameRate;
-
-    const freq = frequency * 2 ** ((pitch - pitchBias) / pitchScaleFactor);
-
-    const samples = Math.ceil(this.audioContext.sampleRate * soundLength);
-
-    const bufferLength = audioPatternBuffer.length * audioPatternBits;
-
+    const samples = Math.ceil(sampleRate * soundLength);
     const audioBuffer = new Float32Array(samples);
 
-    const step = freq / this.audioContext.sampleRate;
+    // Pattern configuration
+    const bufferLength = audioPatternBuffer.length * audioPatternBits;
+    const freq = frequency * 2 ** ((pitch - pitchBias) / pitchScaleFactor);
+    const step = freq / sampleRate;
+
+    // Quality and filtering configuration
+    const quality = Math.ceil(supersamplingRate / sampleRate);
+    const lowPassAlpha = this.getLowPassAlpha(sampleRate * quality);
 
     let pos = this.audioPatternPosition;
-
-    // Super-sampling for better audio quality
-    const quality = Math.ceil(supersamplingRate / this.audioContext.sampleRate);
-    const lowPassAlpha = this.getLowPassAlpha(this.audioContext.sampleRate * quality);
-
     let value = 0;
 
     // Generate audio samples
     for (let i = 0; i < samples; i += 1) {
+      // Apply supersampling for higher quality
       for (let j = 0; j < quality; j += 1) {
         const cell = Math.floor(pos / audioPatternBits);
-        const shift = pos & (audioPatternBits - 1) ^ (audioPatternBits - 1); // Bit position in the byte
+        const shift = pos & (audioPatternBits - 1) ^ (audioPatternBits - 1);
 
-        value = this.getLowPassFilteredValue(
-          lowPassAlpha,
-          (audioPatternBuffer[cell] >> shift) & 1,
-        );
+        const bitValue = (audioPatternBuffer[cell] >> shift) & 1;
 
+        value = this.getLowPassFilteredValue(lowPassAlpha, bitValue);
         pos = (pos + step / quality) % bufferLength;
       }
 
