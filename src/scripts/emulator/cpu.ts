@@ -1042,6 +1042,15 @@ export class CPU extends EventTarget {
     return this.soundEnabled;
   }
 
+  private shouldStopExecution(): boolean {
+    return this.waitingForKeyPressed || this.halted || this.isPaused;
+  }
+
+  private shouldWaitForDisplay(): boolean {
+    return this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK]
+           && ((this.memory[this.PC] & 0xF0) === 0xD0);
+  }
+
   public cycle(): void {
     if (this.halted || this.isPaused) {
       return;
@@ -1068,8 +1077,8 @@ export class CPU extends EventTarget {
       this.audioInterface.stop();
     }
 
-    for (let i = 0; (i < this.cyclesPerFrame) && !this.waitingForKeyPressed && !this.halted && !this.isPaused; i += 1) {
-      if (this.quirksConfigurations[Chip8Quirks.DISPLAY_WAIT_QUIRK] && ((this.memory[this.PC] & 0xF0) === 0xD0)) {
+    for (let i = 0; i < this.cyclesPerFrame && !this.shouldStopExecution(); i += 1) {
+      if (this.shouldWaitForDisplay()) {
         i = this.cyclesPerFrame;
       }
 
