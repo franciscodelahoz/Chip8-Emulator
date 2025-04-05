@@ -1041,14 +1041,20 @@ export class CPU extends EventTarget {
       this.DT -= 1;
     }
 
-    if (this.soundEnabled && this.ST > 0) {
-      this.audioInterface.playSound(this.playingPattern, this.audioPatternBuffer, this.audioPitch);
-      this.playing = true;
+    if (this.ST > 0) {
+      if (this.soundEnabled) {
+        this.audioInterface.playSound(
+          this.playingPattern,
+          this.audioPatternBuffer,
+          this.audioPitch,
+        );
+
+        this.playing = true;
+      }
 
       this.ST -= 1;
     } else if (this.playing || this.playingPattern) {
       this.playing = false;
-      this.playingPattern = false;
       this.audioInterface.stop();
     }
 
