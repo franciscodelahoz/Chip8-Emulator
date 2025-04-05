@@ -51,6 +51,8 @@ export class CPU extends EventTarget {
 
   private soundEnabled: boolean = true;
 
+  private xoChipSoundEnabled: boolean = true;
+
   private quirksConfigurations: Record<Chip8Quirks, boolean> = { ...defaultQuirkConfigurations };
 
   private flags: number[] = new Array(8); // SCHIP Flags (from V0 to V7) (HP48-specific)
@@ -1032,6 +1034,14 @@ export class CPU extends EventTarget {
     this.executeOpcode(opcode);
   }
 
+  private canPlayAudio(): boolean {
+    if (this.playingPattern && !this.xoChipSoundEnabled) {
+      return false;
+    }
+
+    return this.soundEnabled;
+  }
+
   public cycle(): void {
     if (this.halted || this.isPaused) {
       return;
@@ -1042,7 +1052,7 @@ export class CPU extends EventTarget {
     }
 
     if (this.ST > 0) {
-      if (this.soundEnabled) {
+      if (this.canPlayAudio()) {
         this.audioInterface.playSound(
           this.playingPattern,
           this.audioPatternBuffer,
@@ -1053,7 +1063,7 @@ export class CPU extends EventTarget {
       }
 
       this.ST -= 1;
-    } else if (this.playing || this.playingPattern) {
+    } else if (this.playing) {
       this.playing = false;
       this.audioInterface.stop();
     }
@@ -1119,6 +1129,19 @@ export class CPU extends EventTarget {
     this.soundEnabled = soundEnabled;
   }
 
+  public getXOChipSoundState(): boolean {
+    return this.xoChipSoundEnabled;
+  }
+
+  public setXOChipSoundState(soundEnabled: boolean): void {
+    if (!soundEnabled && this.playingPattern) {
+      this.playing = false;
+      this.audioInterface.stop();
+    }
+
+    this.xoChipSoundEnabled = soundEnabled;
+  }
+
   private logError(message: string, opcode: number): void {
     logError(message, opcode, this.PC);
     this.dumpStatus();
@@ -1136,6 +1159,8 @@ export class CPU extends EventTarget {
       memorySize           : this.memorySize,
       quirksConfigurations : this.quirksConfigurations,
       cycleCounter         : this.cycleCounter,
+      soundEnabled         : this.soundEnabled,
+      xoChipSoundEnabled   : this.xoChipSoundEnabled,
     });
   }
 

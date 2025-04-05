@@ -95,6 +95,14 @@ export class Chip8Emulator extends EventTarget {
     return this.cpuInstance.getSoundState();
   }
 
+  public setXOChipSoundState(scale: boolean): void {
+    this.cpuInstance.setXOChipSoundState(scale);
+  }
+
+  public getXOChipSoundState(): boolean {
+    return this.cpuInstance.getXOChipSoundState();
+  }
+
   public setCpuCyclesPerFrame(cycles: number): void {
     this.cpuInstance.setCyclesPerFrame(cycles);
   }

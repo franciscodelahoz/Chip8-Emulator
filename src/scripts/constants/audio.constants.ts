@@ -4,7 +4,13 @@ export const maximumAudioGain = 0.1;
 
 export const oscillatorFrequency = 600;
 
-export const defaultSoundState = true;
+export enum AudioModeState {
+  ALL = 'all',
+  CHIP8_ONLY = 'chip8-only',
+  NONE = 'none',
+}
+
+export const defaultAudioModeState = AudioModeState.ALL;
 
 // XO-CHIP audio constants
 export const audioFrameRate = 60;

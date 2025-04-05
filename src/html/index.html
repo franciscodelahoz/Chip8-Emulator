@@ -77,25 +77,27 @@
         </section>
         <section class="configuration-group">
           <h2 class="configuration-title">Sound Settings</h2>
-          <ul class="quirks-list">
-            <li>
-              <div class="checkbox-container-centered">
-                <input type="checkbox" name="sound-state-checkbox" id="sound-state-checkbox" class="default-checkbox">
-                <label class="checkbox-label">
-                  Enable/Disable sound
-                </label>
+          <div class="configuration-subsection">
+            <div class="configuration-select-section">
+              <label for="audio-mode-select">Sound Capabilities</label>
+              <div class="select-container">
+                <select class="default-select" name="audio-mode-select" id="audio-mode-select">
+                  <option value="all">All Audio Types (CHIP-8 & XO-CHIP)</option>
+                  <option value="chip8-only">Basic Audio Only (No XO-CHIP)</option>
+                  <option value="none">Mute All Sounds</option>
+                </select>
               </div>
-            </li>
-            <li>
-              <label class="block-item">
-                Sound level
-                <div class="range-input-container">
-                  <input type="range" name="sound-level-range" id="sound-level-range" min="0" max="10">
-                  <span id="sound-level-value"></span>
-                </div>
-              </label>
-            </li>
-          </ul>
+            </div>
+          </div>
+          <div class="configuration-subsection">
+            <label class="block-item">
+              Sound level
+              <div class="range-input-container">
+                <input type="range" name="sound-level-range" id="sound-level-range" min="0" max="10">
+                <span id="sound-level-value"></span>
+              </div>
+            </label>
+          </div>
         </section>
         <section class="configuration-group">
           <h2 class="configuration-title">ROM Compatibility</h2>
@@ -184,7 +186,7 @@
           <h2 class="configuration-title">Appearance</h2>
           <section class="configuration-subsection">
             <h3 class="configuration-subtitle">Color settings</h3>
-            <div class="color-select-section">
+            <div class="configuration-select-section">
               <label for="color-palettes-select">Color palettes</label>
               <div class="select-container">
                 <select class="default-select" name="color-palettes-select" id="color-palettes-select">
