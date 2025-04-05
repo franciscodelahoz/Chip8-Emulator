@@ -5,6 +5,7 @@ import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulat
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
+import { AnimationLoop } from '../libraries/animation-loop';
 
 export class Chip8Emulator extends EventTarget {
   private readonly displayInstance: DisplayInterface;
@@ -17,7 +18,7 @@ export class Chip8Emulator extends EventTarget {
 
   private readonly canvas: HTMLCanvasElement;
 
-  private emulationLoop: number = 0;
+  private emulationLoop: AnimationLoop | null = null;
 
   private resizeEventTimeout: number = 0;
 
@@ -37,42 +38,42 @@ export class Chip8Emulator extends EventTarget {
     this.registerDisplayEvents();
   }
 
+  private handleEmulationCycle(): void {
+    try {
+      this.cpuInstance.cycle();
+    } catch (error) {
+      console.error(`Emulator error: ${(error as Error).message}`);
+      this.emulationLoop?.stop();
+      this.dispatchEmulatorEvent(EmulatorEvents.EMULATION_ERROR, { error });
+    }
+  }
+
+  private getEmulationLoop(): AnimationLoop {
+    if (!this.emulationLoop) {
+      this.emulationLoop = new AnimationLoop(
+        this.handleEmulationCycle.bind(this),
+        { fps: 60 },
+      );
+    }
+
+    return this.emulationLoop;
+  }
+
   private startEmulatorLoop(): void {
-    const frameTime = 1000 / 60;
-    const previousTime = Date.now();
+    const loop = this.getEmulationLoop();
 
-    let nextFrameMidpoint = previousTime + frameTime / 2;
-
-    this.emulationLoop = window.setInterval(() => {
-      let cycleCount = 0;
-      const currentTime = Date.now();
-
-      /* Run the emulator cycle up to twice per interval to catch up on missed frames */
-      while (nextFrameMidpoint < currentTime - frameTime && cycleCount < 2) {
-        try {
-          this.cpuInstance.cycle();
-        } catch (error) {
-          this.stopEmulatorLoop();
-          console.error((error as Error).message);
-        }
-
-        nextFrameMidpoint += frameTime;
-        cycleCount += 1;
-      }
-    }, frameTime);
+    if (!loop.isActive()) {
+      loop.start();
+    }
   }
 
   private stopEmulatorLoop(): void {
-    if (this.emulationLoop) {
-      window.clearInterval(this.emulationLoop);
-    }
+    this.emulationLoop?.stop();
   }
 
   private handleExitInstruction(): void {
-    if (this.emulationLoop) {
-      console.log('Emulation loop stopped by exit instruction');
-      this.stopEmulatorLoop();
-    }
+    console.log('Emulation loop stopped by exit instruction');
+    this.stopEmulatorLoop();
   }
 
   public loadRom(romData: Uint8Array): void {
