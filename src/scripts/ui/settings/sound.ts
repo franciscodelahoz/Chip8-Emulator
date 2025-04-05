@@ -1,32 +1,60 @@
-import { defaultAudioGain, defaultSoundState, maximumAudioGain } from '../../constants/audio.constants';
+import {
+  AudioModeState, defaultAudioGain, defaultAudioModeState, maximumAudioGain,
+} from '../../constants/audio.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
 import { settingsStorage } from '../../storage/settings.storage';
 
-const soundStateCheckbox = document.getElementById('sound-state-checkbox') as HTMLInputElement | null;
+const audioModeStateSelect = document.getElementById('audio-mode-select') as HTMLSelectElement | null;
 
 const soundLevelRange = document.getElementById('sound-level-range') as HTMLInputElement | null;
 const soundLevelValue = document.getElementById('sound-level-value');
 
-async function setCurrentSoundState(emulatorInstance: Chip8Emulator): Promise<void> {
-  const storedSoundState = await settingsStorage.getSetting<boolean>(GeneralEmulatorSettings.SOUND_STATE);
-  const soundState = storedSoundState ?? defaultSoundState;
+function applyAudioModeSettings(emulatorInstance: Chip8Emulator, mode: AudioModeState): void {
+  switch (mode) {
+    case AudioModeState.ALL: {
+      emulatorInstance.setSoundState(true);
+      emulatorInstance.setXOChipSoundState(true);
+      break;
+    }
 
-  if (soundStateCheckbox) {
-    soundStateCheckbox.checked = soundState;
+    case AudioModeState.CHIP8_ONLY: {
+      emulatorInstance.setSoundState(true);
+      emulatorInstance.setXOChipSoundState(false);
+      break;
+    }
+
+    case AudioModeState.NONE: {
+      emulatorInstance.setSoundState(false);
+      emulatorInstance.setXOChipSoundState(false);
+      break;
+    }
+
+    default: {
+      console.warn('Unknown audio mode');
+    }
   }
-
-  emulatorInstance.setSoundState(soundState);
 }
 
-function setInitialSoundStateCheckboxState(emulatorInstance: Chip8Emulator): void {
-  if (!soundStateCheckbox) return;
+async function setInitialAudioModeState(emulatorInstance: Chip8Emulator): Promise<void> {
+  const storedSoundState = await settingsStorage.getSetting<AudioModeState>(GeneralEmulatorSettings.AUDIO_MODE_STATE);
+  const soundState = storedSoundState ?? defaultAudioModeState;
 
-  soundStateCheckbox.addEventListener('change', async () => {
-    const soundState = soundStateCheckbox.checked;
+  if (audioModeStateSelect) {
+    audioModeStateSelect.value = soundState;
+  }
 
-    emulatorInstance.setSoundState(soundState);
-    await settingsStorage.setSetting(GeneralEmulatorSettings.SOUND_STATE, soundState);
+  applyAudioModeSettings(emulatorInstance, soundState);
+}
+
+function setInitialAudioModeSelectState(emulatorInstance: Chip8Emulator): void {
+  if (!audioModeStateSelect) return;
+
+  audioModeStateSelect.addEventListener('change', async () => {
+    const audioMode = audioModeStateSelect.value as AudioModeState;
+
+    applyAudioModeSettings(emulatorInstance, audioMode);
+    await settingsStorage.setSetting(GeneralEmulatorSettings.AUDIO_MODE_STATE, audioMode);
   });
 }
 
@@ -86,9 +114,9 @@ function setInitialSoundLevelRangeState(emulatorInstance: Chip8Emulator): void {
 }
 
 export async function initializeSoundSettingsModule(emulatorInstance: Chip8Emulator): Promise<void> {
-  await setCurrentSoundState(emulatorInstance);
+  await setInitialAudioModeState(emulatorInstance);
   await setCurrentSoundLevel(emulatorInstance);
 
-  setInitialSoundStateCheckboxState(emulatorInstance);
+  setInitialAudioModeSelectState(emulatorInstance);
   setInitialSoundLevelRangeState(emulatorInstance);
 }

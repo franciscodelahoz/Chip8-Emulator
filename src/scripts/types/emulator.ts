@@ -52,4 +52,6 @@ export interface CPUStatus {
   registers: Uint8Array;
   stack: number[];
   quirksConfigurations: Record<string, boolean>;
+  soundEnabled: boolean;
+  xoChipSoundEnabled: boolean;
 }

@@ -108,6 +108,19 @@ function logQuirksConfiguration(quirksConfigurations: Record<string, boolean>): 
   console.groupEnd();
 }
 
+function logSoundConfiguration(cpuStatus: CPUStatus): void {
+  const generalSoundEnabled = cpuStatus.soundEnabled ? 'Enabled' : 'Disabled';
+  const xoChipSoundEnabled = cpuStatus.xoChipSoundEnabled ? 'Enabled' : 'Disabled';
+
+  const generalSoundStyle = cpuStatus.soundEnabled ? loggerStyles.info : loggerStyles.error;
+  const xoChipSoundStyle = cpuStatus.xoChipSoundEnabled ? loggerStyles.info : loggerStyles.error;
+
+  console.group('%cSound Configuration', loggerStyles.title);
+  console.log(`%cSound: %c${generalSoundEnabled}`, loggerStyles.debug, generalSoundStyle);
+  console.log(`%cXO-Chip Sound: %c${xoChipSoundEnabled}`, loggerStyles.debug, xoChipSoundStyle);
+  console.groupEnd();
+}
+
 export function dumpStatus(cpuStatus: CPUStatus): void {
   const timestamp = new Date().toISOString();
 
@@ -118,6 +131,7 @@ export function dumpStatus(cpuStatus: CPUStatus): void {
   logRegisters(cpuStatus.registers);
   logStack(cpuStatus.stack);
   logQuirksConfiguration(cpuStatus.quirksConfigurations);
+  logSoundConfiguration(cpuStatus);
 
   console.groupEnd();
 }
