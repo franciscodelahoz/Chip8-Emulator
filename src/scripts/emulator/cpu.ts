@@ -153,6 +153,93 @@ export class CPU extends EventTarget {
     this.halted = false;
   }
 
+  /**
+   * Draw a sprite on the display
+   * Handles all sprite drawing logic including collision detection
+   * Optimized for direct buffer manipulation for maximum performance
+   */
+  private drawSprite(vx: number, vy: number, n: number): void {
+    // Clear collision flag before drawing
+    this.registers[0xF] = 0;
+
+    const spriteHeight = (n === 0) ? 16 : n;
+    let spriteWidth = (n === 0) ? 16 : 8;
+
+    const buffers = this.displayInstance.getDisplayBuffers;
+
+    const displayRows = this.displayInstance.getDisplayRows();
+    const displayColumns = this.displayInstance.getDisplayColumns();
+
+    // Handle special cases
+    const displayClipQuirkEnabled = this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK];
+    const zeroHeightSpriteLoresQuirkEnabled = this.quirksConfigurations[Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK];
+
+    if (zeroHeightSpriteLoresQuirkEnabled) {
+      spriteWidth = 8;
+    }
+
+    const bytesToProcess = spriteWidth === 8 ? 1 : 2;
+    const isZeroHeightSpriteInHiresMode = n === 0 && !this.hiresMode;
+
+    let spriteStart = this.I;
+
+    for (let plane = 0; plane < 2; plane += 1) {
+      if (!(this.bitPlane & (plane + 1))) continue;
+
+      const buffer = buffers[plane];
+
+      for (let rows = 0; rows < spriteHeight; rows += 1) {
+        if (displayClipQuirkEnabled && ((vy & (displayRows - 1)) + rows >= displayRows)) {
+          continue;
+        }
+
+        const rowOffset = n === 0 ? (rows << 1) : rows;
+
+        const yPixelPos = (vy + rows) & (displayRows - 1);
+        const rowBase = yPixelPos * displayColumns;
+
+        // Single loop for both 8 and 16-pixel sprites
+        for (let byteIndex = 0; byteIndex < bytesToProcess; byteIndex += 1) {
+          /**
+           * Get the sprite byte with special handling for zero height sprites when not in hires.
+           * This it's needed for HAP's Rom (I don't know why it's needed, but it is)
+           */
+          const shouldApplyZeroHeightQuirk = byteIndex === 0 && zeroHeightSpriteLoresQuirkEnabled
+            && isZeroHeightSpriteInHiresMode;
+
+          const spriteByte = shouldApplyZeroHeightQuirk ? this.memory[spriteStart + rows] :
+            this.memory[spriteStart + rowOffset + byteIndex];
+
+          // Skip processing empty sprite bytes
+          if (spriteByte === 0) continue;
+
+          const xOffset = byteIndex << 3;
+          const wrappedXStart = vx & (displayColumns - 1);
+
+          // Process all bits in this byte
+          for (let bit = 0; bit < 8; bit += 1) {
+            if ((spriteByte & (0x80 >> bit)) !== 0) {
+              const xPos = xOffset + bit;
+
+              if (displayClipQuirkEnabled && (wrappedXStart + xPos >= displayColumns)) {
+                continue;
+              }
+
+              const pixelIndex = rowBase + ((vx + xPos) & (displayColumns - 1));
+
+              this.registers[0xF] |= buffer[pixelIndex];
+              buffer[pixelIndex] ^= 1;
+            }
+          }
+        }
+      }
+
+      spriteStart += (n === 0) ? 32 : n;
+    }
+
+    this.drawingFlag = true;
+  }
+
   private fetchOpcode(): number {
     return (this.memory[this.PC] << 8) | this.memory[this.PC + 1];
   }
@@ -694,58 +781,11 @@ export class CPU extends EventTarget {
        */
       case 0xD000: {
         const n = opcode & 0xF;
-
         const vx = this.registers[x];
         const vy = this.registers[y];
 
-        this.registers[0xF] = 0;
-
-        const spriteHeight = (n === 0) ? 16 : n;
-        let spriteWidth = (n === 0) ? 16 : 8;
-
-        let i = this.I;
-
-        if (this.quirksConfigurations[Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK]) {
-          spriteWidth = 8;
-        }
-
-        const displayRows = this.displayInstance.getDisplayRows();
-        const displayColumns = this.displayInstance.getDisplayColumns();
-
-        for (let plane = 0; plane < 2; plane += 1) {
-          if (!(this.bitPlane & (plane + 1))) continue;
-
-          for (let rows = 0; rows < spriteHeight; rows += 1) {
-            for (let columns = 0; columns < spriteWidth; columns += 1) {
-              let pixelValue = (n === 0) ? (this.memory[i + (rows * 2) + (columns > 7 ? 1 : 0)] >> (7 - (columns % 8))) & 1 :
-                (this.memory[i + rows] >> (7 - columns)) & 1;
-
-              // Special handling for n equal to 0 when not in hires, this it's needed for HAP's Rom (I don't know why it's needed, but it is)
-              if (this.quirksConfigurations[Chip8Quirks.ZERO_HEIGHT_SPRITE_LORES_QUIRK] && (n === 0 && !this.hiresMode)) {
-                pixelValue = (this.memory[i + rows] >> (7 - columns)) & 1;
-              }
-
-              if (this.quirksConfigurations[Chip8Quirks.CLIP_QUIRK]) {
-                if ((vx % displayColumns) + columns >= displayColumns || (vy % displayRows) + rows >= displayRows) {
-                  continue;
-                }
-              }
-
-              const xPixelPos = (vx + columns) % displayColumns;
-              const yPixelPos = (vy + rows) % displayRows;
-
-              const setPixel = this.displayInstance.setPixel(xPixelPos, yPixelPos, pixelValue, plane);
-
-              if (setPixel) {
-                this.registers[0xF] = 1;
-              }
-            }
-          }
-
-          i += (n === 0) ? 32 : n;
-        }
-
-        this.drawingFlag = true;
+        // Draw sprite at position (vx, vy) with height n
+        this.drawSprite(vx, vy, n);
         break;
       }
 

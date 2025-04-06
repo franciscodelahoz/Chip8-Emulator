@@ -1,6 +1,5 @@
 import { screenDimensions } from '../../constants/chip8.constants';
 import { colorPalettesStorage } from '../../storage/color-palettes.storage';
-import type { DisplayBuffer } from '../../types/emulator';
 
 export class DisplayInterface {
   private readonly canvas: HTMLCanvasElement;
@@ -11,7 +10,7 @@ export class DisplayInterface {
 
   private rows: number = screenDimensions.chip8.rows;
 
-  private displayBuffers: DisplayBuffer[] = [];
+  private displayBuffers: Uint8Array[] = [];
 
   private planeColors: string[] = [];
 
@@ -38,8 +37,8 @@ export class DisplayInterface {
     this.context.imageSmoothingEnabled = false;
 
     this.displayBuffers = [
-      this.createDisplayBuffer(),
-      this.createDisplayBuffer(),
+      new Uint8Array(this.columns * this.rows),
+      new Uint8Array(this.columns * this.rows),
     ];
 
     this.setCanvasAspectRatio();
@@ -58,22 +57,16 @@ export class DisplayInterface {
     return this.planeColors[index];
   }
 
-  createDisplayBuffer(): DisplayBuffer {
-    const displayBuffer: DisplayBuffer = [];
-
-    for (let y = 0; y < this.rows; y += 1) {
-      displayBuffer.push([]);
-
-      for (let x = 0; x < this.columns; x += 1) {
-        displayBuffer[y].push(0);
-      }
-    }
-
-    return displayBuffer;
-  }
-
   setCanvasAspectRatio(): void {
     this.canvas.style.aspectRatio = `${this.columns} / ${this.rows}`;
+  }
+
+  getPlaneData(number: number): Uint8Array {
+    return this.displayBuffers[number];
+  }
+
+  get getDisplayBuffers(): Uint8Array[] {
+    return this.displayBuffers;
   }
 
   calculateDisplayScale(): void {
@@ -106,8 +99,8 @@ export class DisplayInterface {
     this.calculateDisplayScale();
 
     this.displayBuffers = [
-      this.createDisplayBuffer(),
-      this.createDisplayBuffer(),
+      new Uint8Array(this.columns * this.rows),
+      new Uint8Array(this.columns * this.rows),
     ];
   }
 
@@ -115,18 +108,24 @@ export class DisplayInterface {
     for (let plane = 0; plane < 2; plane += 1) {
       if (!(this.bitPlane & (plane + 1))) continue;
 
-      for (let y = 0; y < this.rows; y += 1) {
-        for (let x = 0; x < this.columns; x += 1) {
-          this.displayBuffers[plane][y][x] = 0;
-        }
-      }
+      this.displayBuffers[plane].fill(0);
     }
   }
 
   setPixel(x: number, y: number, value: number, plane: number = 0): number {
-    const collision = this.displayBuffers[plane][y][x] & value;
+    const index = y * this.columns + x;
+    const collision = this.displayBuffers[plane][index] & value;
 
-    this.displayBuffers[plane][y][x] ^= value;
+    this.displayBuffers[plane][index] ^= value;
+
+    return collision;
+  }
+
+  setPixelByIndex(index: number, plane: number = 0): number {
+    const oldPixel = this.displayBuffers[plane][index];
+    const collision = oldPixel & 1;
+
+    this.displayBuffers[plane][index] ^= 1;
 
     return collision;
   }
@@ -139,7 +138,9 @@ export class DisplayInterface {
     let colorIndex = 0;
 
     for (let plane = 0; plane < this.displayBuffers.length; plane += 1) {
-      if (this.displayBuffers[plane][y][x]) {
+      const index = y * this.columns + x;
+
+      if (this.displayBuffers[plane][index]) {
         colorIndex |= 1 << plane;
       }
     }
@@ -174,69 +175,77 @@ export class DisplayInterface {
   }
 
   scrollUp(n: number = 4): void {
-    if (n <= 0) return;
+    if (n <= 0 || !this.bitPlane) return;
+
+    const width = this.columns;
+    const height = this.rows;
+    const pixelsToMove = (height - n) * width;
 
     for (let plane = 0; plane < 2; plane += 1) {
       if (!(this.bitPlane & (plane + 1))) continue;
 
-      for (let y = 0; y < this.rows - n; y += 1) {
-        this.displayBuffers[plane][y] = [ ...this.displayBuffers[plane][y + n] ];
-      }
+      const data = this.displayBuffers[plane];
 
-      for (let y = this.rows - n; y < this.rows; y += 1) {
-        this.displayBuffers[plane][y] = new Array(this.columns).fill(0);
-      }
+      data.copyWithin(0, width * n, width * height);
+      data.fill(0, pixelsToMove);
     }
   }
 
   scrollDown(n: number = 4): void {
-    if (n <= 0) return;
+    if (n <= 0 || !this.bitPlane) return;
+
+    const width = this.columns;
+    const height = this.rows;
+    const pixelsToMove = (height - n) * width;
 
     for (let plane = 0; plane < 2; plane += 1) {
       if (!(this.bitPlane & (plane + 1))) continue;
 
-      for (let y = this.rows - 1; y >= n; y -= 1) {
-        this.displayBuffers[plane][y] = [ ...this.displayBuffers[plane][y - n] ];
-      }
+      const data = this.displayBuffers[plane];
 
-      for (let y = 0; y < n; y += 1) {
-        this.displayBuffers[plane][y] = new Array(this.columns).fill(0);
-      }
+      data.copyWithin(width * n, 0, pixelsToMove);
+      data.fill(0, 0, width * n);
     }
   }
 
   scrollLeft(n: number = 4): void {
-    if (n <= 0) return;
+    if (n <= 0 || !this.bitPlane) return;
+
+    const width = this.columns;
+    const height = this.rows;
 
     for (let plane = 0; plane < 2; plane += 1) {
       if (!(this.bitPlane & (plane + 1))) continue;
 
-      for (let y = 0; y < this.rows; y += 1) {
-        for (let x = 0; x < this.columns - n; x += 1) {
-          this.displayBuffers[plane][y][x] = this.displayBuffers[plane][y][x + n];
-        }
+      const data = this.displayBuffers[plane];
 
-        for (let x = this.columns - n; x < this.columns; x += 1) {
-          this.displayBuffers[plane][y][x] = 0;
-        }
+      for (let row = 0; row < height; row += 1) {
+        const start = row * width;
+        const end = start + width;
+
+        data.copyWithin(start, start + n, end);
+        data.fill(0, end - n, end);
       }
     }
   }
 
   scrollRight(n: number = 4): void {
-    if (n <= 0) return;
+    if (n <= 0 || !this.bitPlane) return;
+
+    const width = this.columns;
+    const height = this.rows;
 
     for (let plane = 0; plane < 2; plane += 1) {
       if (!(this.bitPlane & (plane + 1))) continue;
 
-      for (let y = 0; y < this.rows; y += 1) {
-        for (let x = this.columns - 1; x >= n; x -= 1) {
-          this.displayBuffers[plane][y][x] = this.displayBuffers[plane][y][x - n];
-        }
+      const data = this.displayBuffers[plane];
 
-        for (let x = 0; x < n; x += 1) {
-          this.displayBuffers[plane][y][x] = 0;
-        }
+      for (let row = 0; row < height; row += 1) {
+        const start = row * width;
+        const end = start + width;
+
+        data.copyWithin(start + n, start, end - n);
+        data.fill(0, start, start + n);
       }
     }
   }

@@ -39,8 +39,6 @@ export interface ProcessedColorValue {
   is_valid: boolean;
 }
 
-export type DisplayBuffer = number[][];
-
 export interface CPUStatus {
   PC: number;
   SP: number;
