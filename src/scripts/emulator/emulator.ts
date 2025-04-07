@@ -5,6 +5,7 @@ import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulat
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
+import { EmulatorState } from '../constants/emulator.constants';
 import { AnimationLoop } from '../libraries/animation-loop';
 
 export class Chip8Emulator extends EventTarget {
@@ -22,6 +23,8 @@ export class Chip8Emulator extends EventTarget {
 
   private resizeEventTimeout: number = 0;
 
+  public emulatorState: EmulatorState;
+
   constructor(props: Chip8EmulatorProps) {
     super();
 
@@ -31,11 +34,17 @@ export class Chip8Emulator extends EventTarget {
     this.keyboardInstance = new KeyBoardInterface();
     this.audioInstance = new AudioInterface();
 
-    this.cpuInstance = new CPU(this.displayInstance, this.audioInstance, this.keyboardInstance);
+    this.cpuInstance = new CPU(
+      this.displayInstance,
+      this.audioInstance,
+      this.keyboardInstance,
+    );
 
     this.registerCpuEvents();
     this.registerKeyboardEvents();
     this.registerDisplayEvents();
+
+    this.emulatorState = EmulatorState.STOPPED;
   }
 
   private handleEmulationCycle(): void {
@@ -59,16 +68,31 @@ export class Chip8Emulator extends EventTarget {
     return this.emulationLoop;
   }
 
+  private setEmulatorState(state: EmulatorState): void {
+    this.emulatorState = state;
+
+    this.dispatchEmulatorEvent(EmulatorEvents.EMULATOR_STATE_CHANGED, {
+      state,
+    });
+  }
+
   private startEmulatorLoop(): void {
     const loop = this.getEmulationLoop();
 
     if (!loop.isActive()) {
       loop.start();
+      this.setEmulatorState(EmulatorState.PLAYING);
     }
   }
 
-  private stopEmulatorLoop(): void {
+  public stopEmulatorLoop(): void {
     this.emulationLoop?.stop();
+
+    this.displayInstance.clearCanvas();
+    this.audioInstance.stop();
+    this.keyboardInstance.setKeyHandlingEnabled(true);
+
+    this.setEmulatorState(EmulatorState.STOPPED);
   }
 
   private handleExitInstruction(): void {
@@ -155,7 +179,15 @@ export class Chip8Emulator extends EventTarget {
     });
 
     this.keyboardInstance.registerKeyPressedEvent([ 'p' ], () => {
-      this.cpuInstance.togglePauseState();
+      this.togglePauseState();
+    });
+
+    this.keyboardInstance.registerKeyPressedEvent([ 'l' ], () => {
+      this.stopEmulatorLoop();
+    });
+
+    this.keyboardInstance.registerKeyPressedEvent([ 'o' ], () => {
+      this.resetRom();
     });
   }
 
@@ -227,5 +259,22 @@ export class Chip8Emulator extends EventTarget {
     }
 
     this.handleResizeCanvas();
+  }
+
+  public togglePauseState(): void {
+    if (this.emulatorState === EmulatorState.STOPPED) {
+      console.warn('Cannot pause the emulator when it is stopped.');
+
+      return;
+    }
+
+    this.cpuInstance.togglePauseState();
+    this.keyboardInstance.setKeyHandlingEnabled(!this.cpuInstance.paused);
+
+    const newState = this.cpuInstance.paused ?
+      EmulatorState.PAUSED :
+      EmulatorState.PLAYING;
+
+    this.setEmulatorState(newState);
   }
 }

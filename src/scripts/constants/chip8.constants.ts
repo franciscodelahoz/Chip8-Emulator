@@ -81,4 +81,5 @@ export enum Chip8CpuEvents {
 export enum EmulatorEvents {
   DISPLAY_COLOR_CHANGED = 'display:color:changed',
   EMULATION_ERROR = 'emulation:runtime:exception',
+  EMULATOR_STATE_CHANGED = 'emulator:state:changed',
 }

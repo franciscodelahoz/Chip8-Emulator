@@ -1,4 +1,5 @@
 import type { colorPalettes } from '../constants/color-palettes.constants';
+import type { EmulatorState } from '../constants/emulator.constants';
 import type { fontSets } from '../constants/fonts.constants';
 
 export interface Chip8EmulatorProps {
@@ -32,6 +33,10 @@ export interface EmulatorSettings {
 export interface PaletteColorChangeEvent {
   index: number;
   color: string;
+}
+
+export interface EmulatorStateChangedEvent {
+  state: EmulatorState;
 }
 
 export interface ProcessedColorValue {

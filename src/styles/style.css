@@ -71,7 +71,8 @@ body {
   padding: 0 0.6rem;
   align-items: center;
   gap: 1rem;
-  width: clamp(390px, 60vw, 75vw);
+  width: 95%;
+  max-width: 1024px;
 }
 
 .emulator-view canvas {
@@ -102,6 +103,14 @@ body {
   flex-direction: row;
   gap: 0.8125em;
   width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rom-controller-loader {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 #file-picker {
@@ -114,6 +123,9 @@ body {
   padding: 5px;
   border-radius: 5px;
   text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
 }
 
 .default-button {
@@ -128,15 +140,40 @@ body {
   color: #34ff66;
   font-family: Verdana;
   font-size: 0.83rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
-.default-button:hover {
+.default-button svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: inherit;
+  display: block;
+  stroke: currentColor;
+}
+
+.default-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #CCCCCC;
+  border: 2px solid #CCCCCC;
+}
+
+.rom-controller-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.default-button:not(:disabled):hover {
   background-color: #34ff66;
   color: #222222;
   border: 2px solid #34ff66;
 }
 
-.default-button:active {
+.default-button:not(:disabled):active {
   background-color: #198033;
   color: #e3e3e3;
   border: 2px solid #198033;
@@ -537,6 +574,6 @@ input[type='range']::-moz-range-thumb {
     flex-direction: row;
     height: 100dvh;
     width: 100dvw;
-    min-width: 100vw;
+    min-width: 100dvw;
   }
 }

@@ -1163,6 +1163,11 @@ export class CPU extends EventTarget {
 
   public togglePauseState(): void {
     this.isPaused = !this.isPaused;
+
+    if (this.isPaused && this.playing) {
+      this.playing = false;
+      this.audioInterface.stop();
+    }
   }
 
   public getSoundState(): boolean {
@@ -1220,5 +1225,9 @@ export class CPU extends EventTarget {
 
   public getFontAppearance(): EmulatorFontAppearance {
     return this.fontAppearance;
+  }
+
+  public get paused(): boolean {
+    return this.isPaused;
   }
 }

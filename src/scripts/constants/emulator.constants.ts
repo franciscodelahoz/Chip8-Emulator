@@ -13,3 +13,9 @@ export const emulatorDatabase = {
   name            : 'emulator',
   current_version : 1,
 };
+
+export enum EmulatorState {
+  PLAYING = 'playing',
+  PAUSED = 'paused',
+  STOPPED = 'stopped',
+}
