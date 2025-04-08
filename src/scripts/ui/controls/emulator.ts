@@ -52,7 +52,7 @@ function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
       emulatorStatusIcon.style.fill = 'red';
       emulatorStatusText.innerText = 'Stopped';
 
-      fileNameContainer.innerText = 'No ROM loaded';
+      fileNameContainer.innerText = 'No ROM Loaded';
       break;
     }
   }
