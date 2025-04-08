@@ -20,39 +20,58 @@
     </header>
     <main class="container">
       <section class="emulator-view">
-        <canvas id="canvas"></canvas>
-        <div class="rom-controller">
-          <div class="rom-controller-loader">
-            <div id="file-picker">Click to Load ROM File</div>
+        <div class="emulator-toolbar">
+          <div class="rom-title icon-container">
+            <span class="center-icon">
+              <%= require('../resources/icons/file-icon.svg') %>
+            </span>
+            <span id="file-name-container">No ROM Loaded</span>
           </div>
-          <div class="rom-controller-buttons">
-            <button id="stop-rom-btn" class="default-button" title="Stop emulation (l)" disabled>
-              <span>
-                <%= require('../resources/stop-icon.svg') %>
-              </span>
-            </button>
+          <div class="rom-status icon-container">
+            <span class="center-icon">
+              <%= require('../resources/icons/dot-icon.svg') %>
+            </span>
+            <div class="rom-status-text">Stopped</div>
+          </div>
+        </div>
+        <canvas id="canvas"></canvas>
+        <div class="emulator-toolbar">
+          <div class="rom-controller">
             <button id="toggle-play-pause-btn" class="default-button" title="Toggle pause status (p)" disabled>
               <span id="play-icon">
-                <%= require('../resources/play-icon.svg') %>
+                <%= require('../resources/icons/play-icon.svg') %>
               </span>
               <span id="pause-icon" style="display: none;">
-                <%= require('../resources/pause-icon.svg') %>
-              </span>
-            </button>
-            <button id="record-canvas-btn" class="default-button" title="Record canvas">
-              <span>
-                <%= require('../resources/record-off-icon.svg') %>
+                <%= require('../resources/icons/pause-icon.svg') %>
               </span>
             </button>
             <button id="reset-rom-btn" class="default-button" title="Reset ROM (o)" disabled>
               <span>
-                <%= require('../resources/refresh-icon.svg') %>
+                <%= require('../resources/icons/refresh-icon.svg') %>
+              </span>
+            </button>
+            <button id="stop-rom-btn" class="default-button" title="Stop emulation (l)" disabled>
+              <span>
+                <%= require('../resources/icons/stop-icon.svg') %>
+              </span>
+            </button>
+            <button id="record-canvas-btn" class="default-button" title="Record canvas">
+              <span>
+                <%= require('../resources/icons/record-icon.svg') %>
               </span>
             </button>
             <button id="fullscreen-btn" class="default-button" title="Full Screen (0)">
               <span>
-                <%= require('../resources/fullscreen-icon.svg') %>
+                <%= require('../resources/icons/fullscreen-icon.svg') %>
               </span>
+            </button>
+          </div>
+          <div class="rom-loader">
+            <button id="file-picker" class="default-button" title="Load ROM">
+              <span>
+                <%= require('../resources/icons/folder-icon.svg') %>
+              </span>
+              Load ROM
             </button>
           </div>
         </div>

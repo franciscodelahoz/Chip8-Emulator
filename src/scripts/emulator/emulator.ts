@@ -88,7 +88,9 @@ export class Chip8Emulator extends EventTarget {
   public stopEmulatorLoop(): void {
     this.emulationLoop?.stop();
 
+    this.displayInstance.clearDisplayBuffer();
     this.displayInstance.clearCanvas();
+
     this.audioInstance.stop();
     this.keyboardInstance.setKeyHandlingEnabled(true);
 
@@ -276,5 +278,9 @@ export class Chip8Emulator extends EventTarget {
       EmulatorState.PLAYING;
 
     this.setEmulatorState(newState);
+  }
+
+  public setCPUInitialState(): void {
+    this.cpuInstance.setCPUInitialState();
   }
 }

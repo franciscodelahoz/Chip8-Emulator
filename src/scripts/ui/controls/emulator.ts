@@ -13,6 +13,10 @@ const fullscreenBtn = document.getElementById('fullscreen-btn') as HTMLButtonEle
 const playIcon = document.getElementById('play-icon') as HTMLElement;
 const pauseIcon = document.getElementById('pause-icon') as HTMLElement;
 
+const fileNameContainer = document.getElementById('file-name-container') as HTMLElement;
+const emulatorStatusIcon = document.querySelector('.rom-status.icon-container svg') as SVGElement;
+const emulatorStatusText = document.querySelector('.rom-status .rom-status-text') as HTMLElement;
+
 function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
   if (!playIcon || !pauseIcon || !togglePlayPauseBtn) return;
 
@@ -21,6 +25,9 @@ function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
       playIcon.style.display = 'none';
       pauseIcon.style.display = 'inline';
       togglePlayPauseBtn.disabled = false;
+
+      emulatorStatusIcon.style.fill = '#34ff66';
+      emulatorStatusText.innerText = 'Playing';
       break;
     }
 
@@ -28,6 +35,9 @@ function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
       playIcon.style.display = 'inline';
       pauseIcon.style.display = 'none';
       togglePlayPauseBtn.disabled = false;
+
+      emulatorStatusIcon.style.fill = 'orange';
+      emulatorStatusText.innerText = 'Paused';
       break;
     }
 
@@ -35,6 +45,11 @@ function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
       playIcon.style.display = 'inline';
       pauseIcon.style.display = 'none';
       togglePlayPauseBtn.disabled = true;
+
+      emulatorStatusIcon.style.fill = 'red';
+      emulatorStatusText.innerText = 'Stopped';
+
+      fileNameContainer.innerText = 'No ROM loaded';
       break;
     }
   }
@@ -106,9 +121,9 @@ async function handleFileInput(files: FileList | FileSystemFileHandle[], emulato
 }
 
 function setNowPlayingRomName(romName: string): void {
-  if (!input) return;
+  if (!fileNameContainer) return;
 
-  input.innerText = `Loaded ROM: ${romName}`;
+  fileNameContainer.innerText = romName;
 }
 
 async function handleFilePickerEvent(emulatorInstance: Chip8Emulator): Promise<void> {

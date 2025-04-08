@@ -75,6 +75,48 @@ body {
   max-width: 1024px;
 }
 
+.icon-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.rom-status {
+  border-left: 1px solid #34ff664d;
+  align-items: center;
+  margin-left: auto;
+  padding-left: .5rem;
+  display: flex;
+  width: 6rem;
+  justify-content: left;
+}
+
+.emulator-view .emulator-toolbar  {
+  display: flex;
+  flex-direction: row;
+  font-family: Verdana;
+  justify-content: space-between;
+  background-color: #1a1a1a;
+  border: 1.5px solid #34ff66;
+  border-radius: 4px;
+  width: 100%;
+  padding: 0.35rem;
+  font-size: 0.75rem;
+  gap: 0.3rem;
+}
+
+.center-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rom-status.icon-container svg {
+  fill: red;
+}
+
 .emulator-view canvas {
   width: 100%;
   height: auto;
@@ -101,8 +143,7 @@ body {
 .rom-controller {
   display: flex;
   flex-direction: row;
-  gap: 0.8125em;
-  width: 100%;
+  gap: 0.5rem;
   justify-content: space-between;
   align-items: center;
 }
@@ -111,21 +152,6 @@ body {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-}
-
-#file-picker {
-  user-select: none;
-  cursor: pointer;
-  font-family: Verdana;
-  font-size: 0.83rem;
-  flex-grow: 9;
-  border: 2px solid #34ff66;
-  padding: 5px;
-  border-radius: 5px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  width: 100%;
 }
 
 .default-button {
@@ -165,6 +191,23 @@ body {
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
+}
+
+.emulator-toolbar .default-button {
+  padding: 4px;
+  border-width: 1px;
+}
+
+.emulator-toolbar .default-button:not(:disabled):hover {
+  background-color: #34ff66;
+  color: #222222;
+  border: 1px solid #34ff66;
+}
+
+.emulator-toolbar .default-button:not(:disabled):active {
+  background-color: #198033;
+  color: #e3e3e3;
+  border: 1px solid #198033;
 }
 
 .default-button:not(:disabled):hover {

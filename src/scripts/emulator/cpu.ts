@@ -88,7 +88,7 @@ export class CPU extends EventTarget {
     }
   }
 
-  private setCPUInitialState(): void {
+  public setCPUInitialState(): void {
     this.memory.fill(0);
     this.registers.fill(0);
     this.stack.fill(0);
