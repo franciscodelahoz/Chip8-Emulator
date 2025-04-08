@@ -71,8 +71,7 @@ body {
   padding: 0 0.6rem;
   align-items: center;
   gap: 1rem;
-  width: 95%;
-  max-width: 1024px;
+  width: clamp(390px, 60vw, 75vw);
 }
 
 .icon-container {
