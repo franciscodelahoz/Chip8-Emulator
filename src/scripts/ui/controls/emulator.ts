@@ -240,9 +240,13 @@ function registerFullscreenEventHandlers(emulatorInstance: Chip8Emulator): void 
     if (fullscreen) {
       fullscreenIcon.style.display = 'none';
       exitFullscreenIcon.style.display = 'inline';
+
+      fullscreenBtn.title = 'Exit Fullscreen (0)';
     } else {
       fullscreenIcon.style.display = 'inline';
       exitFullscreenIcon.style.display = 'none';
+
+      fullscreenBtn.title = 'Enter Fullscreen (0)';
     }
   });
 }
