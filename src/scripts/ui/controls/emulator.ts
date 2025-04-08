@@ -1,7 +1,7 @@
 import { EmulatorEvents } from '../../constants/chip8.constants';
 import { EmulatorState } from '../../constants/emulator.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
-import type { EmulatorFullScreenEvent, EmulatorStateChangedEvent } from '../../types/emulator';
+import type { EmulatorFullScreenEvent, EmulatorRecordCanvasEvent, EmulatorStateChangedEvent } from '../../types/emulator';
 
 const input = document.getElementById('file-picker');
 
@@ -9,6 +9,7 @@ const resetRomBtn = document.getElementById('reset-rom-btn') as HTMLButtonElemen
 const stopRomBtn = document.getElementById('stop-rom-btn') as HTMLButtonElement;
 const togglePlayPauseBtn = document.getElementById('toggle-play-pause-btn') as HTMLButtonElement;
 const fullscreenBtn = document.getElementById('fullscreen-btn') as HTMLButtonElement;
+const recordCanvasBtn = document.getElementById('record-canvas-btn') as HTMLButtonElement;
 
 const playIcon = document.getElementById('play-icon') as HTMLElement;
 const pauseIcon = document.getElementById('pause-icon') as HTMLElement;
@@ -262,6 +263,30 @@ function registerFileHandlerLoadRom(emulatorInstance: Chip8Emulator): void {
   });
 }
 
+function registerRecordCanvasButtonEventHandlers(emulatorInstance: Chip8Emulator): void {
+  if (!recordCanvasBtn) return;
+
+  recordCanvasBtn.addEventListener('click', () => {
+    emulatorInstance.toggleRecordCanvas();
+  });
+}
+
+function registerRecordCanvasEventHandlers(emulatorInstance: Chip8Emulator): void {
+  emulatorInstance.addEventListener(EmulatorEvents.RECORD_CANVAS_CHANGED, (event) => {
+    const { recording } = (event as CustomEvent<EmulatorRecordCanvasEvent>).detail;
+
+    if (!recordCanvasBtn) return;
+
+    if (recording) {
+      recordCanvasBtn.classList.add('recording');
+      recordCanvasBtn.title = 'Stop Recording (R)';
+    } else {
+      recordCanvasBtn.classList.remove('recording');
+      recordCanvasBtn.title = 'Start Recording (R)';
+    }
+  });
+}
+
 export function initializeEmulatorControllerModule(emulatorInstance: Chip8Emulator): void {
   initializeRomFileInputEventHandlers(emulatorInstance);
   registerEmulatorStateChangeEvent(emulatorInstance);
@@ -271,6 +296,9 @@ export function initializeEmulatorControllerModule(emulatorInstance: Chip8Emulat
   registerPlayPauseButtonEventHandlers(emulatorInstance);
   registerFullscreenButtonEventHandlers(emulatorInstance);
   registerFullscreenEventHandlers(emulatorInstance);
+
+  registerRecordCanvasButtonEventHandlers(emulatorInstance);
+  registerRecordCanvasEventHandlers(emulatorInstance);
 
   registerFileHandlerLoadRom(emulatorInstance);
 }

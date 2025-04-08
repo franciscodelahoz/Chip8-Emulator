@@ -43,6 +43,10 @@ export interface EmulatorFullScreenEvent {
   fullscreen: boolean;
 }
 
+export interface EmulatorRecordCanvasEvent {
+  recording: boolean;
+}
+
 export interface ProcessedColorValue {
   color_value: string;
   is_valid: boolean;

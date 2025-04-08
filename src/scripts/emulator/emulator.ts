@@ -27,6 +27,8 @@ export class Chip8Emulator extends EventTarget {
 
   public emulatorState: EmulatorState;
 
+  private recordingCanvas: boolean = false;
+
   constructor(props: Chip8EmulatorProps) {
     super();
 
@@ -295,5 +297,13 @@ export class Chip8Emulator extends EventTarget {
 
   public setCPUInitialState(): void {
     this.cpuInstance.setCPUInitialState();
+  }
+
+  public toggleRecordCanvas(): void {
+    this.recordingCanvas = !this.recordingCanvas;
+
+    this.dispatchEmulatorEvent(EmulatorEvents.RECORD_CANVAS_CHANGED, {
+      recording: this.recordingCanvas,
+    });
   }
 }

@@ -83,4 +83,5 @@ export enum EmulatorEvents {
   EMULATION_ERROR = 'emulation:runtime:exception',
   EMULATOR_STATE_CHANGED = 'emulator:state:changed',
   FULLSCREEN_MODE_CHANGED = 'fullscreen:mode:changed',
+  RECORD_CANVAS_CHANGED = 'record:canvas:changed',
 }
