@@ -23,6 +23,8 @@ export class Chip8Emulator extends EventTarget {
 
   private resizeEventTimeout: number = 0;
 
+  private isFullScreen: boolean = false;
+
   public emulatorState: EmulatorState;
 
   constructor(props: Chip8EmulatorProps) {
@@ -43,6 +45,7 @@ export class Chip8Emulator extends EventTarget {
     this.registerCpuEvents();
     this.registerKeyboardEvents();
     this.registerDisplayEvents();
+    this.registerToggleFullScreenModeEvent();
 
     this.emulatorState = EmulatorState.STOPPED;
   }
@@ -257,10 +260,20 @@ export class Chip8Emulator extends EventTarget {
     if (document.fullscreenElement) {
       await document.exitFullscreen();
     } else {
-      await this.canvas.requestFullscreen();
+      await this.canvas.closest('.emulator-view')?.requestFullscreen();
     }
 
     this.handleResizeCanvas();
+  }
+
+  private registerToggleFullScreenModeEvent(): void {
+    this.canvas.closest('.emulator-view')?.addEventListener('fullscreenchange', (event) => {
+      this.isFullScreen = !!document.fullscreenElement;
+
+      this.dispatchEmulatorEvent(EmulatorEvents.FULLSCREEN_MODE_CHANGED, {
+        fullscreen: this.isFullScreen,
+      });
+    });
   }
 
   public togglePauseState(): void {

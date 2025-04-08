@@ -39,6 +39,10 @@ export interface EmulatorStateChangedEvent {
   state: EmulatorState;
 }
 
+export interface EmulatorFullScreenEvent {
+  fullscreen: boolean;
+}
+
 export interface ProcessedColorValue {
   color_value: string;
   is_valid: boolean;

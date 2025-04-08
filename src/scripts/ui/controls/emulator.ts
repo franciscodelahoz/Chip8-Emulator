@@ -1,7 +1,7 @@
 import { EmulatorEvents } from '../../constants/chip8.constants';
 import { EmulatorState } from '../../constants/emulator.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
-import type { EmulatorStateChangedEvent } from '../../types/emulator';
+import type { EmulatorFullScreenEvent, EmulatorStateChangedEvent } from '../../types/emulator';
 
 const input = document.getElementById('file-picker');
 
@@ -12,6 +12,9 @@ const fullscreenBtn = document.getElementById('fullscreen-btn') as HTMLButtonEle
 
 const playIcon = document.getElementById('play-icon') as HTMLElement;
 const pauseIcon = document.getElementById('pause-icon') as HTMLElement;
+
+const fullscreenIcon = document.getElementById('fullscreen-icon') as HTMLElement;
+const exitFullscreenIcon = document.getElementById('exit-fullscreen-icon') as HTMLElement;
 
 const fileNameContainer = document.getElementById('file-name-container') as HTMLElement;
 const emulatorStatusIcon = document.querySelector('.rom-status.icon-container svg') as SVGElement;
@@ -228,6 +231,22 @@ function registerFullscreenButtonEventHandlers(emulatorInstance: Chip8Emulator):
   });
 }
 
+function registerFullscreenEventHandlers(emulatorInstance: Chip8Emulator): void {
+  emulatorInstance.addEventListener(EmulatorEvents.FULLSCREEN_MODE_CHANGED, (event) => {
+    const { fullscreen } = (event as CustomEvent<EmulatorFullScreenEvent>).detail;
+
+    if (!fullscreenIcon || !exitFullscreenIcon) return;
+
+    if (fullscreen) {
+      fullscreenIcon.style.display = 'none';
+      exitFullscreenIcon.style.display = 'inline';
+    } else {
+      fullscreenIcon.style.display = 'inline';
+      exitFullscreenIcon.style.display = 'none';
+    }
+  });
+}
+
 function registerFileHandlerLoadRom(emulatorInstance: Chip8Emulator): void {
   window.launchQueue?.setConsumer(async (launchParams) => {
     if (launchParams.files.length) {
@@ -247,6 +266,7 @@ export function initializeEmulatorControllerModule(emulatorInstance: Chip8Emulat
   registerStopRomButtonEventHandlers(emulatorInstance);
   registerPlayPauseButtonEventHandlers(emulatorInstance);
   registerFullscreenButtonEventHandlers(emulatorInstance);
+  registerFullscreenEventHandlers(emulatorInstance);
 
   registerFileHandlerLoadRom(emulatorInstance);
 }
