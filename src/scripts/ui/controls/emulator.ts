@@ -116,7 +116,7 @@ async function handleFileInput(files: FileList | FileSystemFileHandle[], emulato
     const arrayBuffer = await fileData.arrayBuffer();
     const romData = new Uint8Array(arrayBuffer);
 
-    emulatorInstance.loadRomFromData(romData);
+    emulatorInstance.loadRomFromData(romData, files[0].name);
   } catch (error) {
     console.error(error);
 
@@ -192,8 +192,6 @@ function registerEmulatorStateChangeEvent(emulatorInstance: Chip8Emulator): void
   emulatorInstance.addEventListener(EmulatorEvents.EMULATOR_STATE_CHANGED, (event) => {
     const { state } = (event as CustomEvent<EmulatorStateChangedEvent>).detail;
 
-    console.log(state);
-
     updatePlayPauseButtonState(state);
     updateResetButtonState(state);
     updateStopButtonState(state);
@@ -266,8 +264,8 @@ function registerFileHandlerLoadRom(emulatorInstance: Chip8Emulator): void {
 function registerRecordCanvasButtonEventHandlers(emulatorInstance: Chip8Emulator): void {
   if (!recordCanvasBtn) return;
 
-  recordCanvasBtn.addEventListener('click', () => {
-    emulatorInstance.toggleRecordCanvas();
+  recordCanvasBtn.addEventListener('click', async () => {
+    await emulatorInstance.toggleRecordCanvas();
   });
 }
 

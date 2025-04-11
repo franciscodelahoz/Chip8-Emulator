@@ -152,7 +152,7 @@ body {
 .emulator-view canvas {
   width: 100%;
   height: auto;
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   box-sizing: border-box;
   aspect-ratio: auto;
   image-rendering: pixelated;
@@ -194,7 +194,7 @@ body {
 
 .default-button {
   flex-grow: 1;
-  border: 2px solid #34ff66;
+  border: 1px solid #34ff66;
   padding: 2px;
   border-radius: 5px;
   user-select: none;
@@ -236,28 +236,17 @@ body {
   border-width: 1px;
 }
 
-.emulator-toolbar .default-button:not(:disabled):hover {
+
+.default-button:not(:disabled):hover {
   background-color: #34ff66;
   color: #222222;
   border: 1px solid #34ff66;
 }
 
-.emulator-toolbar .default-button:not(:disabled):active {
-  background-color: #198033;
-  color: #e3e3e3;
-  border: 1px solid #198033;
-}
-
-.default-button:not(:disabled):hover {
-  background-color: #34ff66;
-  color: #222222;
-  border: 2px solid #34ff66;
-}
-
 .default-button:not(:disabled):active {
   background-color: #198033;
   color: #e3e3e3;
-  border: 2px solid #198033;
+  border: 1px solid #198033;
 }
 
 .icon-button {
@@ -273,7 +262,7 @@ body {
 }
 
 .default-select {
-  border: 2px solid #34ff66;
+  border: 1px solid #34ff66;
   color: #34ff66;
   border-radius: 5px;
   cursor: pointer;

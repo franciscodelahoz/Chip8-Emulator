@@ -7,6 +7,7 @@ import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
 import { EmulatorState } from '../constants/emulator.constants';
 import { AnimationLoop } from '../libraries/animation-loop';
+import { CanvasRecorder } from '../libraries/canvas-recorder';
 
 export class Chip8Emulator extends EventTarget {
   private readonly displayInstance: DisplayInterface;
@@ -29,6 +30,10 @@ export class Chip8Emulator extends EventTarget {
 
   private recordingCanvas: boolean = false;
 
+  private currentRomName: string | null = null;
+
+  private readonly canvasRecorder: CanvasRecorder;
+
   constructor(props: Chip8EmulatorProps) {
     super();
 
@@ -50,6 +55,17 @@ export class Chip8Emulator extends EventTarget {
     this.registerToggleFullScreenModeEvent();
 
     this.emulatorState = EmulatorState.STOPPED;
+
+    this.canvasRecorder = new CanvasRecorder(this.canvas, {
+      fps                : 60,
+      videoBitsPerSecond : 5000000,
+    });
+  }
+
+  private setCurrentRomName(romName: string | null): void {
+    const sanitizedRomName = romName ? romName.replace(/[^a-zA-Z0-9_-]/g, '_') : null;
+
+    this.currentRomName = sanitizedRomName;
   }
 
   private handleEmulationCycle(): void {
@@ -57,6 +73,7 @@ export class Chip8Emulator extends EventTarget {
       this.cpuInstance.cycle();
     } catch (error) {
       console.error(`Emulator error: ${(error as Error).message}`);
+
       this.emulationLoop?.stop();
       this.dispatchEmulatorEvent(EmulatorEvents.EMULATION_ERROR, { error });
     }
@@ -98,6 +115,8 @@ export class Chip8Emulator extends EventTarget {
 
     this.audioInstance.stop();
     this.keyboardInstance.setKeyHandlingEnabled(true);
+
+    this.setCurrentRomName(null);
 
     this.setEmulatorState(EmulatorState.STOPPED);
   }
@@ -161,16 +180,17 @@ export class Chip8Emulator extends EventTarget {
     return this.cpuInstance.getMemorySize();
   }
 
-  public loadRomFromData(romData: Uint8Array): void {
+  public loadRomFromData(romData: Uint8Array, romName: string): void {
     this.stopEmulatorLoop();
     this.cpuInstance.loadRom(romData);
+
+    this.setCurrentRomName(romName);
     this.startEmulatorLoop();
   }
 
   public resetEmulation(): void {
-    this.stopEmulatorLoop();
+    this.cpuInstance.haltCPU();
     this.cpuInstance.resetRom();
-    this.startEmulatorLoop();
   }
 
   private registerCpuEvents(): void {
@@ -299,8 +319,18 @@ export class Chip8Emulator extends EventTarget {
     this.cpuInstance.setCPUInitialState();
   }
 
-  public toggleRecordCanvas(): void {
+  public async toggleRecordCanvas(): Promise<void> {
+    if (!this.canvasRecorder) return;
+
     this.recordingCanvas = !this.recordingCanvas;
+
+    if (this.recordingCanvas) {
+      this.canvasRecorder.start();
+    } else {
+      const filename = `chip8_${this.currentRomName ?? 'no_rom'}_${Date.now()}`;
+
+      await this.canvasRecorder.stopAndSave(filename);
+    }
 
     this.dispatchEmulatorEvent(EmulatorEvents.RECORD_CANVAS_CHANGED, {
       recording: this.recordingCanvas,
