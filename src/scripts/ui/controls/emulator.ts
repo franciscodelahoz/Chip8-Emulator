@@ -1,5 +1,5 @@
 import { EmulatorEvents } from '../../constants/chip8.constants';
-import { EmulatorState } from '../../constants/emulator.constants';
+import { defaultLoadedRomTitle, EmulatorState } from '../../constants/emulator.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
 import type { EmulatorFullScreenEvent, EmulatorRecordCanvasEvent, EmulatorStateChangedEvent } from '../../types/emulator';
 
@@ -53,7 +53,7 @@ function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
       emulatorStatusIcon.style.fill = 'red';
       emulatorStatusText.innerText = 'Stopped';
 
-      fileNameContainer.innerText = 'No ROM Loaded';
+      fileNameContainer.innerText = defaultLoadedRomTitle;
       break;
     }
   }
