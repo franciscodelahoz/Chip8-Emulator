@@ -24,93 +24,106 @@ const emulatorStatusText = document.querySelector('.rom-status .rom-status-text'
 
 const fileManager = new FileManager();
 
-function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
+function updateCurrentEmulationState(emulatorState: EmulatorState): void {
+  if (!emulatorStatusIcon || !emulatorStatusText) return;
+
+  const stateConfigs = {
+    [EmulatorState.PLAYING] : { text: 'Playing', color: '#34ff66' },
+    [EmulatorState.PAUSED]  : { text: 'Paused', color: 'orange' },
+    [EmulatorState.STOPPED] : { text: 'Stopped', color: 'red' },
+  };
+
+  const config = stateConfigs[emulatorState];
+
+  emulatorStatusText.innerText = config.text;
+  emulatorStatusIcon.style.fill = config.color;
+}
+
+function setDefaultRomTitle(emulatorState: EmulatorState): void {
+  if (!fileNameContainer) return;
+
+  if (emulatorState === EmulatorState.STOPPED) {
+    fileNameContainer.innerText = defaultLoadedRomTitle;
+  }
+}
+
+function updatePlayPauseButtonState(emulatorState: EmulatorState): void {
   if (!playIcon || !pauseIcon || !togglePlayPauseBtn) return;
 
-  switch (emulatorSate) {
-    case EmulatorState.PLAYING: {
-      playIcon.style.display = 'none';
-      pauseIcon.style.display = 'inline';
-      togglePlayPauseBtn.disabled = false;
+  let playIconDisplay = 'inline';
+  let pauseIconDisplay = 'none';
+  let buttonDisabled = true;
 
-      emulatorStatusIcon.style.fill = '#34ff66';
-      emulatorStatusText.innerText = 'Playing';
-      break;
-    }
+  if (emulatorState === EmulatorState.PLAYING) {
+    playIconDisplay = 'none';
+    pauseIconDisplay = 'inline';
+    buttonDisabled = false;
+  } else if (emulatorState === EmulatorState.PAUSED) {
+    buttonDisabled = false;
+  }
 
-    case EmulatorState.PAUSED: {
-      playIcon.style.display = 'inline';
-      pauseIcon.style.display = 'none';
-      togglePlayPauseBtn.disabled = false;
+  playIcon.style.display = playIconDisplay;
+  pauseIcon.style.display = pauseIconDisplay;
+  togglePlayPauseBtn.disabled = buttonDisabled;
+}
 
-      emulatorStatusIcon.style.fill = 'orange';
-      emulatorStatusText.innerText = 'Paused';
-      break;
-    }
+function updateFullscreenButtonState(isFullScreen: boolean): void {
+  if (!fullscreenIcon || !exitFullscreenIcon || !fullscreenBtn) return;
 
-    case EmulatorState.STOPPED: {
-      playIcon.style.display = 'inline';
-      pauseIcon.style.display = 'none';
-      togglePlayPauseBtn.disabled = true;
+  if (isFullScreen) {
+    fullscreenIcon.style.display = 'none';
+    exitFullscreenIcon.style.display = 'inline';
 
-      emulatorStatusIcon.style.fill = 'red';
-      emulatorStatusText.innerText = 'Stopped';
+    fullscreenBtn.title = 'Exit Fullscreen (0)';
+  } else {
+    fullscreenIcon.style.display = 'inline';
+    exitFullscreenIcon.style.display = 'none';
 
-      fileNameContainer.innerText = defaultLoadedRomTitle;
-      break;
-    }
+    fullscreenBtn.title = 'Enter Fullscreen (0)';
   }
 }
 
-function updateResetButtonState(emulatorSate: EmulatorState): void {
-  if (!resetRomBtn) return;
+function updateRecordButtonState(isRecording: boolean): void {
+  if (!recordCanvasBtn) return;
 
-  switch (emulatorSate) {
-    case EmulatorState.PLAYING: {
-      resetRomBtn.disabled = false;
-      break;
-    }
-
-    case EmulatorState.PAUSED: {
-      resetRomBtn.disabled = false;
-      break;
-    }
-
-    case EmulatorState.STOPPED: {
-      resetRomBtn.disabled = true;
-      break;
-    }
+  if (isRecording) {
+    recordCanvasBtn.classList.add('recording');
+    recordCanvasBtn.title = 'Stop Recording (R)';
+  } else {
+    recordCanvasBtn.classList.remove('recording');
+    recordCanvasBtn.title = 'Start Recording (R)';
   }
 }
 
-function updateStopButtonState(emulatorSate: EmulatorState): void {
-  if (!stopRomBtn) return;
+function updateButtonEnabledState(button: HTMLButtonElement | null, emulatorState: EmulatorState): void {
+  if (!button) return;
 
-  switch (emulatorSate) {
-    case EmulatorState.PLAYING: {
-      stopRomBtn.disabled = false;
-      break;
-    }
+  const enabled = emulatorState === EmulatorState.PLAYING || emulatorState === EmulatorState.PAUSED;
 
-    case EmulatorState.PAUSED: {
-      stopRomBtn.disabled = false;
-      break;
-    }
+  button.disabled = !enabled;
+}
 
-    case EmulatorState.STOPPED: {
-      stopRomBtn.disabled = true;
-      break;
-    }
-  }
+function updateResetButtonState(emulatorState: EmulatorState): void {
+  updateButtonEnabledState(resetRomBtn, emulatorState);
+}
+
+function updateStopButtonState(emulatorState: EmulatorState): void {
+  updateButtonEnabledState(stopRomBtn, emulatorState);
+}
+
+function updateAllControlsState(emulatorState: EmulatorState): void {
+  updatePlayPauseButtonState(emulatorState);
+  updateResetButtonState(emulatorState);
+  updateStopButtonState(emulatorState);
 }
 
 function registerEmulatorStateChangeEvent(emulatorInstance: Chip8Emulator): void {
   emulatorInstance.addEventListener(EmulatorEvents.EMULATOR_STATE_CHANGED, (event) => {
     const { state } = (event as CustomEvent<EmulatorStateChangedEvent>).detail;
 
-    updatePlayPauseButtonState(state);
-    updateResetButtonState(state);
-    updateStopButtonState(state);
+    updateAllControlsState(state);
+    updateCurrentEmulationState(state);
+    setDefaultRomTitle(state);
   });
 }
 
@@ -146,23 +159,19 @@ function registerFullscreenButtonEventHandlers(emulatorInstance: Chip8Emulator):
   });
 }
 
+function registerRecordCanvasButtonEventHandlers(emulatorInstance: Chip8Emulator): void {
+  if (!recordCanvasBtn) return;
+
+  recordCanvasBtn.addEventListener('click', async () => {
+    await emulatorInstance.toggleRecordCanvas();
+  });
+}
+
 function registerFullscreenEventHandlers(emulatorInstance: Chip8Emulator): void {
   emulatorInstance.addEventListener(EmulatorEvents.FULLSCREEN_MODE_CHANGED, (event) => {
     const { fullscreen } = (event as CustomEvent<EmulatorFullScreenEvent>).detail;
 
-    if (!fullscreenIcon || !exitFullscreenIcon) return;
-
-    if (fullscreen) {
-      fullscreenIcon.style.display = 'none';
-      exitFullscreenIcon.style.display = 'inline';
-
-      fullscreenBtn.title = 'Exit Fullscreen (0)';
-    } else {
-      fullscreenIcon.style.display = 'inline';
-      exitFullscreenIcon.style.display = 'none';
-
-      fullscreenBtn.title = 'Enter Fullscreen (0)';
-    }
+    updateFullscreenButtonState(fullscreen);
   });
 }
 
@@ -198,27 +207,11 @@ function registerFileHandlerLoadRom(emulatorInstance: Chip8Emulator): void {
   });
 }
 
-function registerRecordCanvasButtonEventHandlers(emulatorInstance: Chip8Emulator): void {
-  if (!recordCanvasBtn) return;
-
-  recordCanvasBtn.addEventListener('click', async () => {
-    await emulatorInstance.toggleRecordCanvas();
-  });
-}
-
 function registerRecordCanvasEventHandlers(emulatorInstance: Chip8Emulator): void {
   emulatorInstance.addEventListener(EmulatorEvents.RECORD_CANVAS_CHANGED, (event) => {
     const { recording } = (event as CustomEvent<EmulatorRecordCanvasEvent>).detail;
 
-    if (!recordCanvasBtn) return;
-
-    if (recording) {
-      recordCanvasBtn.classList.add('recording');
-      recordCanvasBtn.title = 'Stop Recording (R)';
-    } else {
-      recordCanvasBtn.classList.remove('recording');
-      recordCanvasBtn.title = 'Start Recording (R)';
-    }
+    updateRecordButtonState(recording);
   });
 }
 
