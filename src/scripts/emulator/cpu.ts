@@ -104,7 +104,7 @@ export class CPU extends EventTarget {
     this.waitingKeyRegister = -1;
 
     this.playing = false;
-    this.drawingFlag = true;
+    this.drawingFlag = false;
     this.hiresMode = false;
 
     this.bitPlane = 1;

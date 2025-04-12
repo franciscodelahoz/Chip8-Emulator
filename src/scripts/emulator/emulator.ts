@@ -1,7 +1,7 @@
 import { CPU } from './cpu';
 import type { Chip8Quirks } from '../constants/chip8.constants';
 import { Chip8CpuEvents, EmulatorEvents } from '../constants/chip8.constants';
-import { EmulatorState } from '../constants/emulator.constants';
+import { defaultRomFileName, EmulatorState } from '../constants/emulator.constants';
 import { AnimationLoop } from '../libraries/animation-loop';
 import { CanvasRecorder } from '../libraries/canvas-recorder';
 import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
@@ -278,7 +278,7 @@ export class Chip8Emulator extends EventTarget {
   public handleResizeCanvas(): void {
     this.displayInstance.calculateDisplayScale();
 
-    if (!this.emulationLoop) {
+    if (!this.emulationLoop?.isActive()) {
       this.displayInstance.clearCanvas();
     } else if (!this.cpuInstance.drawingFlag) {
       this.displayInstance.render();
@@ -333,7 +333,7 @@ export class Chip8Emulator extends EventTarget {
     if (this.recordingCanvas) {
       this.canvasRecorder.start();
     } else {
-      const filename = `chip8_${this.currentRomName ?? 'no_rom'}_${Date.now()}`;
+      const filename = `chip8_${this.currentRomName ?? defaultRomFileName}_${Date.now()}`;
 
       await this.canvasRecorder.stopAndSave(filename);
     }

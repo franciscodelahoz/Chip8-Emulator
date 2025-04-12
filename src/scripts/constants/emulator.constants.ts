@@ -21,3 +21,5 @@ export enum EmulatorState {
 }
 
 export const defaultLoadedRomTitle = 'No ROM loaded';
+
+export const defaultRomFileName = 'no_rom';
