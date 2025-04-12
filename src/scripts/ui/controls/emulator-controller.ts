@@ -1,9 +1,10 @@
 import { EmulatorEvents } from '../../constants/chip8.constants';
 import { defaultLoadedRomTitle, EmulatorState } from '../../constants/emulator.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
+import { FileManager } from '../../libraries/file-manager';
 import type { EmulatorFullScreenEvent, EmulatorRecordCanvasEvent, EmulatorStateChangedEvent } from '../../types/emulator';
 
-const input = document.getElementById('file-picker');
+const loadFileBtn = document.getElementById('file-picker');
 
 const resetRomBtn = document.getElementById('reset-rom-btn') as HTMLButtonElement;
 const stopRomBtn = document.getElementById('stop-rom-btn') as HTMLButtonElement;
@@ -20,6 +21,8 @@ const exitFullscreenIcon = document.getElementById('exit-fullscreen-icon') as HT
 const fileNameContainer = document.getElementById('file-name-container') as HTMLElement;
 const emulatorStatusIcon = document.querySelector('.rom-status.icon-container svg') as SVGElement;
 const emulatorStatusText = document.querySelector('.rom-status .rom-status-text') as HTMLElement;
+
+const fileManager = new FileManager();
 
 function updatePlayPauseButtonState(emulatorSate: EmulatorState): void {
   if (!playIcon || !pauseIcon || !togglePlayPauseBtn) return;
@@ -101,93 +104,6 @@ function updateStopButtonState(emulatorSate: EmulatorState): void {
   }
 }
 
-async function getFileFromHandle(fileHandle: File | FileSystemFileHandle): Promise<File> {
-  if (fileHandle instanceof FileSystemFileHandle) {
-    return fileHandle.getFile();
-  }
-
-  return fileHandle;
-}
-
-async function handleFileInput(files: FileList | FileSystemFileHandle[], emulatorInstance: Chip8Emulator): Promise<void> {
-  const fileData = await getFileFromHandle(files[0]);
-
-  try {
-    const arrayBuffer = await fileData.arrayBuffer();
-    const romData = new Uint8Array(arrayBuffer);
-
-    emulatorInstance.loadRomFromData(romData, files[0].name);
-  } catch (error) {
-    console.error(error);
-
-    alert(`Error loading the ROM file.`);
-  }
-}
-
-function setNowPlayingRomName(romName: string): void {
-  if (!fileNameContainer) return;
-
-  fileNameContainer.innerText = romName;
-}
-
-async function handleFilePickerEvent(emulatorInstance: Chip8Emulator): Promise<void> {
-  const filePickerOptions: OpenFilePickerOptions = {
-    types: [
-      {
-        description : 'Chip-8 ROM files',
-        accept      : {
-          'application/octet-stream': [ '.ch8', '.sc8', '.xo8' ],
-        },
-      },
-    ],
-    multiple: false,
-  };
-
-  const fileHandle = await window.showOpenFilePicker(filePickerOptions);
-
-  await handleFileInput(fileHandle, emulatorInstance);
-  setNowPlayingRomName(fileHandle[0].name);
-}
-
-function handleFilePickerEventFallback(emulatorInstance: Chip8Emulator): void {
-  const fileInput = document.createElement('input');
-
-  fileInput.type = 'file';
-  fileInput.accept = '.ch8,.sc8,.xo8';
-  fileInput.style.display = 'none';
-
-  fileInput.addEventListener('change', async (event) => {
-    const target = event.target as HTMLInputElement;
-
-    if (target.files && target.files.length > 0) {
-      await handleFileInput(target.files, emulatorInstance);
-      setNowPlayingRomName(target.files[0].name);
-    }
-  });
-
-  document.body.appendChild(fileInput);
-  fileInput.click();
-  document.body.removeChild(fileInput);
-}
-
-function initializeRomFileInputEventHandlers(emulatorInstance: Chip8Emulator): void {
-  if (!input) return;
-
-  input.addEventListener('click', async () => {
-    try {
-      if ('showOpenFilePicker' in window) {
-        await handleFilePickerEvent(emulatorInstance);
-      } else {
-        handleFilePickerEventFallback(emulatorInstance);
-      }
-    } catch (error) {
-      if ((error as Error)?.name !== 'AbortError') {
-        alert(`Error loading the ROM file.`);
-      }
-    }
-  });
-}
-
 function registerEmulatorStateChangeEvent(emulatorInstance: Chip8Emulator): void {
   emulatorInstance.addEventListener(EmulatorEvents.EMULATOR_STATE_CHANGED, (event) => {
     const { state } = (event as CustomEvent<EmulatorStateChangedEvent>).detail;
@@ -250,13 +166,34 @@ function registerFullscreenEventHandlers(emulatorInstance: Chip8Emulator): void 
   });
 }
 
-function registerFileHandlerLoadRom(emulatorInstance: Chip8Emulator): void {
-  window.launchQueue?.setConsumer(async (launchParams) => {
-    if (launchParams.files.length) {
-      const files = launchParams.files as FileSystemFileHandle[];
+function setNowPlayingRomName(romName: string): void {
+  if (!fileNameContainer) return;
 
-      await handleFileInput(files, emulatorInstance);
-      setNowPlayingRomName(files[0].name);
+  fileNameContainer.innerText = romName;
+}
+
+function initializeRomFileInputEventHandlers(emulatorInstance: Chip8Emulator): void {
+  if (!loadFileBtn) return;
+
+  loadFileBtn.addEventListener('click', async (event) => {
+    const romFile = await fileManager.openFilePicker({
+      description : 'Chip-8 ROM files',
+      extensions  : [ '.ch8', '.sc8', '.xo8' ],
+      mimeType    : 'application/octet-stream',
+    });
+
+    if (romFile) {
+      emulatorInstance.loadRomFromData(romFile.data, romFile.name);
+      setNowPlayingRomName(romFile.name);
+    }
+  });
+}
+
+function registerFileHandlerLoadRom(emulatorInstance: Chip8Emulator): void {
+  fileManager.registerFileHandler((fileData) => {
+    if (fileData) {
+      emulatorInstance.loadRomFromData(fileData.data, fileData.name);
+      setNowPlayingRomName(fileData.name);
     }
   });
 }
