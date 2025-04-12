@@ -20,6 +20,6 @@ export enum EmulatorState {
   STOPPED = 'stopped',
 }
 
-export const defaultLoadedRomTitle = 'No ROM loaded';
+export const defaultLoadedRomTitle = 'No ROM Loaded';
 
 export const defaultRomFileName = 'no_rom';

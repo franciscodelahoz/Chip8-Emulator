@@ -19,8 +19,8 @@ const fullscreenIcon = document.getElementById('fullscreen-icon') as HTMLElement
 const exitFullscreenIcon = document.getElementById('exit-fullscreen-icon') as HTMLElement;
 
 const fileNameContainer = document.getElementById('file-name-container') as HTMLElement;
-const emulatorStatusIcon = document.querySelector('.rom-status.icon-container svg') as SVGElement;
-const emulatorStatusText = document.querySelector('.rom-status .rom-status-text') as HTMLElement;
+const emulatorStatusIcon = document.querySelector<SVGElement>('.rom-status.icon-container svg');
+const emulatorStatusText = document.querySelector<HTMLElement>('.rom-status .rom-status-text');
 
 const fileManager = new FileManager();
 
