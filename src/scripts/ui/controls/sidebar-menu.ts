@@ -18,12 +18,23 @@ function registerCloseSideMenuOnClickOutside(): void {
   if (!configurationSideBar || !openConfigurationSideBarBtn) return;
 
   document.addEventListener('click', (event) => {
-    if (
-      !configurationSideBar.contains(event.target as Node)
-      && !openConfigurationSideBarBtn.contains(event.target as Node)
-      && configurationSideBar.classList.contains('active')
-    ) {
-      configurationSideBar.classList.remove('active');
+    const target = event.target as Node;
+
+    const isOutside = !configurationSideBar.contains(target)
+    && !openConfigurationSideBarBtn.contains(target);
+
+    if (isOutside && configurationSideBar.classList.contains('active')) {
+      closeSideMenu();
+    }
+  });
+}
+
+function registerKeyboardHandlers(): void {
+  if (!configurationSideBar) return;
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && configurationSideBar.classList.contains('active')) {
+      closeSideMenu();
     }
   });
 }
@@ -38,4 +49,5 @@ function registerSidebarButtonEventHandlers(): void {
 export function initializeSidebarMenuModule(): void {
   registerCloseSideMenuOnClickOutside();
   registerSidebarButtonEventHandlers();
+  registerKeyboardHandlers();
 }
