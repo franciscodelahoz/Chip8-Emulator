@@ -18,6 +18,7 @@ export enum EmulatorState {
   PLAYING = 'playing',
   PAUSED = 'paused',
   STOPPED = 'stopped',
+  EXITED = 'exited',
 }
 
 export const defaultLoadedRomTitle = 'No ROM Loaded';

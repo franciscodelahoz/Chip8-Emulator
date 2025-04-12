@@ -31,6 +31,7 @@ function updateCurrentEmulationState(emulatorState: EmulatorState): void {
     [EmulatorState.PLAYING] : { text: 'Playing', color: '#34ff66' },
     [EmulatorState.PAUSED]  : { text: 'Paused', color: 'orange' },
     [EmulatorState.STOPPED] : { text: 'Stopped', color: 'red' },
+    [EmulatorState.EXITED]  : { text: 'Exited', color: 'gray' }, // program exited?
   };
 
   const config = stateConfigs[emulatorState];

@@ -151,8 +151,6 @@ export class CPU extends EventTarget {
 
     this.setCPUInitialState();
     this.loadFont();
-
-    this.halted = false;
   }
 
   resetRom(): void {

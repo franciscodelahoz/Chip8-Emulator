@@ -111,24 +111,38 @@ export class Chip8Emulator extends EventTarget {
   }
 
   public stopEmulatorLoop(): void {
-    this.emulationLoop?.stop();
+    if (this.emulationLoop?.isActive()) {
+      this.emulationLoop.stop();
+    }
 
-    this.displayInstance.clearDisplayBuffer();
-    this.displayInstance.clearCanvas();
-    this.cpuInstance.unloadRom();
+    /**
+     * Uses queueMicrotask to ensure cleanup operations run after the current
+     * execution cycle but before any pending animation frames. This prevents
+     * race conditions where frames might access resources after they're cleared.
+     */
+    queueMicrotask(() => {
+      this.cpuInstance.haltCPU();
 
-    this.audioInstance.stop();
+      this.displayInstance.clearDisplayBuffer();
+      this.displayInstance.clearCanvas();
+      this.cpuInstance.unloadRom();
 
-    this.setCurrentRomName(null);
-    this.keyboardInstance.setKeyHandlingEnabled(false);
+      this.audioInstance.stop();
 
-    this.setEmulatorState(EmulatorState.STOPPED);
-    this.romLoaded = false;
+      this.setCurrentRomName(null);
+      this.keyboardInstance.setKeyHandlingEnabled(false);
+
+      this.setEmulatorState(EmulatorState.STOPPED);
+      this.romLoaded = false;
+    });
   }
 
   private handleExitInstruction(): void {
     console.log('Emulation loop stopped by exit instruction');
-    this.stopEmulatorLoop();
+
+    this.emulationLoop?.stop();
+    this.keyboardInstance.setKeyHandlingEnabled(false);
+    this.setEmulatorState(EmulatorState.EXITED);
   }
 
   public loadRom(romData: Uint8Array): void {
@@ -194,7 +208,7 @@ export class Chip8Emulator extends EventTarget {
   }
 
   public loadRomFromData(romData: Uint8Array, romName: string): void {
-    this.stopEmulatorLoop();
+    this.emulationLoop?.stop();
     this.cpuInstance.loadRom(romData);
 
     this.setCurrentRomName(romName);
