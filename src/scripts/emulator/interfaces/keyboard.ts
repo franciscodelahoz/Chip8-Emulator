@@ -26,6 +26,8 @@ export class KeyBoardInterface {
 
   private readonly keypadKeys: NodeListOf<HTMLElement> = document.querySelectorAll('.key');
 
+  private keyHandlingEnabled: boolean = true;
+
   constructor() {
     this.pressedKeys = {};
     this.onNextKeyPressed = null;
@@ -34,6 +36,14 @@ export class KeyBoardInterface {
     window.addEventListener('keyup', this.onKeyUp.bind(this), false);
 
     this.setKeypadKeysEvents();
+  }
+
+  public setKeyHandlingEnabled(enabled: boolean): void {
+    this.keyHandlingEnabled = enabled;
+
+    if (!enabled) {
+      this.clearAllPressedKeys();
+    }
   }
 
   reset(): void {
@@ -85,6 +95,10 @@ export class KeyBoardInterface {
   }
 
   pressedKey(keyValue: number): void {
+    if (!this.keyHandlingEnabled) {
+      return;
+    }
+
     this.pressedKeys[keyValue] = true;
     this.setKeypadKeyStatus(keyValue, true);
 
@@ -95,6 +109,10 @@ export class KeyBoardInterface {
   }
 
   releasedKey(keyValue: number): void {
+    if (!this.keyHandlingEnabled) {
+      return;
+    }
+
     delete this.pressedKeys[keyValue];
     this.setKeypadKeyStatus(keyValue, false);
 

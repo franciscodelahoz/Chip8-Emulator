@@ -105,6 +105,7 @@ export class Chip8Emulator extends EventTarget {
 
     if (!loop.isActive()) {
       loop.start();
+      this.keyboardInstance.setKeyHandlingEnabled(true);
       this.setEmulatorState(EmulatorState.PLAYING);
     }
   }
@@ -119,6 +120,7 @@ export class Chip8Emulator extends EventTarget {
     this.audioInstance.stop();
 
     this.setCurrentRomName(null);
+    this.keyboardInstance.setKeyHandlingEnabled(false);
 
     this.setEmulatorState(EmulatorState.STOPPED);
     this.romLoaded = false;
@@ -318,6 +320,7 @@ export class Chip8Emulator extends EventTarget {
       EmulatorState.PAUSED :
       EmulatorState.PLAYING;
 
+    this.keyboardInstance.setKeyHandlingEnabled(!this.cpuInstance.paused);
     this.setEmulatorState(newState);
   }
 
