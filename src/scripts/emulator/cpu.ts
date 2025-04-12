@@ -109,6 +109,7 @@ export class CPU extends EventTarget {
 
     this.bitPlane = 1;
     this.displayInstance.setActivePlane(1);
+    this.displayInstance.clearDisplayBuffer();
 
     this.audioPatternBuffer.fill(0);
     this.playingPattern = false;
@@ -140,6 +141,16 @@ export class CPU extends EventTarget {
 
     this.setCPUInitialState();
     this.loadRomInMemory();
+
+    this.halted = false;
+  }
+
+  unloadRom(): void {
+    this.halted = true;
+    this.romFileContent = null;
+
+    this.setCPUInitialState();
+    this.loadFont();
 
     this.halted = false;
   }

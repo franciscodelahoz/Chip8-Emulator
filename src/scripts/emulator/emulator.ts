@@ -1,13 +1,13 @@
 import { CPU } from './cpu';
 import type { Chip8Quirks } from '../constants/chip8.constants';
 import { Chip8CpuEvents, EmulatorEvents } from '../constants/chip8.constants';
+import { EmulatorState } from '../constants/emulator.constants';
+import { AnimationLoop } from '../libraries/animation-loop';
+import { CanvasRecorder } from '../libraries/canvas-recorder';
 import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
-import { EmulatorState } from '../constants/emulator.constants';
-import { AnimationLoop } from '../libraries/animation-loop';
-import { CanvasRecorder } from '../libraries/canvas-recorder';
 
 export class Chip8Emulator extends EventTarget {
   private readonly displayInstance: DisplayInterface;
@@ -33,6 +33,8 @@ export class Chip8Emulator extends EventTarget {
   private currentRomName: string | null = null;
 
   private readonly canvasRecorder: CanvasRecorder;
+
+  private romLoaded: boolean = false;
 
   constructor(props: Chip8EmulatorProps) {
     super();
@@ -112,13 +114,14 @@ export class Chip8Emulator extends EventTarget {
 
     this.displayInstance.clearDisplayBuffer();
     this.displayInstance.clearCanvas();
+    this.cpuInstance.unloadRom();
 
     this.audioInstance.stop();
-    this.keyboardInstance.setKeyHandlingEnabled(true);
 
     this.setCurrentRomName(null);
 
     this.setEmulatorState(EmulatorState.STOPPED);
+    this.romLoaded = false;
   }
 
   private handleExitInstruction(): void {
@@ -128,6 +131,15 @@ export class Chip8Emulator extends EventTarget {
 
   public loadRom(romData: Uint8Array): void {
     this.cpuInstance.loadRom(romData);
+  }
+
+  public resetEmulation(): void {
+    this.cpuInstance.haltCPU();
+    this.cpuInstance.resetRom();
+
+    if (this.romLoaded) {
+      this.setEmulatorState(EmulatorState.PLAYING);
+    }
   }
 
   public setAudioGain(gain: number): void {
@@ -171,9 +183,8 @@ export class Chip8Emulator extends EventTarget {
   }
 
   public setMemorySize(size: number): void {
-    this.cpuInstance.haltCPU();
     this.cpuInstance.setMemorySize(size);
-    this.cpuInstance.resetRom();
+    this.resetEmulation();
   }
 
   public getMemorySize(): number {
@@ -186,11 +197,7 @@ export class Chip8Emulator extends EventTarget {
 
     this.setCurrentRomName(romName);
     this.startEmulatorLoop();
-  }
-
-  public resetEmulation(): void {
-    this.cpuInstance.haltCPU();
-    this.cpuInstance.resetRom();
+    this.romLoaded = true;
   }
 
   private registerCpuEvents(): void {
@@ -214,7 +221,7 @@ export class Chip8Emulator extends EventTarget {
     });
 
     this.keyboardInstance.registerKeyPressedEvent([ 'o' ], () => {
-      this.resetRom();
+      this.resetEmulation();
     });
   }
 
@@ -236,8 +243,8 @@ export class Chip8Emulator extends EventTarget {
     });
   }
 
-  public resetRom(): void {
-    this.cpuInstance.resetRom();
+  public forceDisplayRender(): void {
+    this.displayInstance.render();
   }
 
   private dispatchEmulatorEvent<T>(event: EmulatorEvents, detail: T): void {
@@ -261,7 +268,7 @@ export class Chip8Emulator extends EventTarget {
 
   public setFontAppearance(fontAppearance: EmulatorFontAppearance): void {
     this.cpuInstance.setFontAppearance(fontAppearance);
-    this.cpuInstance.resetRom();
+    this.resetEmulation();
   }
 
   public getFontAppearance(): EmulatorFontAppearance {
@@ -306,7 +313,6 @@ export class Chip8Emulator extends EventTarget {
     }
 
     this.cpuInstance.togglePauseState();
-    this.keyboardInstance.setKeyHandlingEnabled(!this.cpuInstance.paused);
 
     const newState = this.cpuInstance.paused ?
       EmulatorState.PAUSED :
