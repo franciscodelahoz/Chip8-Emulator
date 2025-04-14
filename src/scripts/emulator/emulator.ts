@@ -294,7 +294,7 @@ export class Chip8Emulator extends EventTarget {
   public handleResizeCanvas(): void {
     this.displayInstance.calculateDisplayScale();
 
-    if (!this.emulationLoop?.isActive()) {
+    if (!this.emulationLoop?.isActive() && this.emulatorState !== EmulatorState.EXITED) {
       this.displayInstance.clearCanvas();
     } else if (!this.cpuInstance.drawingFlag) {
       this.displayInstance.render();
