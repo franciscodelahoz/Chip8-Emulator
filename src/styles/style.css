@@ -135,12 +135,6 @@ body {
   gap: var(--spacing-sm);
 }
 
-.center-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* ==========================================================================
   EMULATOR TOOLBAR
 ========================================================================== */
@@ -334,7 +328,7 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
   color: var(--color-light);
-  border: 2px solid var(--color-light);
+  border: 1px solid var(--color-light);
 }
 
 .button:not(:disabled):hover {
