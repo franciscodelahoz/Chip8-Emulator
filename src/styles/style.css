@@ -135,12 +135,6 @@ body {
   gap: var(--spacing-sm);
 }
 
-.icon-container svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: var(--color-primary);
-}
-
 /* ==========================================================================
   EMULATOR TOOLBAR
 ========================================================================== */
@@ -187,6 +181,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  height: 1.4rem;
+  line-height: 1.4rem;
 }
 
 .center-icon {
