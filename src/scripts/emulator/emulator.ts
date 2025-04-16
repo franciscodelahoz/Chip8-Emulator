@@ -154,7 +154,12 @@ export class Chip8Emulator extends EventTarget {
     this.cpuInstance.resetRom();
 
     if (this.romLoaded) {
+      this.keyboardInstance.setKeyHandlingEnabled(true);
       this.setEmulatorState(EmulatorState.PLAYING);
+
+      if (!this.emulationLoop?.isActive()) {
+        this.emulationLoop?.start();
+      }
     }
   }
 

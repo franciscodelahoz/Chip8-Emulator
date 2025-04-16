@@ -96,20 +96,23 @@ function updateRecordButtonState(isRecording: boolean): void {
   }
 }
 
-function updateButtonEnabledState(button: HTMLButtonElement | null, emulatorState: EmulatorState): void {
-  if (!button) return;
-
-  const enabled = emulatorState === EmulatorState.PLAYING || emulatorState === EmulatorState.PAUSED;
-
-  button.disabled = !enabled;
-}
-
 function updateResetButtonState(emulatorState: EmulatorState): void {
-  updateButtonEnabledState(resetRomBtn, emulatorState);
+  if (!resetRomBtn) return;
+
+  const enabled = emulatorState === EmulatorState.PLAYING
+    || emulatorState === EmulatorState.PAUSED
+    || emulatorState === EmulatorState.EXITED;
+
+  resetRomBtn.disabled = !enabled;
 }
 
 function updateStopButtonState(emulatorState: EmulatorState): void {
-  updateButtonEnabledState(stopRomBtn, emulatorState);
+  if (!stopRomBtn) return;
+
+  const enabled = emulatorState === EmulatorState.PLAYING
+    || emulatorState === EmulatorState.PAUSED;
+
+  stopRomBtn.disabled = !enabled;
 }
 
 function updateAllControlsState(emulatorState: EmulatorState): void {
