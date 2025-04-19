@@ -80,7 +80,7 @@ function setColorPaletteInEmulator(emulatorInstance: Chip8Emulator): void {
     emulatorInstance.setPaletteColor(index, value);
   });
 
-  emulatorInstance.resetRom();
+  emulatorInstance.forceDisplayRender();
 }
 
 function setColorPaletteSelectEventHandler(emulatorInstance: Chip8Emulator): void {

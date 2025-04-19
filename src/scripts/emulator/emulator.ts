@@ -1,11 +1,13 @@
 import { CPU } from './cpu';
 import type { Chip8Quirks } from '../constants/chip8.constants';
 import { Chip8CpuEvents, EmulatorEvents } from '../constants/chip8.constants';
+import { defaultRomFileName, EmulatorState } from '../constants/emulator.constants';
+import { AnimationLoop } from '../libraries/animation-loop';
+import { CanvasRecorder } from '../libraries/canvas-recorder';
 import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
 import { AudioInterface } from './interfaces/audio';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
-import { AnimationLoop } from '../libraries/animation-loop';
 
 export class Chip8Emulator extends EventTarget {
   private readonly displayInstance: DisplayInterface;
@@ -22,6 +24,18 @@ export class Chip8Emulator extends EventTarget {
 
   private resizeEventTimeout: number = 0;
 
+  private isFullScreen: boolean = false;
+
+  public emulatorState: EmulatorState;
+
+  private recordingCanvas: boolean = false;
+
+  private currentRomName: string | null = null;
+
+  private readonly canvasRecorder: CanvasRecorder;
+
+  private romLoaded: boolean = false;
+
   constructor(props: Chip8EmulatorProps) {
     super();
 
@@ -31,11 +45,31 @@ export class Chip8Emulator extends EventTarget {
     this.keyboardInstance = new KeyBoardInterface();
     this.audioInstance = new AudioInterface();
 
-    this.cpuInstance = new CPU(this.displayInstance, this.audioInstance, this.keyboardInstance);
+    this.cpuInstance = new CPU(
+      this.displayInstance,
+      this.audioInstance,
+      this.keyboardInstance,
+    );
 
     this.registerCpuEvents();
     this.registerKeyboardEvents();
     this.registerDisplayEvents();
+    this.registerToggleFullScreenModeEvent();
+
+    this.emulatorState = EmulatorState.STOPPED;
+
+    this.canvasRecorder = new CanvasRecorder(this.canvas, {
+      fps                : 60,
+      videoBitsPerSecond : 5000000,
+    });
+
+    this.keyboardInstance.setKeyHandlingEnabled(false);
+  }
+
+  private setCurrentRomName(romName: string | null): void {
+    const sanitizedRomName = romName ? romName.replace(/[^a-zA-Z0-9_-]/g, '_') : null;
+
+    this.currentRomName = sanitizedRomName;
   }
 
   private handleEmulationCycle(): void {
@@ -43,6 +77,7 @@ export class Chip8Emulator extends EventTarget {
       this.cpuInstance.cycle();
     } catch (error) {
       console.error(`Emulator error: ${(error as Error).message}`);
+
       this.emulationLoop?.stop();
       this.dispatchEmulatorEvent(EmulatorEvents.EMULATION_ERROR, { error });
     }
@@ -59,25 +94,75 @@ export class Chip8Emulator extends EventTarget {
     return this.emulationLoop;
   }
 
+  private setEmulatorState(state: EmulatorState): void {
+    this.emulatorState = state;
+
+    this.dispatchEmulatorEvent(EmulatorEvents.EMULATOR_STATE_CHANGED, {
+      state,
+    });
+  }
+
   private startEmulatorLoop(): void {
     const loop = this.getEmulationLoop();
 
     if (!loop.isActive()) {
       loop.start();
+      this.keyboardInstance.setKeyHandlingEnabled(true);
+      this.setEmulatorState(EmulatorState.PLAYING);
     }
   }
 
-  private stopEmulatorLoop(): void {
-    this.emulationLoop?.stop();
+  public stopEmulatorLoop(): void {
+    if (this.emulationLoop?.isActive()) {
+      this.emulationLoop.stop();
+    }
+
+    /**
+     * Uses queueMicrotask to ensure cleanup operations run after the current
+     * execution cycle but before any pending animation frames. This prevents
+     * race conditions where frames might access resources after they're cleared.
+     */
+    queueMicrotask(() => {
+      this.cpuInstance.haltCPU();
+
+      this.displayInstance.clearDisplayBuffer();
+      this.displayInstance.clearCanvas();
+      this.cpuInstance.unloadRom();
+
+      this.audioInstance.stop();
+
+      this.setCurrentRomName(null);
+      this.keyboardInstance.setKeyHandlingEnabled(false);
+
+      this.setEmulatorState(EmulatorState.STOPPED);
+      this.romLoaded = false;
+    });
   }
 
   private handleExitInstruction(): void {
     console.log('Emulation loop stopped by exit instruction');
-    this.stopEmulatorLoop();
+
+    this.emulationLoop?.stop();
+    this.keyboardInstance.setKeyHandlingEnabled(false);
+    this.setEmulatorState(EmulatorState.EXITED);
   }
 
   public loadRom(romData: Uint8Array): void {
     this.cpuInstance.loadRom(romData);
+  }
+
+  public resetEmulation(): void {
+    this.cpuInstance.haltCPU();
+    this.cpuInstance.resetRom();
+
+    if (this.romLoaded) {
+      this.keyboardInstance.setKeyHandlingEnabled(true);
+      this.setEmulatorState(EmulatorState.PLAYING);
+
+      if (!this.emulationLoop?.isActive()) {
+        this.emulationLoop?.start();
+      }
+    }
   }
 
   public setAudioGain(gain: number): void {
@@ -121,25 +206,21 @@ export class Chip8Emulator extends EventTarget {
   }
 
   public setMemorySize(size: number): void {
-    this.cpuInstance.haltCPU();
     this.cpuInstance.setMemorySize(size);
-    this.cpuInstance.resetRom();
+    this.resetEmulation();
   }
 
   public getMemorySize(): number {
     return this.cpuInstance.getMemorySize();
   }
 
-  public loadRomFromData(romData: Uint8Array): void {
-    this.stopEmulatorLoop();
+  public loadRomFromData(romData: Uint8Array, romName: string): void {
+    this.emulationLoop?.stop();
     this.cpuInstance.loadRom(romData);
-    this.startEmulatorLoop();
-  }
 
-  public resetEmulation(): void {
-    this.stopEmulatorLoop();
-    this.cpuInstance.resetRom();
+    this.setCurrentRomName(romName);
     this.startEmulatorLoop();
+    this.romLoaded = true;
   }
 
   private registerCpuEvents(): void {
@@ -155,7 +236,15 @@ export class Chip8Emulator extends EventTarget {
     });
 
     this.keyboardInstance.registerKeyPressedEvent([ 'p' ], () => {
-      this.cpuInstance.togglePauseState();
+      this.togglePauseState();
+    });
+
+    this.keyboardInstance.registerKeyPressedEvent([ 'l' ], () => {
+      this.stopEmulatorLoop();
+    });
+
+    this.keyboardInstance.registerKeyPressedEvent([ 'o' ], () => {
+      this.resetEmulation();
     });
   }
 
@@ -177,8 +266,8 @@ export class Chip8Emulator extends EventTarget {
     });
   }
 
-  public resetRom(): void {
-    this.cpuInstance.resetRom();
+  public forceDisplayRender(): void {
+    this.displayInstance.render();
   }
 
   private dispatchEmulatorEvent<T>(event: EmulatorEvents, detail: T): void {
@@ -202,7 +291,7 @@ export class Chip8Emulator extends EventTarget {
 
   public setFontAppearance(fontAppearance: EmulatorFontAppearance): void {
     this.cpuInstance.setFontAppearance(fontAppearance);
-    this.cpuInstance.resetRom();
+    this.resetEmulation();
   }
 
   public getFontAppearance(): EmulatorFontAppearance {
@@ -212,7 +301,7 @@ export class Chip8Emulator extends EventTarget {
   public handleResizeCanvas(): void {
     this.displayInstance.calculateDisplayScale();
 
-    if (!this.emulationLoop) {
+    if (!this.emulationLoop?.isActive() && this.emulatorState !== EmulatorState.EXITED) {
       this.displayInstance.clearCanvas();
     } else if (!this.cpuInstance.drawingFlag) {
       this.displayInstance.render();
@@ -223,9 +312,58 @@ export class Chip8Emulator extends EventTarget {
     if (document.fullscreenElement) {
       await document.exitFullscreen();
     } else {
-      await this.canvas.requestFullscreen();
+      await this.canvas.closest('.emulator-view')?.requestFullscreen();
     }
 
     this.handleResizeCanvas();
+  }
+
+  private registerToggleFullScreenModeEvent(): void {
+    this.canvas.closest('.emulator-view')?.addEventListener('fullscreenchange', (event) => {
+      this.isFullScreen = !!document.fullscreenElement;
+
+      this.dispatchEmulatorEvent(EmulatorEvents.FULLSCREEN_MODE_CHANGED, {
+        fullscreen: this.isFullScreen,
+      });
+    });
+  }
+
+  public togglePauseState(): void {
+    if (this.emulatorState === EmulatorState.STOPPED) {
+      console.warn('Cannot pause the emulator when it is stopped.');
+
+      return;
+    }
+
+    this.cpuInstance.togglePauseState();
+
+    const newState = this.cpuInstance.paused ?
+      EmulatorState.PAUSED :
+      EmulatorState.PLAYING;
+
+    this.keyboardInstance.setKeyHandlingEnabled(!this.cpuInstance.paused);
+    this.setEmulatorState(newState);
+  }
+
+  public setCPUInitialState(): void {
+    this.cpuInstance.setCPUInitialState();
+  }
+
+  public async toggleRecordCanvas(): Promise<void> {
+    if (!this.canvasRecorder) return;
+
+    this.recordingCanvas = !this.recordingCanvas;
+
+    if (this.recordingCanvas) {
+      this.canvasRecorder.start();
+    } else {
+      const filename = `chip8_${this.currentRomName ?? defaultRomFileName}_${Date.now()}`;
+
+      await this.canvasRecorder.stopAndSave(filename);
+    }
+
+    this.dispatchEmulatorEvent(EmulatorEvents.RECORD_CANVAS_CHANGED, {
+      recording: this.recordingCanvas,
+    });
   }
 }

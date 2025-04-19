@@ -88,7 +88,7 @@ export class CPU extends EventTarget {
     }
   }
 
-  private setCPUInitialState(): void {
+  public setCPUInitialState(): void {
     this.memory.fill(0);
     this.registers.fill(0);
     this.stack.fill(0);
@@ -104,11 +104,12 @@ export class CPU extends EventTarget {
     this.waitingKeyRegister = -1;
 
     this.playing = false;
-    this.drawingFlag = true;
+    this.drawingFlag = false;
     this.hiresMode = false;
 
     this.bitPlane = 1;
     this.displayInstance.setActivePlane(1);
+    this.displayInstance.clearDisplayBuffer();
 
     this.audioPatternBuffer.fill(0);
     this.playingPattern = false;
@@ -142,6 +143,14 @@ export class CPU extends EventTarget {
     this.loadRomInMemory();
 
     this.halted = false;
+  }
+
+  unloadRom(): void {
+    this.halted = true;
+    this.romFileContent = null;
+
+    this.setCPUInitialState();
+    this.loadFont();
   }
 
   resetRom(): void {
@@ -1163,6 +1172,11 @@ export class CPU extends EventTarget {
 
   public togglePauseState(): void {
     this.isPaused = !this.isPaused;
+
+    if (this.isPaused && this.playing) {
+      this.playing = false;
+      this.audioInterface.stop();
+    }
   }
 
   public getSoundState(): boolean {
@@ -1220,5 +1234,9 @@ export class CPU extends EventTarget {
 
   public getFontAppearance(): EmulatorFontAppearance {
     return this.fontAppearance;
+  }
+
+  public get paused(): boolean {
+    return this.isPaused;
   }
 }

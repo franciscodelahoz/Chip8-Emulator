@@ -20,10 +20,63 @@
     </header>
     <main class="container">
       <section class="emulator-view">
+        <div class="emulator-toolbar">
+          <div class="rom-title icon-container">
+            <span class="center-icon">
+              <%= require('../resources/icons/binary-icon.svg') %>
+            </span>
+            <span id="file-name-container">No ROM Loaded</span>
+          </div>
+          <div class="rom-status icon-container">
+            <span class="center-icon">
+              <%= require('../resources/icons/dot-icon.svg') %>
+            </span>
+            <span class="rom-status-text">Stopped</span>
+          </div>
+        </div>
         <canvas id="canvas"></canvas>
-        <div class="rom-controller">
-          <div id="file-picker">Click to Load ROM File</div>
-          <button id="reset-rom-btn" class="default-button">Reset ROM</button>
+        <div class="emulator-toolbar">
+          <div class="rom-controller">
+            <button id="toggle-play-pause-btn" class="button" title="Toggle pause status (P)" disabled>
+              <span id="play-icon">
+                <%= require('../resources/icons/play-icon.svg') %>
+              </span>
+              <span id="pause-icon" style="display: none;">
+                <%= require('../resources/icons/pause-icon.svg') %>
+              </span>
+            </button>
+            <button id="reset-rom-btn" class="button" title="Reset ROM (O)" disabled>
+              <span>
+                <%= require('../resources/icons/refresh-icon.svg') %>
+              </span>
+            </button>
+            <button id="stop-rom-btn" class="button" title="Stop emulation (L)" disabled>
+              <span>
+                <%= require('../resources/icons/stop-icon.svg') %>
+              </span>
+            </button>
+            <button id="record-canvas-btn" class="button" title="Start Recording (R)">
+              <span>
+                <%= require('../resources/icons/record-icon.svg') %>
+              </span>
+            </button>
+            <button id="fullscreen-btn" class="button" title="Enter Fullscreen (0)">
+              <span id="fullscreen-icon">
+                <%= require('../resources/icons/fullscreen-icon.svg') %>
+              </span>
+              <span id="exit-fullscreen-icon" style="display: none;">
+                <%= require('../resources/icons/exit-fullscreen-icon.svg') %>
+              </span>
+            </button>
+          </div>
+          <div class="rom-loader">
+            <button id="file-picker" class="button" title="Load ROM">
+              <span>
+                <%= require('../resources/icons/folder-icon.svg') %>
+              </span>
+              Load ROM
+            </button>
+          </div>
         </div>
       </section>
       <section class="keyboard-container">
@@ -56,7 +109,7 @@
             <li>
               <label>
                 Cycles per frame
-                <select class="default-select" name="cycles-per-frame-select" id="cycles-per-frame-select">
+                <select class="select" name="cycles-per-frame-select" id="cycles-per-frame-select">
                   <option value="7">7 Cycles per frame</option>
                   <option value="15">15 Cycles per frame</option>
                   <option value="20">20 Cycles per frame</option>
@@ -81,7 +134,7 @@
             <div class="configuration-select-section">
               <label for="audio-mode-select">Sound Capabilities</label>
               <div class="select-container">
-                <select class="default-select" name="audio-mode-select" id="audio-mode-select">
+                <select class="select" name="audio-mode-select" id="audio-mode-select">
                   <option value="all">All Audio Types (CHIP-8 & XO-CHIP)</option>
                   <option value="chip8-only">Basic Audio Only (No XO-CHIP)</option>
                   <option value="none">Mute All Sounds</option>
@@ -104,7 +157,7 @@
           <ul class="quirks-list">
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="vf-quirk-checkbox" id="vf-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="vfQuirk" style="margin-top: 4px;">
+                <input type="checkbox" name="vf-quirk-checkbox" id="vf-quirk-checkbox" class="quirk-checkbox checkbox" data-quirk-property-name="vfQuirk" style="margin-top: 4px;">
                 <label class="checkbox-label" for="vf-quirk-checkbox">
                   The AND, OR and XOR opcodes reset the flags register to zero.
                 </label>
@@ -112,7 +165,7 @@
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="memory-quirk-checkbox" id="memory-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="memoryQuirk" style="margin-top: 4px;">
+                <input type="checkbox" name="memory-quirk-checkbox" id="memory-quirk-checkbox" class="quirk-checkbox checkbox" data-quirk-property-name="memoryQuirk" style="margin-top: 4px;">
                 <label class="checkbox-label" for="memory-quirk-checkbox">
                   The save and load opcodes (Fx55 and Fx65) increment the index register.
                 </label>
@@ -120,7 +173,7 @@
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="display-wait-quirk-checkbox" id="display-wait-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="displayWaitQuirk" style="margin-top: 4px;">
+                <input type="checkbox" name="display-wait-quirk-checkbox" id="display-wait-quirk-checkbox" class="quirk-checkbox checkbox" data-quirk-property-name="displayWaitQuirk" style="margin-top: 4px;">
                 <label class="checkbox-label" for="display-wait-quirk-checkbox">
                   Drawing sprites to the display waits for the vertical blank interrupt, limiting their speed to max 60 sprites per second.
                 </label>
@@ -128,7 +181,7 @@
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="clipping-quirk-checkbox" id="clipping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="clipQuirks" style="margin-top: 4px;">
+                <input type="checkbox" name="clipping-quirk-checkbox" id="clipping-quirk-checkbox" class="quirk-checkbox checkbox" data-quirk-property-name="clipQuirks" style="margin-top: 4px;">
                 <label class="checkbox-label" for="clipping-quirk-checkbox">
                   Sprites drawn at the bottom edge of the screen get clipped instead of wrapping around to the top of the screen.
                 </label>
@@ -136,7 +189,7 @@
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="shifting-quirk-checkbox" id="shifting-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="shiftQuirk" style="margin-top: 4px;">
+                <input type="checkbox" name="shifting-quirk-checkbox" id="shifting-quirk-checkbox" class="quirk-checkbox checkbox" data-quirk-property-name="shiftQuirk" style="margin-top: 4px;">
                 <label class="checkbox-label" for="shifting-quirk-checkbox">
                   The shift opcodes only operate on vX instead of storing the shifted version of vY in vX
                 </label>
@@ -144,7 +197,7 @@
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="jumping-quirk-checkbox" id="jumping-quirk-checkbox" class="quirk-checkbox default-checkbox" data-quirk-property-name="jumpQuirks" style="margin-top: 4px;">
+                <input type="checkbox" name="jumping-quirk-checkbox" id="jumping-quirk-checkbox" class="quirk-checkbox checkbox" data-quirk-property-name="jumpQuirks" style="margin-top: 4px;">
                 <label class="checkbox-label" for="jumping-quirk-checkbox">
                   The Bnnn instruction doesn't use v0, but vX instead where X is the highest nibble of nnn
                 </label>
@@ -152,7 +205,7 @@
             </li>
             <li>
               <div class="checkbox-container">
-                <input type="checkbox" name="zero-height-sprite-lores-quirk" id="zero-height-sprite-lores-quirk" class="quirk-checkbox default-checkbox" data-quirk-property-name="zeroHeightSpriteLoresQuirk" style="margin-top: 4px;">
+                <input type="checkbox" name="zero-height-sprite-lores-quirk" id="zero-height-sprite-lores-quirk" class="quirk-checkbox checkbox" data-quirk-property-name="zeroHeightSpriteLoresQuirk" style="margin-top: 4px;">
                 <label class="checkbox-label" for="zero-height-sprite-lores-quirk">
                   Adjusts for ROMs that define sprite height as zero in low-resolution mode, interpreting it as a height of 8 pixels.
                 </label>
@@ -166,7 +219,7 @@
             <li>
               <label>
                 Memory size
-                <select class="default-select" name="memory-size-select" id="memory-size-select">
+                <select class="select" name="memory-size-select" id="memory-size-select">
                   <option value="4096">4096 bytes (CHIP-8/SCHIP)</option>
                   <option value="65536">65536 bytes (XO-CHIP)</option>
                 </select>
@@ -177,9 +230,9 @@
         <section class="configuration-group">
           <h2 class="configuration-title">Compatibility Presets</h2>
           <div class="button-grid-list">
-            <button class="default-button" id="chip8-profile">CHIP-8</button>
-            <button class="default-button" id="schip-profile">SCHIP</button>
-            <button class="default-button" id="xo-chip-profile">XO-CHIP</button>
+            <button class="button" id="chip8-profile">CHIP-8</button>
+            <button class="button" id="schip-profile">SCHIP</button>
+            <button class="button" id="xo-chip-profile">XO-CHIP</button>
           </div>
         </section>
         <section class="configuration-group">
@@ -189,7 +242,7 @@
             <div class="configuration-select-section">
               <label for="color-palettes-select">Color palettes</label>
               <div class="select-container">
-                <select class="default-select" name="color-palettes-select" id="color-palettes-select">
+                <select class="select" name="color-palettes-select" id="color-palettes-select">
                   <option value="custom" disabled>Custom</option>
                   <optgroup label="Default palettes">
                     <option value="default">Default</option>
@@ -207,9 +260,9 @@
                   </optgroup>
                 </select>
                 <div class="custom-color-palette-options">
-                  <button class="default-button custom-color-palette-button" id="save-custom-color-palette" aria-label="Save current custom color palette" title="Save current custom color palette" style="display: none;" disabled>S</button>
-                  <button class="default-button custom-color-palette-button" id="rename-custom-color-palette" aria-label="Rename current stored custom color palette" title="Rename current stored custom color palette" style="display: none;" disabled>R</button>
-                  <button class="default-button custom-color-palette-button" id="delete-custom-color-palette" aria-label="Delete current stored custom color palette" title="Delete current stored custom color palette" style="display: none;" disabled>D</button>
+                  <button class="button custom-color-palette-button" id="save-custom-color-palette" aria-label="Save current custom color palette" title="Save current custom color palette" style="display: none;" disabled>S</button>
+                  <button class="button custom-color-palette-button" id="rename-custom-color-palette" aria-label="Rename current stored custom color palette" title="Rename current stored custom color palette" style="display: none;" disabled>R</button>
+                  <button class="button custom-color-palette-button" id="delete-custom-color-palette" aria-label="Delete current stored custom color palette" title="Delete current stored custom color palette" style="display: none;" disabled>D</button>
                 </div>
               </div>
             </div>
@@ -262,7 +315,7 @@
             <h3 class="configuration-subtitle">Font settings</h3>
             <label>
               Font appearance
-              <select class="default-select" name="font-appearance-select" id="font-appearance-select">
+              <select class="select" name="font-appearance-select" id="font-appearance-select">
                 <option value="chip8">Chip8</option>
                 <option value="schip">SCHIP</option>
                 <option value="octo">Octo</option>

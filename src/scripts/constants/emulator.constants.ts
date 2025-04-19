@@ -13,3 +13,14 @@ export const emulatorDatabase = {
   name            : 'emulator',
   current_version : 1,
 };
+
+export enum EmulatorState {
+  PLAYING = 'playing',
+  PAUSED = 'paused',
+  STOPPED = 'stopped',
+  EXITED = 'exited',
+}
+
+export const defaultLoadedRomTitle = 'No ROM Loaded';
+
+export const defaultRomFileName = 'no_rom';

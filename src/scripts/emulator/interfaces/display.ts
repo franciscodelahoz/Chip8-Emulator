@@ -105,10 +105,8 @@ export class DisplayInterface {
   }
 
   clearDisplayBuffer(): void {
-    for (let plane = 0; plane < 2; plane += 1) {
-      if (!(this.bitPlane & (plane + 1))) continue;
-
-      this.displayBuffers[plane].fill(0);
+    for (const displayBuffer of this.displayBuffers) {
+      displayBuffer.fill(0);
     }
   }
 
