@@ -15,7 +15,7 @@ export default (env, argv) => {
 
   const plugins = [
     new MiniCSSExtractPlugin({
-      filename: '[name]-bundle.css',
+      filename: isProduction ? '[name]-bundle.[contenthash:8].css' : '[name]-bundle.css',
     }),
     new HtmlWebpackPlugin({
       title    : 'Chip8 Emulator',
@@ -65,7 +65,7 @@ export default (env, argv) => {
     entry  : { ...entryFiles },
     output : {
       path     : path.join(path.resolve(), 'dist'),
-      filename : '[name]-bundle.js',
+      filename : isProduction ? '[name]-bundle.[contenthash:8].js' : '[name]-bundle.js',
       clean    : true,
     },
     watchOptions: {
