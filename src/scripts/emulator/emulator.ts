@@ -62,6 +62,8 @@ export class Chip8Emulator extends EventTarget {
       fps                : 60,
       videoBitsPerSecond : 5000000,
     });
+
+    this.keyboardInstance.setKeyHandlingEnabled(false);
   }
 
   private setCurrentRomName(romName: string | null): void {
