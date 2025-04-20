@@ -34,6 +34,7 @@
   --font-size-md-lg: 1.1rem;
   --font-size-lg: 1.2rem;
   --font-size-xl: 1.5rem;
+  --font-size-xxl: 1.8rem;
 
   /* Transitions */
   --transition-speed: 0.3s;
@@ -562,7 +563,7 @@ input[type='range']::-moz-range-thumb {
 
 .keyboard-indicator {
   position: absolute;
-  bottom: 0.01em;
+  bottom: 0.2em;
   right: 0.2em;
   font-size: 0.55rem;
   background-color: var(--color-bg-medium);
@@ -775,13 +776,11 @@ label {
   }
 
   .keyboard {
-    grid-gap: var(--spacing-sm);
+    grid-gap: var(--spacing-lg);
   }
 
   .key {
-    width: 1.4em;
-    height: 1.4em;
-    font-size: 1.8rem;
+    font-size: var(--font-size-xxl);
   }
 
   .keyboard-indicator {
