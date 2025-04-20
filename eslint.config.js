@@ -16,7 +16,7 @@ export default [
     ignores: [ 'dist/**', 'node_modules/**' ],
   },
   {
-    files           : [ 'src/**/*.{js,jsx,ts,tsx}', 'webpack.config.js', 'eslint.config.js' ],
+    files           : [ 'src/**/*.{js,jsx,ts,tsx}', 'webpack.config.{js,ts}', 'eslint.config.{js,ts}' ],
     languageOptions : {
       parser      : tsParser,
       ecmaVersion : 'latest',
@@ -120,8 +120,8 @@ export default [
             '**/jest.config.js',
             '**/jest.setup.js',
             '**/vue.config.js',
-            '**/webpack.config.js',
-            '**/webpack.config.*.js',
+            '**/webpack.config.{js,ts}',
+            '**/webpack.config.*.{js,ts}',
             '**/rollup.config.js',
             '**/rollup.config.*.js',
             '**/gulpfile.js',

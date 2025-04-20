@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
+    "moduleResolution": "bundler",
     "types": [
       "wicg-web-app-launch",
       "wicg-file-system-access"
