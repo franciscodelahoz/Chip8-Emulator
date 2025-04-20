@@ -13,7 +13,8 @@
     "dev": "webpack serve --mode development",
     "lint": "eslint .",
     "lint:fix": "node --run lint -- --fix",
-    "optimize-font": "./tools/optimize-fonts.sh"
+    "optimize-font": "./tools/optimize-fonts.sh",
+    "postinstall": "git config core.hooksPath ./git-hooks"
   },
   "repository": {
     "type": "git",
