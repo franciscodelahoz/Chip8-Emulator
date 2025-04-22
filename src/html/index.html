@@ -37,7 +37,7 @@
         <canvas id="canvas"></canvas>
         <div class="emulator-toolbar">
           <div class="rom-controller">
-            <button id="toggle-play-pause-btn" class="button" title="Toggle pause status (P)" disabled>
+            <button id="toggle-play-pause-btn" class="button btn-icon" title="Toggle pause status (P)" disabled>
               <span id="play-icon">
                 <%= require('../resources/icons/play-icon.svg') %>
               </span>
@@ -45,22 +45,22 @@
                 <%= require('../resources/icons/pause-icon.svg') %>
               </span>
             </button>
-            <button id="reset-rom-btn" class="button" title="Reset ROM (O)" disabled>
+            <button id="reset-rom-btn" class="button btn-icon" title="Reset ROM (O)" disabled>
               <span>
                 <%= require('../resources/icons/refresh-icon.svg') %>
               </span>
             </button>
-            <button id="stop-rom-btn" class="button" title="Stop emulation (L)" disabled>
+            <button id="stop-rom-btn" class="button btn-icon" title="Stop emulation (L)" disabled>
               <span>
                 <%= require('../resources/icons/stop-icon.svg') %>
               </span>
             </button>
-            <button id="record-canvas-btn" class="button" title="Start Recording (R)">
+            <button id="record-canvas-btn" class="button btn-icon" title="Start Recording (R)">
               <span>
                 <%= require('../resources/icons/record-icon.svg') %>
               </span>
             </button>
-            <button id="fullscreen-btn" class="button" title="Enter Fullscreen (0)">
+            <button id="fullscreen-btn" class="button btn-icon" title="Enter Fullscreen (0)">
               <span id="fullscreen-icon">
                 <%= require('../resources/icons/fullscreen-icon.svg') %>
               </span>
@@ -70,11 +70,11 @@
             </button>
           </div>
           <div class="rom-loader">
-            <button id="file-picker" class="button" title="Load ROM">
+            <button id="file-picker" class="button btn-icon" title="Load ROM">
               <span>
                 <%= require('../resources/icons/folder-icon.svg') %>
               </span>
-              Load ROM
+              <span class="button-text">Load ROM</span>
             </button>
           </div>
         </div>

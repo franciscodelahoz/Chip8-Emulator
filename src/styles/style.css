@@ -188,7 +188,7 @@ body {
   flex-shrink: 0;
 }
 
-.rom-status .center-icon {
+.center-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,6 +276,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   font-size: var(--font-size-md);
+  line-height: 1.3rem;
+  height: 1.3rem;
 }
 
 /* ==========================================================================
@@ -336,13 +338,27 @@ body {
   font-size: var(--font-size-md);
 }
 
-.button svg {
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.btn-icon svg {
   width: 1.4rem;
   height: 1.4rem;
   color: inherit;
   display: block;
   stroke: currentColor;
 }
+
+.btn-icon span.button-text {
+  font-size: var(--font-size-md);
+  line-height: 1.6rem;
+  height: 1.5rem;
+}
+
 
 .button:disabled {
   opacity: 0.5;
@@ -695,7 +711,7 @@ label {
 
 .configuration-table th,
 .configuration-table td {
-  padding: 0.4em;
+  padding: 0.3em;
   border-bottom: 2px solid var(--color-bg-medium);
   border-right: 2px solid var(--color-bg-medium);
 }
@@ -717,7 +733,7 @@ label {
   border: none;
   color: var(--color-primary);
   font-family: inherit;
-  padding: 0;
+  padding: 0.2rem;
 }
 
 .configuration-table td .color-value:focus {
@@ -791,13 +807,6 @@ label {
     width: 100%;
   }
 
-  .configuration-table td {
-    padding: 0.2em;
-  }
-
-  .button-grid-list {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  }
 
   .header-container {
     padding: 0.8rem 0.5rem;
@@ -909,10 +918,6 @@ label {
   .button svg {
     width: 1.5rem;
     height: 1.5rem;
-  }
-
-  .configuration-table td {
-    padding: 0.6em;
   }
 
   .button-grid-list {
