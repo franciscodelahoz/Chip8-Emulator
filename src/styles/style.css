@@ -276,8 +276,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   font-size: var(--font-size-md);
-  line-height: 1.3rem;
-  height: 1.3rem;
+  line-height: 1.9rem;
+  height: 1.9rem;
 }
 
 /* ==========================================================================
@@ -797,6 +797,8 @@ label {
 
   .key {
     font-size: var(--font-size-xxl);
+    width: 2em;
+    height: 2em;
   }
 
   .keyboard-indicator {
@@ -806,7 +808,6 @@ label {
   #configuration-sidebar {
     width: 100%;
   }
-
 
   .header-container {
     padding: 0.8rem 0.5rem;

@@ -46,8 +46,39 @@ function registerSidebarButtonEventHandlers(): void {
   openConfigurationSideBarBtn.addEventListener('click', openSideMenu);
 }
 
+function handleSwipe(touchStartX: number, touchEndX: number): void {
+  if (!configurationSideBar) return;
+
+  const minSwipeDistance = 75;
+
+  if (configurationSideBar.classList.contains('active')) {
+    const swipeDistance = touchEndX - touchStartX;
+
+    if (swipeDistance >= minSwipeDistance) {
+      closeSideMenu();
+    }
+  }
+}
+
+function registerSidebarSwipeHandler(): void {
+  if (!configurationSideBar) return;
+
+  let touchStartX: number = 0;
+  let touchEndX: number = 0;
+
+  configurationSideBar.addEventListener('touchstart', (event) => {
+    touchStartX = event.touches[0].clientX;
+  }, { passive: true });
+
+  configurationSideBar.addEventListener('touchend', (event) => {
+    touchEndX = event.changedTouches[0].clientX;
+    handleSwipe(touchStartX, touchEndX);
+  }, { passive: true });
+}
+
 export function initializeSidebarMenuModule(): void {
   registerCloseSideMenuOnClickOutside();
   registerSidebarButtonEventHandlers();
   registerKeyboardHandlers();
+  registerSidebarSwipeHandler();
 }
