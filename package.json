@@ -34,6 +34,7 @@
     "@stylistic/eslint-plugin-ts": "^4.2.0",
     "@types/wicg-file-system-access": "^2023.10.6",
     "@types/wicg-web-app-launch": "^2023.1.4",
+    "@webgpu/types": "^0.1.60",
     "autoprefixer": "^10.4.21",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",

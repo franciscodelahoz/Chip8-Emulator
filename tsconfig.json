@@ -5,7 +5,8 @@
     "moduleResolution": "bundler",
     "types": [
       "wicg-web-app-launch",
-      "wicg-file-system-access"
+      "wicg-file-system-access",
+      "@webgpu/types"
     ],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
