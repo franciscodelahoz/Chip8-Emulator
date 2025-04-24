@@ -192,8 +192,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.8rem;
-  height: 1.8rem;
   flex-shrink: 0;
 }
 
@@ -202,8 +200,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
-  height: 1.2rem;
-  line-height: 1.2rem;
   font-size: var(--font-size-md);
 }
 
@@ -276,8 +272,6 @@ body {
   white-space: nowrap;
   overflow: hidden;
   font-size: var(--font-size-md);
-  line-height: 1.9rem;
-  height: 1.9rem;
 }
 
 /* ==========================================================================
@@ -355,10 +349,7 @@ body {
 
 .btn-icon span.button-text {
   font-size: var(--font-size-md);
-  line-height: 1.6rem;
-  height: 1.5rem;
 }
-
 
 .button:disabled {
   opacity: 0.5;
@@ -553,8 +544,8 @@ input[type='range']::-moz-range-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.7em;
-  height: 1.7em;
+  width: 1.9em;
+  height: 1.9em;
   padding: var(--spacing-xs);
   border-radius: var(--border-radius-sm);
   font-size: 1.6rem;
@@ -797,8 +788,8 @@ label {
 
   .key {
     font-size: var(--font-size-xxl);
-    width: 2em;
-    height: 2em;
+    width: 2.4em;
+    height: 2.4em;
   }
 
   .keyboard-indicator {
@@ -909,11 +900,6 @@ label {
     padding: var(--spacing-md);
     font-size: 0.85rem;
     gap: var(--spacing-md);
-  }
-
-  .button {
-    font-size: var(--font-size-xs);
-    padding: 4px 8px;
   }
 
   .button svg {
