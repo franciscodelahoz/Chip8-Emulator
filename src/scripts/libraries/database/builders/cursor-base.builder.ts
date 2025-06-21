@@ -12,12 +12,12 @@ export abstract class CursorBuilderBase<
     protected readonly cursor: IDBCursor,
   ) {}
 
-  get key(): IndexName extends IndexNames<Schema, StoreName>
-    ? IndexKey<Schema, StoreName, IndexName & IndexNames<Schema, StoreName>>
-    : StoreKey<Schema, StoreName> {
-    return (this.cursor.key as unknown) as (IndexName extends IndexNames<Schema, StoreName>
-      ? IndexKey<Schema, StoreName, IndexName & IndexNames<Schema, StoreName>>
-      : StoreKey<Schema, StoreName>);
+  get key(): IndexName extends IndexNames<Schema, StoreName> ?
+    IndexKey<Schema, StoreName, IndexName & IndexNames<Schema, StoreName>> :
+    StoreKey<Schema, StoreName> {
+    return (this.cursor.key as unknown) as (IndexName extends IndexNames<Schema, StoreName> ?
+      IndexKey<Schema, StoreName, IndexName & IndexNames<Schema, StoreName>> :
+      StoreKey<Schema, StoreName>);
   }
 
   get primaryKey(): StoreKey<Schema, StoreName> {

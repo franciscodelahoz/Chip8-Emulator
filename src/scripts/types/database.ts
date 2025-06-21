@@ -32,58 +32,58 @@ export type StoreNames<DBTypes extends DBSchema | null> =
 export type IndexNames<
   DBTypes extends DBSchema,
   StoreName extends StoreNames<DBTypes>,
-> = StoreName extends keyof DBTypes
-  ? DBTypes[StoreName] extends { indexes?: infer I }
-    ? I extends IndexKeys
-      ? string & keyof I
-      : never
-    : never
-  : never;
+> = StoreName extends keyof DBTypes ?
+  DBTypes[StoreName] extends { indexes?: infer I } ?
+    I extends IndexKeys ?
+      string & keyof I :
+      never :
+    never :
+  never;
 
 export type StoreValue<
   DBTypes extends DBSchema,
   StoreName extends StoreNames<DBTypes>,
-> = StoreName extends keyof DBTypes
-  ? DBTypes[StoreName] extends { fields: infer F }
-    ? F
-    : never
-  : never;
+> = StoreName extends keyof DBTypes ?
+  DBTypes[StoreName] extends { fields: infer F } ?
+    F :
+    never :
+  never;
 
 export type StoreKey<
   DBTypes extends DBSchema,
   StoreName extends StoreNames<DBTypes>,
-> = StoreName extends keyof DBTypes
-  ? DBTypes[StoreName] extends { key: infer F }
-    ? F extends IDBValidKey ? F : never
-    : never
-  : never;
+> = StoreName extends keyof DBTypes ?
+  DBTypes[StoreName] extends { key: infer F } ?
+    F extends IDBValidKey ? F : never :
+    never :
+  never;
 
 export type StoreKeyType<
   DBTypes extends DBSchema,
   StoreName extends StoreNames<DBTypes>,
-> = StoreName extends keyof DBTypes
-  ? DBTypes[StoreName] extends { key: infer K; fields: infer F }
-    ? K extends keyof F
-      ? K extends string
-        ? F[K]
-        : never
-      : never
-    : never
-  : never;
+> = StoreName extends keyof DBTypes ?
+  DBTypes[StoreName] extends { key: infer K; fields: infer F } ?
+    K extends keyof F ?
+      K extends string ?
+        F[K] :
+        never :
+      never :
+    never :
+  never;
 
 export type IndexKey<
   DBTypes extends DBSchema,
   StoreName extends StoreNames<DBTypes>,
   IndexName extends IndexNames<DBTypes, StoreName>,
-> = StoreName extends keyof DBTypes
-  ? DBTypes[StoreName] extends { indexes?: infer I }
-    ? I extends IndexKeys
-      ? IndexName extends keyof I
-        ? I[IndexName]
-        : never
-      : never
-    : never
-  : never;
+> = StoreName extends keyof DBTypes ?
+  DBTypes[StoreName] extends { indexes?: infer I } ?
+    I extends IndexKeys ?
+      IndexName extends keyof I ?
+        I[IndexName] :
+        never :
+      never :
+    never :
+  never;
 
 export type OnUpgradeCallback<T extends DBSchema> =
   (builder: SchemaBuilder<T>, oldVersion?: number, newVersion?: number | null) => void;
