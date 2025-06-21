@@ -1,6 +1,5 @@
 import { CPU } from './cpu';
-import type { Chip8Quirks } from '../constants/chip8.constants';
-import { Chip8CpuEvents, EmulatorEvents } from '../constants/chip8.constants';
+import { Chip8CpuEvents, EmulatorEvents, type Chip8Quirks } from '../constants/chip8.constants';
 import { defaultRomFileName, EmulatorState } from '../constants/emulator.constants';
 import { AnimationLoop } from '../libraries/animation-loop';
 import { CanvasRecorder } from '../libraries/canvas-recorder';

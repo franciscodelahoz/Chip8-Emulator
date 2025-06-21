@@ -1,10 +1,10 @@
-import type { Chip8Quirks } from '../../constants/chip8.constants';
 import {
   defaultMemorySize,
   defaultQuirkConfigurations,
   schipQuirkConfigurations,
   xoChipMemorySize,
   xoChipQuirkConfigurations,
+  type Chip8Quirks,
 } from '../../constants/chip8.constants';
 import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
