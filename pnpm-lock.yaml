@@ -9,10 +9,10 @@ importers:
   .:
     devDependencies:
       '@eslint/js':
-        specifier: ^9.29.0
+        specifier: ^9.31.0
         version: 9.31.0
       '@stylistic/eslint-plugin':
-        specifier: ^5.0.0-beta.5
+        specifier: ^5.2.0
         version: 5.2.0(eslint@9.31.0(jiti@1.21.7))
       '@types/wicg-file-system-access':
         specifier: ^2023.10.6
@@ -20,6 +20,9 @@ importers:
       '@types/wicg-web-app-launch':
         specifier: ^2023.1.4
         version: 2023.1.4
+      '@typescript-eslint/parser':
+        specifier: ^8.37.0
+        version: 8.37.0(eslint@9.31.0(jiti@1.21.7))(typescript@5.8.3)
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
@@ -30,7 +33,7 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2(webpack@5.100.2)
       eslint:
-        specifier: ^9.29.0
+        specifier: ^9.31.0
         version: 9.31.0(jiti@1.21.7)
       eslint-plugin-import:
         specifier: ^2.32.0
@@ -42,7 +45,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(favicons@7.2.0)(webpack@5.100.2)
       globals:
-        specifier: ^16.2.0
+        specifier: ^16.3.0
         version: 16.3.0
       html-webpack-plugin:
         specifier: ^5.6.3
@@ -66,10 +69,10 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       typescript-eslint:
-        specifier: ^8.34.1
+        specifier: ^8.37.0
         version: 8.37.0(eslint@9.31.0(jiti@1.21.7))(typescript@5.8.3)
       webpack:
-        specifier: ^5.99.9
+        specifier: ^5.100.2
         version: 5.100.2(webpack-cli@6.0.1)
       webpack-cli:
         specifier: ^6.0.1
@@ -592,8 +595,8 @@ packages:
     resolution: {integrity: sha512-4B4OijXeVNOPZlYA2oEwWOTkzyltLao+xbotHQeqN++Rv27Y6s818+n2Qkp8q+Fxhn0t/5lA5X1Mxktud8eayQ==}
     engines: {node: '>=14.17.0'}
 
-  '@emnapi/runtime@1.4.4':
-    resolution: {integrity: sha512-hHyapA4A3gPaDCNfiqyZUStTMqIkKRshqPIuDOXv1hcBnD4U3l8cP0T1HMCfGRxQ6V64TGCcoswChANyOAwbQg==}
+  '@emnapi/runtime@1.4.5':
+    resolution: {integrity: sha512-++LApOtY0pEEz1zrd9vy1/zXVaVJJ/EbAF3u0fXIzPJEDtnITsBGbbK0EkM72amhl/R5b+5xx0Y/QhcVOpuulg==}
 
   '@eslint-community/eslint-utils@4.7.0':
     resolution: {integrity: sha512-dyybb3AcajC7uha6CvhdVRJqaKyn7w2YKqKyAN37NKYgZT36w+iRb0Dymmc5qEJ549c/S31cMMSFd75bteCpCw==}
@@ -4409,7 +4412,7 @@ snapshots:
 
   '@discoveryjs/json-ext@0.6.3': {}
 
-  '@emnapi/runtime@1.4.4':
+  '@emnapi/runtime@1.4.5':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -4546,7 +4549,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.33.5':
     dependencies:
-      '@emnapi/runtime': 1.4.4
+      '@emnapi/runtime': 1.4.5
     optional: true
 
   '@img/sharp-win32-ia32@0.33.5':

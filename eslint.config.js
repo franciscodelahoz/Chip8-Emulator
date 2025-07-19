@@ -28,7 +28,7 @@ export default [
     },
     rules: {
       '@stylistic/semi'                    : [ 'error', 'always' ],
-      '@stylistic/quotes'                  : [ 'error', 'single', { allowTemplateLiterals: true } ],
+      '@stylistic/quotes'                  : [ 'error', 'single', { allowTemplateLiterals: 'always' } ],
       '@stylistic/indent'                  : [ 'error', 2 ],
       'no-plusplus'                        : 'error',
       '@stylistic/array-bracket-newline'   : [ 'error', 'consistent' ],

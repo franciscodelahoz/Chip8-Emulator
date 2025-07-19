@@ -67,7 +67,7 @@ export class Database<Schema extends DBSchema> {
   }
 
   public transaction<StoreName extends StoreNames<Schema>>(
-    storeNames: (StoreName & string | StoreName[] & string[]),
+    storeNames: StoreName & string | StoreName[] & string[],
     mode: IDBTransactionMode = 'readonly',
   ): TransactionBuilder<Schema, StoreName | StoreName[]> {
     if (!this.connection) {
