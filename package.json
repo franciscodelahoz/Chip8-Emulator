@@ -22,11 +22,11 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/franciscodelahoz/Chip8-Emulator/issues"
   },
-  "homepage": "https://github.com/franciscodelahoz/Chip8-Emulator#readme",
+  "homepage": "https://chip8emulator.franciscodelahoz.com/",
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@stylistic/eslint-plugin": "^5.2.2",
