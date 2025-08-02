@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@fontsource/arimo':
+        specifier: ^5.2.6
+        version: 5.2.6
     devDependencies:
       '@eslint/js':
         specifier: ^9.31.0
@@ -635,6 +639,9 @@ packages:
   '@eslint/plugin-kit@0.3.4':
     resolution: {integrity: sha512-Ul5l+lHEcw3L5+k8POx6r74mxEYKG5kOb6Xpy2gCRW6zweT6TEhAf8vhxGgjhqrd/VO/Dirhsb+1hNpD1ue9hw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource/arimo@5.2.6':
+    resolution: {integrity: sha512-D2fJ0DHYjJz0mSiqtd4HUykEaRZ1o0hMxyFg8/QAnDfNiZapPDXKaflRX4ZDuyxwkI/oizJ9yZkwdBL75MFnoQ==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4455,6 +4462,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.15.1
       levn: 0.4.1
+
+  '@fontsource/arimo@5.2.6': {}
 
   '@humanfs/core@0.19.1': {}
 
