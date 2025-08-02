@@ -1,12 +1,12 @@
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import FaviconsWebpackPlugin from 'favicons-webpack-plugin';
+import { GenerateSW } from 'workbox-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCSSExtractPlugin from 'mini-css-extract-plugin';
 import path from 'node:path';
 import TerserPlugin from 'terser-webpack-plugin';
 import type { Configuration as WebpackConfiguration } from 'webpack';
 import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
-import { GenerateSW } from 'workbox-webpack-plugin';
 
 interface Configuration extends WebpackConfiguration {
   devServer?: WebpackDevServerConfiguration;
@@ -101,16 +101,6 @@ export default (env: Record<string, string>, argv: Configuration): Configuration
             },
             {
               loader: 'css-loader',
-            },
-            {
-              loader  : 'postcss-loader',
-              options : {
-                postcssOptions: {
-                  plugins: [
-                    'autoprefixer',
-                  ],
-                },
-              },
             },
           ],
         },

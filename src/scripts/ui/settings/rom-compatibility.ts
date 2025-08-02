@@ -1,14 +1,14 @@
+import type { Chip8Emulator } from '../../emulator/emulator';
+import { GeneralEmulatorSettings } from '../../constants/settings.constants';
+import { settingsStorage } from '../../storage/settings.storage';
 import {
+  type Chip8Quirks,
   defaultMemorySize,
   defaultQuirkConfigurations,
   schipQuirkConfigurations,
   xoChipMemorySize,
   xoChipQuirkConfigurations,
-  type Chip8Quirks,
 } from '../../constants/chip8.constants';
-import { GeneralEmulatorSettings } from '../../constants/settings.constants';
-import type { Chip8Emulator } from '../../emulator/emulator';
-import { settingsStorage } from '../../storage/settings.storage';
 
 const quirkConfigCheckboxes = document.getElementsByClassName('quirk-checkbox') as HTMLCollectionOf<HTMLInputElement>;
 const memorySizeSelect = document.getElementById('memory-size-select') as HTMLSelectElement | null;

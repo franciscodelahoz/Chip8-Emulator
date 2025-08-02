@@ -1,8 +1,8 @@
-import { customColorPaletteKeyId, defaultColorPaletteId } from '../../constants/chip8.constants';
-import { customPalettePrefix } from '../../constants/emulator.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
 import { colorPalettesStorage } from '../../storage/color-palettes.storage';
+import { customPalettePrefix } from '../../constants/emulator.constants';
 import type { CustomColorPalette, ProcessedColorValue } from '../../types/emulator';
+import { customColorPaletteKeyId, defaultColorPaletteId } from '../../constants/chip8.constants';
 
 const colorPaletteSelect = document.getElementById('color-palettes-select') as HTMLSelectElement | null;
 const customPaletteGroup = colorPaletteSelect?.querySelector('optgroup[label="Custom palettes"]') as HTMLOptGroupElement | null;

@@ -1,10 +1,10 @@
 import { IndexAccessor } from './index-accessor.builder';
 import { KeyCursorBuilder } from './key-cursor.builder';
 import { ValueCursorBuilder } from './value-cursor.builder';
+import { wrapRequest } from '../tools/wrap';
 import type {
   DBSchema, IndexNames, StoreKey, StoreKeyType, StoreNames,
 } from '../../../types/database';
-import { wrapRequest } from '../tools/wrap';
 
 export class StoreBuilder<
   T,

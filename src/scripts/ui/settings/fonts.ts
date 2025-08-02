@@ -1,10 +1,10 @@
-import { EmulatorEvents, defaultFontAppearance } from '../../constants/chip8.constants';
-import { GeneralEmulatorSettings } from '../../constants/settings.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
 import { debounce } from '../../libraries/timing';
-import { settingsStorage } from '../../storage/settings.storage';
-import type { EmulatorFontAppearance, PaletteColorChangeEvent } from '../../types/emulator';
 import { FontPreviewCanvas } from '../components/font-preview';
+import { GeneralEmulatorSettings } from '../../constants/settings.constants';
+import { settingsStorage } from '../../storage/settings.storage';
+import { defaultFontAppearance, EmulatorEvents } from '../../constants/chip8.constants';
+import type { EmulatorFontAppearance, PaletteColorChangeEvent } from '../../types/emulator';
 
 const fontAppearanceSelect = document.getElementById('font-appearance-select') as HTMLSelectElement | null;
 const fontPreviewCanvas = document.getElementById('font-preview') as HTMLCanvasElement | null;

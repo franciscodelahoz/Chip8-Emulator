@@ -1,10 +1,8 @@
+import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import pluginJs from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import importPlugin from 'eslint-plugin-import';
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import tsParser from '@typescript-eslint/parser';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -19,11 +17,9 @@ export default [
       parser      : tsParser,
       ecmaVersion : 'latest',
       sourceType  : 'module',
-      globals     : globals.browser,
     },
     plugins: {
       '@stylistic' : stylistic,
-      import       : importPlugin,
       unicorn      : eslintPluginUnicorn,
     },
     rules: {
@@ -94,60 +90,15 @@ export default [
       ],
       'global-require'         : 'off',
       'class-methods-use-this' : 'off',
-      'import/order'           : [
+      'no-duplicate-imports'   : 'error',
+      'sort-imports'           : [
         'error',
         {
-          groups             : [ [ 'builtin', 'external' ], 'internal', [ 'parent', 'sibling' ], 'index', 'object' ],
-          'newlines-between' : 'always',
-          alphabetize        : {
-            order           : 'asc',
-            caseInsensitive : true,
-          },
-        },
-      ],
-      'import/no-extraneous-dependencies': [
-        'error',
-        {
-          devDependencies: [
-            'test/**',
-            'tests/**',
-            'spec/**',
-            '**/__tests__/**',
-            '**/__mocks__/**',
-            'test.{js,jsx}',
-            'test-*.{js,jsx}',
-            '**/*{.,_}{test,spec}.{js,jsx}',
-            '**/jest.config.js',
-            '**/jest.setup.js',
-            '**/vue.config.js',
-            '**/webpack.config.{js,ts}',
-            '**/webpack.config.*.{js,ts}',
-            '**/rollup.config.js',
-            '**/rollup.config.*.js',
-            '**/gulpfile.js',
-            '**/gulpfile.*.js',
-            '**/Gruntfile{,.js}',
-            '**/protractor.conf.js',
-            '**/protractor.conf.*.js',
-            '**/karma.conf.js',
-            '**/.eslintrc.js',
-            '**/eslint.config.js',
-          ],
-          optionalDependencies: false,
-        },
-      ],
-      'no-duplicate-imports'            : 'error',
-      'import/no-mutable-exports'       : 'error',
-      'import/no-absolute-path'         : 'error',
-      'import/no-self-import'           : 'error',
-      'import/no-useless-path-segments' : [ 'error', { commonjs: true } ],
-      'import/no-cycle'                 : [ 'error', { maxDepth: 2 } ],
-      'import/no-unused-modules'        : [
-        'off',
-        {
-          ignoreExports  : [],
-          missingExports : true,
-          unusedExports  : true,
+          ignoreCase            : true,
+          ignoreDeclarationSort : false,
+          ignoreMemberSort      : false,
+          memberSyntaxSortOrder : [ 'none', 'single', 'all', 'multiple' ],
+          allowSeparatedGroups  : true,
         },
       ],
       strict                          : [ 'error', 'never' ],

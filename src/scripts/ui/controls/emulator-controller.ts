@@ -1,7 +1,7 @@
-import { EmulatorEvents } from '../../constants/chip8.constants';
-import { defaultLoadedRomTitle, EmulatorState } from '../../constants/emulator.constants';
 import type { Chip8Emulator } from '../../emulator/emulator';
+import { EmulatorEvents } from '../../constants/chip8.constants';
 import { FileManager } from '../../libraries/file-manager';
+import { defaultLoadedRomTitle, EmulatorState } from '../../constants/emulator.constants';
 import type { EmulatorFullScreenEvent, EmulatorRecordCanvasEvent, EmulatorStateChangedEvent } from '../../types/emulator';
 
 const loadFileBtn = document.getElementById('file-picker');

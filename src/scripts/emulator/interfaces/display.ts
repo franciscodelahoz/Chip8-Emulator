@@ -1,5 +1,5 @@
-import { screenDimensions } from '../../constants/chip8.constants';
 import { colorPalettesStorage } from '../../storage/color-palettes.storage';
+import { screenDimensions } from '../../constants/chip8.constants';
 
 export class DisplayInterface {
   private readonly canvas: HTMLCanvasElement;

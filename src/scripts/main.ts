@@ -2,14 +2,14 @@ import '../styles/style.css';
 
 import { Chip8Emulator } from './emulator/emulator';
 import { colorPalettesStorage } from './storage/color-palettes.storage';
-import { settingsStorage } from './storage/settings.storage';
-import { initializeEmulatorControllerModule } from './ui/controls/emulator-controller';
-import { initializeSidebarMenuModule } from './ui/controls/sidebar-menu';
 import { initializeColorPaletteSettingsModule } from './ui/settings/color-palettes';
+import { initializeEmulatorControllerModule } from './ui/controls/emulator-controller';
 import { initializeFontSettingsModule } from './ui/settings/fonts';
 import { initializeGeneralSettingsModule } from './ui/settings/general';
 import { initializeROMCompatibilitySettingsModule } from './ui/settings/rom-compatibility';
+import { initializeSidebarMenuModule } from './ui/controls/sidebar-menu';
 import { initializeSoundSettingsModule } from './ui/settings/sound';
+import { settingsStorage } from './storage/settings.storage';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 

@@ -1,6 +1,6 @@
-import { emulatorDatabase } from '../constants/emulator.constants';
-import { Database } from '../libraries/database/database';
 import type { Chip8DatabaseSchema } from '../schemas/emulator-database.schema';
+import { Database } from '../libraries/database/database';
+import { emulatorDatabase } from '../constants/emulator.constants';
 
 export const db = new Database<Chip8DatabaseSchema>({
   database_name     : emulatorDatabase.name,

@@ -1,9 +1,9 @@
 import { KeyCursorBuilder } from './key-cursor.builder';
 import { ValueCursorBuilder } from './value-cursor.builder';
+import { wrapRequest } from '../tools/wrap';
 import type {
   DBSchema, IndexKey, IndexNames, StoreKey, StoreNames,
 } from '../../../types/database';
-import { wrapRequest } from '../tools/wrap';
 
 export class IndexAccessor<
   T,

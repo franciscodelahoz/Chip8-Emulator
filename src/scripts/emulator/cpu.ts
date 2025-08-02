@@ -1,7 +1,9 @@
 import type { AudioInterface } from './interfaces/audio';
-import type { DisplayInterface } from './interfaces/display';
-import type { KeyBoardInterface } from './interfaces/keyboard';
 import { defaultAudioPitch } from '../constants/audio.constants';
+import type { DisplayInterface } from './interfaces/display';
+import type { EmulatorFontAppearance } from '../types/emulator';
+import { fontSets } from '../constants/fonts.constants';
+import type { KeyBoardInterface } from './interfaces/keyboard';
 import {
   Chip8CpuEvents,
   Chip8Quirks,
@@ -12,9 +14,7 @@ import {
   registersSize,
   stackSize,
 } from '../constants/chip8.constants';
-import { fontSets } from '../constants/fonts.constants';
 import { dumpStatus, logError } from '../libraries/cpu-inspector';
-import type { EmulatorFontAppearance } from '../types/emulator';
 
 export class CPU extends EventTarget {
   private memorySize: number = defaultMemorySize;

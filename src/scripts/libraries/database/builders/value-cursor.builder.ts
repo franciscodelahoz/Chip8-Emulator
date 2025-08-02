@@ -1,8 +1,8 @@
 import { CursorBuilderBase } from './cursor-base.builder';
+import { wrapRequest } from '../tools/wrap';
 import type {
   DBSchema, IndexNames, StoreKey, StoreNames,
 } from '../../../types/database';
-import { wrapRequest } from '../tools/wrap';
 
 export class ValueCursorBuilder<
   T,

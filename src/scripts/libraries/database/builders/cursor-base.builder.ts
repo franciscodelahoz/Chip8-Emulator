@@ -1,7 +1,7 @@
+import { wrapRequest } from '../tools/wrap';
 import type {
   DBSchema, IndexKey, IndexNames, StoreKey, StoreNames,
 } from '../../../types/database';
-import { wrapRequest } from '../tools/wrap';
 
 export abstract class CursorBuilderBase<
   Schema extends DBSchema,

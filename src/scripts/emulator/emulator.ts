@@ -1,12 +1,12 @@
-import { CPU } from './cpu';
-import { Chip8CpuEvents, EmulatorEvents, type Chip8Quirks } from '../constants/chip8.constants';
-import { defaultRomFileName, EmulatorState } from '../constants/emulator.constants';
 import { AnimationLoop } from '../libraries/animation-loop';
-import { CanvasRecorder } from '../libraries/canvas-recorder';
-import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
 import { AudioInterface } from './interfaces/audio';
+import { CanvasRecorder } from '../libraries/canvas-recorder';
+import { CPU } from './cpu';
 import { DisplayInterface } from './interfaces/display';
 import { KeyBoardInterface } from './interfaces/keyboard';
+import { Chip8CpuEvents, type Chip8Quirks, EmulatorEvents } from '../constants/chip8.constants';
+import type { Chip8EmulatorProps, EmulatorFontAppearance } from '../types/emulator';
+import { defaultRomFileName, EmulatorState } from '../constants/emulator.constants';
 
 export class Chip8Emulator extends EventTarget {
   private readonly displayInstance: DisplayInterface;

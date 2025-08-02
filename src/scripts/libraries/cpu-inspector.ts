@@ -1,6 +1,6 @@
-import { toHexString } from './datatypes';
-import { loggerStyles } from '../constants/logger.constants';
 import type { CPUStatus } from '../types/emulator';
+import { loggerStyles } from '../constants/logger.constants';
+import { toHexString } from './datatypes';
 
 function formatSP(SP: number, stackSize: number): string {
   if (SP < 0) {

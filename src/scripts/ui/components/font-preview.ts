@@ -1,3 +1,5 @@
+import type { Chip8Emulator } from '../../emulator/emulator';
+import type { EmulatorFontAppearance } from '../../types/emulator';
 import {
   charHeightHires,
   charHeightSmall,
@@ -7,8 +9,6 @@ import {
   fontSets,
   loresFontBytes,
 } from '../../constants/fonts.constants';
-import type { Chip8Emulator } from '../../emulator/emulator';
-import type { EmulatorFontAppearance } from '../../types/emulator';
 
 export class FontPreviewCanvas {
   private readonly canvasContext: CanvasRenderingContext2D;

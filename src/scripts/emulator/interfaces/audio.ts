@@ -27,19 +27,19 @@
  *    [Sound Timer > 0] ---------> [Start/Stop]
  */
 
+import type { GeneratedAudioSamples } from '../../types/audio';
 import {
-  defaultAudioGain,
-  maximumAudioGain,
   audioFrameRate,
   audioPatternBits,
+  cutOffFrequency,
+  defaultAudioGain,
+  frequency,
+  maximumAudioGain,
+  oscillatorFrequency,
+  pitchBias,
   pitchScaleFactor,
   supersamplingRate,
-  cutOffFrequency,
-  frequency,
-  pitchBias,
-  oscillatorFrequency,
 } from '../../constants/audio.constants';
-import type { GeneratedAudioSamples } from '../../types/audio';
 
 export class AudioInterface {
   private readonly audioContext: AudioContext;

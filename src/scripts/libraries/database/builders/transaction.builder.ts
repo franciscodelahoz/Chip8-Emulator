@@ -1,6 +1,6 @@
 import { StoreBuilder } from './store.builder';
-import type { DBSchema, StoreNames, StoreValue } from '../../../types/database';
 import { wrapTransaction } from '../tools/wrap';
+import type { DBSchema, StoreNames, StoreValue } from '../../../types/database';
 
 export class TransactionBuilder<
   Schema extends DBSchema,

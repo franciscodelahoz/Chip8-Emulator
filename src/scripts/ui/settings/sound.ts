@@ -1,9 +1,9 @@
+import type { Chip8Emulator } from '../../emulator/emulator';
+import { GeneralEmulatorSettings } from '../../constants/settings.constants';
+import { settingsStorage } from '../../storage/settings.storage';
 import {
   AudioModeState, defaultAudioGain, defaultAudioModeState, maximumAudioGain,
 } from '../../constants/audio.constants';
-import { GeneralEmulatorSettings } from '../../constants/settings.constants';
-import type { Chip8Emulator } from '../../emulator/emulator';
-import { settingsStorage } from '../../storage/settings.storage';
 
 const audioModeStateSelect = document.getElementById('audio-mode-select') as HTMLSelectElement | null;
 

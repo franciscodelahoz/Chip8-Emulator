@@ -1,8 +1,8 @@
-import { customColorPaletteKeyId, defaultColorPaletteId } from '../constants/chip8.constants';
 import { colorPalettes } from '../constants/color-palettes.constants';
-import { emulatorConfigurationsKeys } from '../constants/emulator.constants';
 import { db } from '../services/database.service';
+import { emulatorConfigurationsKeys } from '../constants/emulator.constants';
 import type { ColorPalettes, CustomColorPalette, SettingsObject } from '../types/emulator';
+import { customColorPaletteKeyId, defaultColorPaletteId } from '../constants/chip8.constants';
 
 class ColorPalettesStorage {
   private colorPalettesStored: ColorPalettes = {};

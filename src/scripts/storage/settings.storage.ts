@@ -1,5 +1,5 @@
-import type { EmulatorSettings } from '../constants/settings.constants';
 import { db } from '../services/database.service';
+import type { EmulatorSettings } from '../constants/settings.constants';
 import type { SettingsObject } from '../types/emulator';
 
 class SettingsStorage {
