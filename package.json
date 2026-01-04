@@ -28,28 +28,28 @@
   },
   "homepage": "https://chip8emulator.franciscodelahoz.com/",
   "devDependencies": {
-    "@eslint/js": "^9.35.0",
-    "@stylistic/eslint-plugin": "^5.3.1",
-    "@types/wicg-file-system-access": "^2023.10.6",
+    "@eslint/js": "^9.39.2",
+    "@stylistic/eslint-plugin": "^5.6.1",
+    "@types/wicg-file-system-access": "^2023.10.7",
     "@types/wicg-web-app-launch": "^2023.1.4",
-    "@typescript-eslint/parser": "^8.44.0",
+    "@typescript-eslint/parser": "^8.51.0",
     "css-loader": "^7.1.2",
-    "css-minimizer-webpack-plugin": "^7.0.2",
-    "eslint": "^9.35.0",
+    "css-minimizer-webpack-plugin": "^7.0.4",
+    "eslint": "^9.39.2",
     "eslint-plugin-unicorn": "^61.0.2",
     "favicons-webpack-plugin": "^6.0.1",
-    "html-webpack-plugin": "^5.6.4",
+    "html-webpack-plugin": "^5.6.5",
     "mini-css-extract-plugin": "^2.9.4",
-    "terser-webpack-plugin": "^5.3.14",
+    "terser-webpack-plugin": "^5.3.16",
     "ts-loader": "^9.5.4",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.44.0",
-    "webpack": "^5.101.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.51.0",
+    "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2",
-    "workbox-webpack-plugin": "^7.3.0"
+    "workbox-webpack-plugin": "^7.4.0"
   },
   "dependencies": {
-    "@fontsource/arimo": "^5.2.7"
+    "@fontsource/arimo": "^5.2.8"
   }
 }
