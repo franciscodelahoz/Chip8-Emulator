@@ -2,35 +2,32 @@
 
 A modern CHIP-8, Super CHIP-8 (SCHIP), and XO-CHIP emulator written in TypeScript.
 
-## 📸 Screenshot
-
 ![Chip-8 Emulator Screenshot](static/screenshot.png)
 
-## ✨ Features
+## Features
 
 - Complete support for CHIP-8, SCHIP, and XO-CHIP instruction sets
 - Multiple font rendering options: Chip8, SCHIP, Octo, Fish'N'Chips, ETI-660, DREAM-6800
-- Custom color palette support — create your own color schemes
+- Custom color palette support with user-defined color schemes
 - Customizable quirks for accurate emulation behavior
 - Preset profiles for each supported chip type (CHIP-8, SCHIP, XO-CHIP)
 - Adjustable cycles per second for performance tuning
 - Configurable audio options
-- ROM loading with drag-and-drop support
 - Responsive web interface
-- PWA (Progressive Web App) features
+- Progressive Web App (PWA) features, including support for .ch8, .sc8, and .xo8 file associations.
 
-## 🚀 Demo
+## Demo
 
-**[🌐 Try it live here!](https://chip8emulator.franciscodelahoz.com/)**
+**[Try it live here!](https://chip8emulator.franciscodelahoz.com/)**
 
-## 🎮 Usage
+## Usage
 
 1. Visit the [live demo](https://chip8emulator.franciscodelahoz.com/)
 2. Load a ROM by clicking "Load ROM" button
 3. Adjust settings using the configuration panel
 4. Enjoy playing!!
 
-## 🛠️ Development & Build Instructions
+## Development & Build Instructions
 
 ### Prerequisites
 
@@ -84,11 +81,7 @@ node --run build
 
 ---
 
-## 📝 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## 📚 Documentation & Resources
+## Documentation & Resources
 
 - **Cowgod's Chip-8 Technical Reference:**
   [Read the reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
