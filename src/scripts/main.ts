@@ -2,6 +2,7 @@ import '../styles/style.css';
 
 import { Chip8Emulator } from './emulator/emulator';
 import { colorPalettesStorage } from './storage/color-palettes.storage';
+import { db } from './services/database.service';
 import { initializeColorPaletteSettingsModule } from './ui/settings/color-palettes';
 import { initializeEmulatorControllerModule } from './ui/controls/emulator-controller';
 import { initializeFontSettingsModule } from './ui/settings/fonts';
@@ -14,8 +15,10 @@ import { settingsStorage } from './storage/settings.storage';
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 
 async function initializeManagers(): Promise<void> {
-  await colorPalettesStorage.initializeManager();
-  await settingsStorage.initializeManager();
+  await db.connect();
+
+  await colorPalettesStorage.initializeManager(db);
+  settingsStorage.initializeManager(db);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

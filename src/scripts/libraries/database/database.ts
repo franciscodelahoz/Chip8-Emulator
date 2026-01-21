@@ -12,6 +12,8 @@ export class Database<Schema extends DBSchema> {
 
   private readonly version: number;
 
+  private connected: boolean = false;
+
   private readonly upgradeCallback?: OnUpgradeCallback<Schema>;
 
   constructor(options: DatabaseOptions<Schema>) {
@@ -44,13 +46,19 @@ export class Database<Schema extends DBSchema> {
 
       request.addEventListener('success', () => {
         this.connection = request.result;
+        this.connected = true;
         resolve();
       });
 
       request.addEventListener('error', () => {
+        this.connected = false;
         reject(request.error);
       });
     });
+  }
+
+  public isConnected(): boolean {
+    return this.connected;
   }
 
   public store<StoreName extends StoreNames<Schema>>(
@@ -83,6 +91,7 @@ export class Database<Schema extends DBSchema> {
     if (this.connection) {
       this.connection.close();
       this.connection = null;
+      this.connected = false;
     }
   }
 }

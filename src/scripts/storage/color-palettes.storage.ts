@@ -1,10 +1,12 @@
+import type { Chip8DatabaseSchema } from '../schemas/emulator-database.schema';
 import { colorPalettes } from '../constants/color-palettes.constants';
-import { db } from '../services/database.service';
+import { type Database } from '../libraries/database/database';
 import { emulatorConfigurationsKeys } from '../constants/emulator.constants';
+import { StorageAbstract } from '../abstract/storage.abstract';
 import type { ColorPalettes, CustomColorPalette, SettingsObject } from '../types/emulator';
 import { customColorPaletteKeyId, defaultColorPaletteId } from '../constants/chip8.constants';
 
-class ColorPalettesStorage {
+class ColorPalettesStorage extends StorageAbstract<Database<Chip8DatabaseSchema>> {
   private colorPalettesStored: ColorPalettes = {};
 
   private currentSelectedPalette: string[] = [];
@@ -12,11 +14,12 @@ class ColorPalettesStorage {
   private currentPaletteId: string = '';
 
   constructor() {
+    super();
     this.currentPaletteId = defaultColorPaletteId;
   }
 
-  public async initializeManager(): Promise<void> {
-    await db.connect();
+  public async initializeManager(db: Database<Chip8DatabaseSchema>): Promise<void> {
+    this.database = db;
 
     this.loadDefaultPalettes();
     await this.loadCustomPalettes();
@@ -33,7 +36,9 @@ class ColorPalettesStorage {
   }
 
   private async loadCustomPalettes(): Promise<void> {
-    const customPaletteIterator = db.store('custom_color_palettes').iterate();
+    this.ensureDatabaseInitialized();
+
+    const customPaletteIterator = this.database.store('custom_color_palettes').iterate();
 
     for await (const customPalette of customPaletteIterator) {
       this.colorPalettesStored[customPalette.id] = customPalette.colors;
@@ -48,9 +53,11 @@ class ColorPalettesStorage {
   }
 
   private async loadStoredCustomPalettes(): Promise<void> {
+    this.ensureDatabaseInitialized();
+
     const indexedSettingsKey = this.getCustomPaletteKeys();
 
-    const transaction = db.transaction('settings', 'readonly');
+    const transaction = this.database.transaction('settings', 'readonly');
     const settingsTable = transaction.store('settings');
 
     const colorPromises = indexedSettingsKey.map(async ([ index, key ]) => {
@@ -84,12 +91,14 @@ class ColorPalettesStorage {
   }
 
   public async setSelectedPaletteByPaletteId(paletteId: string): Promise<void> {
+    this.ensureDatabaseInitialized();
+
     this.currentSelectedPalette = [ ...this.colorPalettesStored[paletteId] ];
     this.currentPaletteId = paletteId;
 
     const indexedSettingsKey = this.getCustomPaletteKeys();
 
-    const transaction = db.transaction('settings', 'readwrite');
+    const transaction = this.database.transaction('settings', 'readwrite');
     const settingsTable = transaction.store('settings');
 
     const bulkPutPromises = indexedSettingsKey.map(async ([ index, key ]) => {
@@ -103,9 +112,10 @@ class ColorPalettesStorage {
   }
 
   public async setColorInPalette(index: number, color: string): Promise<void> {
+    this.ensureDatabaseInitialized();
     this.currentSelectedPalette[index] = color;
 
-    await db.store('settings', 'readwrite').put({
+    await this.database.store('settings', 'readwrite').put({
       id    : emulatorConfigurationsKeys.palette_keys[index],
       value : color,
     });
@@ -134,18 +144,22 @@ class ColorPalettesStorage {
   }
 
   public async addNewColorPalette(paletteInfo: CustomColorPalette): Promise<void> {
+    this.ensureDatabaseInitialized();
     this.colorPalettesStored[paletteInfo.id] = paletteInfo.colors;
 
-    await db.store('custom_color_palettes', 'readwrite').put(paletteInfo);
+    await this.database.store('custom_color_palettes', 'readwrite').put(paletteInfo);
   }
 
   public async removeColorPalette(paletteId: string): Promise<void> {
+    this.ensureDatabaseInitialized();
     delete this.colorPalettesStored[paletteId];
-    await db.store('custom_color_palettes', 'readwrite').delete(paletteId);
+    await this.database.store('custom_color_palettes', 'readwrite').delete(paletteId);
   }
 
   public async renameCurrentSelectedPalette(newName: string): Promise<void> {
-    const transaction = db.transaction('custom_color_palettes', 'readwrite');
+    this.ensureDatabaseInitialized();
+
+    const transaction = this.database.transaction('custom_color_palettes', 'readwrite');
     const store = transaction.store('custom_color_palettes');
 
     const currentPaletteName = this.getCurrentPaletteId();
@@ -160,20 +174,26 @@ class ColorPalettesStorage {
   }
 
   public async getCurrentPaletteInfoFromStorage(): Promise<CustomColorPalette | null> {
+    this.ensureDatabaseInitialized();
+
     const paletteId = this.getCurrentPaletteId();
-    const paletteInfo = await db.store('custom_color_palettes').get(paletteId);
+    const paletteInfo = await this.database.store('custom_color_palettes').get(paletteId);
 
     return paletteInfo || null;
   }
 
   public async getCurrentPaletteNameFromId(): Promise<string> {
-    const paletteInfo = await db.store('custom_color_palettes').get(this.currentPaletteId);
+    this.ensureDatabaseInitialized();
+
+    const paletteInfo = await this.database.store('custom_color_palettes').get(this.currentPaletteId);
 
     return paletteInfo ? paletteInfo.name : '';
   }
 
   public async* getAllCustomPalettesStored(): AsyncGenerator<CustomColorPalette> {
-    const store = db.store('custom_color_palettes');
+    this.ensureDatabaseInitialized();
+
+    const store = this.database.store('custom_color_palettes');
 
     yield* store.index('created_at').iterate();
   }

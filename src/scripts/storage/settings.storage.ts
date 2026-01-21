@@ -1,29 +1,37 @@
-import { db } from '../services/database.service';
+import type { Chip8DatabaseSchema } from '../schemas/emulator-database.schema';
+import type { Database } from '../libraries/database/database';
 import type { EmulatorSettings } from '../constants/settings.constants';
 import type { SettingsObject } from '../types/emulator';
+import { StorageAbstract } from '../abstract/storage.abstract';
 
-class SettingsStorage {
-  public async initializeManager(): Promise<void> {
-    await db.connect();
+class SettingsStorage extends StorageAbstract<Database<Chip8DatabaseSchema>> {
+  public initializeManager(db: Database<Chip8DatabaseSchema>): void {
+    this.database = db;
   }
 
   public async setSetting<T = string>(key: EmulatorSettings, value: T): Promise<void> {
+    this.ensureDatabaseInitialized();
+
     const indexedDBValue: SettingsObject<T> = {
       id: key,
       value,
     };
 
-    await db.store('settings', 'readwrite').put(indexedDBValue);
+    await this.database.store('settings', 'readwrite').put(indexedDBValue);
   }
 
   public async getSetting<T = string>(settingName: EmulatorSettings): Promise<T | undefined> {
-    const result = await db.store('settings', 'readonly').get(settingName);
+    this.ensureDatabaseInitialized();
+
+    const result = await this.database.store('settings', 'readonly').get(settingName);
 
     return result?.value as T ?? undefined;
   }
 
   public async setMultipleSettings<T = string>(settings: Array<SettingsObject<T>>): Promise<void> {
-    const transaction = db.transaction('settings', 'readwrite');
+    this.ensureDatabaseInitialized();
+
+    const transaction = this.database.transaction('settings', 'readwrite');
     const store = transaction.store('settings');
 
     const bulkPutPromises = settings.map(async (setting) => store.put(setting));
