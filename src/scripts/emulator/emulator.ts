@@ -245,6 +245,10 @@ export class Chip8Emulator extends EventTarget {
     this.keyboardInstance.registerKeyPressedEvent([ 'o' ], () => {
       this.resetEmulation();
     });
+
+    this.keyboardInstance.registerKeyPressedEvent([ 'b' ], () => {
+      this.toggleRecordCanvas();
+    });
   }
 
   private registerDisplayEvents(): void {
