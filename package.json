@@ -11,7 +11,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack serve --mode development",
-    "lint": "eslint .",
+    "lint": "eslint --flag unstable_native_nodejs_ts_config .",
     "lint:fix": "node --run lint -- --fix",
     "optimize-font": "./tools/optimize-fonts.sh",
     "postinstall": "git config core.hooksPath ./git-hooks"

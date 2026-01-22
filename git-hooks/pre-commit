@@ -18,7 +18,7 @@ run_check_linter_step() {
 
     echo -e "${GREEN}Running ESLint...${NC}"
 
-    npx eslint --cache --cache-location .eslintcache --max-warnings 0 $FILES
+    npx eslint --flag unstable_native_nodejs_ts_config --cache --cache-location .eslintcache --max-warnings 0 $FILES
     local ESLINT_EXIT_CODE=$?
 
     if [[ $ESLINT_EXIT_CODE -ne 0 ]]; then

@@ -1,10 +1,10 @@
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
+import type { Linter } from 'eslint';
 import pluginJs from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import tseslint from 'typescript-eslint';
 import tsParser from '@typescript-eslint/parser';
 
-/** @type {import('eslint').Linter.Config[]} */
 export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
@@ -861,4 +861,4 @@ export default [
       '@typescript-eslint/use-unknown-in-catch-callback-variable' : 'error',
     },
   },
-];
+] satisfies Linter.Config[];
