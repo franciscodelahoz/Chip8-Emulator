@@ -55,7 +55,7 @@ If you use **nvm**:
 nvm use
 ```
 
-Or manually select Node.js version **23 or higher**.
+Or manually select Node.js version **25 or higher**.
 
 ### 3. Install dependencies
 
