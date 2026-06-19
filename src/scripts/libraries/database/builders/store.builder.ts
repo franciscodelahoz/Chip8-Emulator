@@ -27,13 +27,13 @@ export class StoreBuilder<
 
   async put(value: T, key?: StoreKeyType<Schema, StoreName>): Promise<StoreKey<Schema, StoreName>> {
     return wrapRequest<StoreKey<Schema, StoreName>>(
-      this.store.put(value, key as IDBValidKey),
+      this.store.put(value, key),
     );
   }
 
   async add(value: T, key?: StoreKeyType<Schema, StoreName>): Promise<StoreKey<Schema, StoreName>> {
     return wrapRequest<StoreKey<Schema, StoreName>>(
-      this.store.add(value, key as IDBValidKey),
+      this.store.add(value, key),
     );
   }
 
@@ -54,7 +54,7 @@ export class StoreBuilder<
     direction?: IDBCursorDirection,
   ): Promise<ValueCursorBuilder<T, Schema, StoreName> | null> {
     const cursor = await wrapRequest<IDBCursorWithValue | null>(
-      this.store.openCursor(query as IDBKeyRange | IDBValidKey | undefined, direction),
+      this.store.openCursor(query, direction),
     );
 
     if (cursor) {
@@ -69,7 +69,7 @@ export class StoreBuilder<
     direction?: IDBCursorDirection,
   ): Promise<KeyCursorBuilder<Schema, StoreName> | null> {
     const cursor = await wrapRequest<IDBCursor | null>(
-      this.store.openKeyCursor(query as IDBKeyRange | IDBValidKey | undefined, direction),
+      this.store.openKeyCursor(query, direction),
     );
 
     if (cursor) {

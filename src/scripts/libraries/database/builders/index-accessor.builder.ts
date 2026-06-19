@@ -47,7 +47,7 @@ export class IndexAccessor<
     direction?: IDBCursorDirection,
   ): Promise<ValueCursorBuilder<T, Schema, StoreName, IndexName> | null> {
     const cursor = await wrapRequest<IDBCursorWithValue | null>(
-      this.index.openCursor(query as IDBKeyRange | IDBValidKey | undefined, direction),
+      this.index.openCursor(query, direction),
     );
 
     if (cursor) {
@@ -62,7 +62,7 @@ export class IndexAccessor<
     direction?: IDBCursorDirection,
   ): Promise<KeyCursorBuilder<Schema, StoreName, IndexName> | null> {
     const cursor = await wrapRequest<IDBCursor | null>(
-      this.index.openKeyCursor(query as IDBKeyRange | IDBValidKey | undefined, direction),
+      this.index.openKeyCursor(query, direction),
     );
 
     if (cursor) {
